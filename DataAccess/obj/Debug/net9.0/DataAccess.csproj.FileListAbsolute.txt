@@ -1,0 +1,17 @@
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.csproj.AssemblyReference.cache
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.AssemblyInfoInputs.cache
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.AssemblyInfo.cs
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\DataAccess.deps.json
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\DataAccess.dll
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\DataAccess.pdb
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\Entities.dll
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\Utilities.dll
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\Entities.pdb
+C:\Users\Pc\source\repos\GDA\DataAccess\bin\Debug\net9.0\Utilities.pdb
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.csproj.Up2Date
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.dll
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\refint\DataAccess.dll
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\DataAccess.pdb
+C:\Users\Pc\source\repos\GDA\DataAccess\obj\Debug\net9.0\ref\DataAccess.dll
