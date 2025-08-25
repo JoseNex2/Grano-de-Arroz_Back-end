@@ -1,7 +1,24 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Pc\\source\\repos\\GDA\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{86A69D0B-E9A7-4241-897E-A3273A368101}|GDA\\GDA.csproj|c:\\users\\pc\\source\\repos\\gda\\gda\\middleware\\dataaccessinversionofcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{86A69D0B-E9A7-4241-897E-A3273A368101}|GDA\\GDA.csproj|solutionrelative:gda\\middleware\\dataaccessinversionofcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{86A69D0B-E9A7-4241-897E-A3273A368101}|GDA\\GDA.csproj|c:\\users\\pc\\source\\repos\\gda\\gda\\middleware\\utilitiesinversionofcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{86A69D0B-E9A7-4241-897E-A3273A368101}|GDA\\GDA.csproj|solutionrelative:gda\\middleware\\utilitiesinversionofcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EC752C5F-BE5A-44A4-A81C-BAE9B0A23FB4}|Utilities\\Utilities.csproj|c:\\users\\pc\\source\\repos\\gda\\utilities\\authentication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EC752C5F-BE5A-44A4-A81C-BAE9B0A23FB4}|Utilities\\Utilities.csproj|solutionrelative:utilities\\authentication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EC752C5F-BE5A-44A4-A81C-BAE9B0A23FB4}|Utilities\\Utilities.csproj|c:\\users\\pc\\source\\repos\\gda\\utilities\\environmentvariableloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EC752C5F-BE5A-44A4-A81C-BAE9B0A23FB4}|Utilities\\Utilities.csproj|solutionrelative:utilities\\environmentvariableloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 17,
           "Children": [
             {
               "$type": "Bookmark",
@@ -66,6 +83,58 @@
             {
               "$type": "Bookmark",
               "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EnvironmentVariableLoader.cs",
+              "DocumentMoniker": "C:\\Users\\Pc\\source\\repos\\GDA\\Utilities\\EnvironmentVariableLoader.cs",
+              "RelativeDocumentMoniker": "Utilities\\EnvironmentVariableLoader.cs",
+              "ToolTip": "C:\\Users\\Pc\\source\\repos\\GDA\\Utilities\\EnvironmentVariableLoader.cs",
+              "RelativeToolTip": "Utilities\\EnvironmentVariableLoader.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T10:47:44.552Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Authentication.cs",
+              "DocumentMoniker": "C:\\Users\\Pc\\source\\repos\\GDA\\Utilities\\Authentication.cs",
+              "RelativeDocumentMoniker": "Utilities\\Authentication.cs",
+              "ToolTip": "C:\\Users\\Pc\\source\\repos\\GDA\\Utilities\\Authentication.cs",
+              "RelativeToolTip": "Utilities\\Authentication.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBMAAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T10:47:22.796Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UtilitiesInversionOfControl.cs",
+              "DocumentMoniker": "C:\\Users\\Pc\\source\\repos\\GDA\\GDA\\Middleware\\UtilitiesInversionOfControl.cs",
+              "RelativeDocumentMoniker": "GDA\\Middleware\\UtilitiesInversionOfControl.cs",
+              "ToolTip": "C:\\Users\\Pc\\source\\repos\\GDA\\GDA\\Middleware\\UtilitiesInversionOfControl.cs",
+              "RelativeToolTip": "GDA\\Middleware\\UtilitiesInversionOfControl.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAABxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T10:45:54.341Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DataAccessInversionOfControl.cs",
+              "DocumentMoniker": "C:\\Users\\Pc\\source\\repos\\GDA\\GDA\\Middleware\\DataAccessInversionOfControl.cs",
+              "RelativeDocumentMoniker": "GDA\\Middleware\\DataAccessInversionOfControl.cs",
+              "ToolTip": "C:\\Users\\Pc\\source\\repos\\GDA\\GDA\\Middleware\\DataAccessInversionOfControl.cs",
+              "RelativeToolTip": "GDA\\Middleware\\DataAccessInversionOfControl.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T10:44:21.461Z",
+              "EditorCaption": ""
             }
           ]
         }
