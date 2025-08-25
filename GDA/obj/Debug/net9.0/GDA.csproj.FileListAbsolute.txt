@@ -83,3 +83,4 @@ C:\Users\Pc\source\repos\GDA\GDA\obj\Debug\net9.0\refint\GDA.dll
 C:\Users\Pc\source\repos\GDA\GDA\obj\Debug\net9.0\GDA.pdb
 C:\Users\Pc\source\repos\GDA\GDA\obj\Debug\net9.0\GDA.genruntimeconfig.cache
 C:\Users\Pc\source\repos\GDA\GDA\obj\Debug\net9.0\ref\GDA.dll
+C:\Users\Pc\source\repos\GDA\GDA\obj\Debug\net9.0\GDA.sourcelink.json

@@ -19,6 +19,7 @@ namespace DataAccess
         Task<(int, bool, int, string)> AccountRecovery(DataRecoveryDTO dataRecovery);
         Task<(int, bool, string)> PasswordRecovery(PasswordRecoveryDTO passwordRecovery);
         Task<(int, bool, string)> PasswordUpdate(PasswordUpdateDTO passwordUpdate);
+        Task<(int, bool, string)> UserDelete(int id);
 
     }
     public class UserService : IUserService
@@ -195,16 +196,16 @@ namespace DataAccess
                     bool state = await _sqlGenericRepository.UpdateByEntityAsync(user);
                     if (state)
                     {
-                        return(200, true, "La contraseña se a cambiado correctamente");
+                        return(200, true, "La contraseña se a cambiado correctamente.");
                     }
                     else
                     {
-                        return(200, false, "Error al cambiar la contraseña");
+                        return(200, false, "Error al cambiar la contraseña.");
                     }
                 }
                 else
                 {
-                    return(200, false, "No puede utilizar la misma contraseña");
+                    return(200, false, "No puede utilizar la misma contraseña.");
                 }
             }
             catch (Exception ex)
@@ -230,31 +231,59 @@ namespace DataAccess
                             bool state = await _sqlGenericRepository.UpdateByEntityAsync(user);
                             if (state)
                             {
-                                return(200, true, "La contraseña se a cambiado correctamente");
+                                return(200, true, "La contraseña se a cambiado correctamente.");
                             }
                             else
                             {
-                                return(200, false, "Error al cambiar la contraseña");
+                                return(200, false, "Error al cambiar la contraseña.");
                             }
                         }
                         else
                         {
-                            return(200, false, "La nueva contraseña es igual a la contraseña actual");
+                            return(200, false, "La nueva contraseña es igual a la contraseña actual.");
                         }
                     }
                     else
                     {
-                        return(200, false, "La contraseña actual no coincide");
+                        return(200, false, "La contraseña actual no coincide.");
                     }
                 }
                 else
                 {
-                    return(200, false, "No se encontro el usuario");
+                    return(200, false, "No se encontro el usuario.");
                 }
             }
             catch (Exception ex)
             {
                 return(500, true, "Error interno del servidor, vuelva a intentarlo.");
+            }
+        }
+
+        public async Task<(int, bool, string)> UserDelete(int id)
+        {
+            try
+            {
+                User user = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
+                if (user != null)
+                {
+                    bool state = await _sqlGenericRepository.DeleteByIdAsync(user.Id);
+                    if (state == true)
+                    {
+                        return (200, true, "El usuario fue borrado correctamente.");
+                    }
+                    else
+                    {
+                        return (200, true, "Error al eliminar usuario.");
+                    }
+                }
+                else
+                {
+                    return (200, false, "No se encontro el usuario.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return (500, true, "Error interno del servidor, vuelva a intentarlo.");
             }
         }
     }
