@@ -14,7 +14,7 @@ services:
 
   GDA:
     image: gda:latest
-    container_name: backend
+    container_name: GDA
     restart: always
     ports:
       - "5000:5000"
