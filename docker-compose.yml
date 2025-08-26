@@ -1,0 +1,220 @@
+services:
+  init-vault:
+    image: busybox
+    container_name: init-vault
+    depends_on:
+      vault-agent:
+        condition: service_healthy
+    volumes:
+      - app-secrets:/secrets_extracted
+      - ./scripts/init-env-vars.sh:/app/init-env-vars.sh
+    entrypoint: ["/bin/sh", "-c", "chmod +x /app/init-env-vars.sh && /app/init-env-vars.sh"]
+    networks:
+      - GDA-net
+
+  GDA:
+    image: gda:latest
+    container_name: GDA
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MYSQLDB_CONNECTION_SERVICE_HOST: mysql
+      MYSQLDB_CONNECTION_SERVICE_PORT: 3306
+      MYSQLDB_CONNECTION_ADMIN_DATABASE: mysql
+      MYSQLDB_CONNECTION_DATABASE: DbGDA
+      MYSQLDB_COMMAND_TIMEOUT: 60
+      MYSQLDB_CONNECTION_TIMEOUT: 30
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      MONGODB_CONNECTION_HOST: mongodb
+      MONGODB_CONNECTION_PORT: 27017
+      MONGODB_CONNECTION_DATABASE_ADMIN: admin
+      MONGODB_CONNECTION_DATABASE: DbGDA
+      MONGODB_CONNECTION_AUTHENTICATION: SCRAM-SHA-256
+      URL_DOMAIN: http://localhost:4200
+      MINIO_HOST: minio
+      MINIO_PORT: 9000
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "5000"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      DOTNET_GCServer: "1"
+      DOTNET_GCHeapCount: "4"
+      DOTNET_SYSTEM_NET_SOCKETS_THREAD_COUNT: "4"
+      DOTNET_ThreadPool_ForceMinWorkerThreads: "2"
+      DOTNET_ThreadPool_ForceMaxWorkerThreads: "4"
+      DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2SUPPORT: "true"
+      DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_FLOWCONTROL_DYNAMICWINDOWSIZING: "true"
+      ASPNETCORE_SHUTDOWNTIMEOUTSECONDS: "30"
+      DOTNET_EnableDiagnostics: "1"
+      ASPNETCORE_LOGGING__LOGLEVELS__DEFAULT: "Debug"
+      ASPNETCORE_LOGGING__LOGLEVELS__MICROSOFT: "Warning"
+      ASPNETCORE_LOGGING__LOGLEVELS__SYSTEM: "Warning"
+    volumes:
+      - ./scripts/env-vars-check.sh:/scripts/env-vars-check.sh
+      - app-secrets:/secrets_extracted:ro
+    entrypoint: ["/bin/sh", "-c", "/scripts/env-vars-check.sh && exec dotnet WebApi.dll"]
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
+      mongo-migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+
+  mysql:
+    image: mysql:8.1
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: DbGDA
+      TZ: UTC
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts/env-vars-check.sh:/scripts/env-vars-check.sh
+      #- ./mysqldb/config/my-custom.cnf:/etc/mysql/conf.d/my-custom.cnf
+      - app-secrets:/secrets_extracted:ro
+    entrypoint: ["/bin/sh", "-c", "chmod +x /scripts/env-vars-check.sh && /scripts/env-vars-check.sh && . /secrets_extracted/env-vars && exec docker-entrypoint.sh mysqld"] #chmod 644 /etc/mysql/conf.d/my-custom.cnf &&
+    #ports:
+    #  - "3307:3306"
+    depends_on:
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  flyway:
+    image: flyway/flyway:latest
+    container_name: flyway
+    volumes:
+      - ./mysqldb/migrations:/flyway/sql
+      - ./scripts/env-vars-check.sh:/scripts/env-vars-check.sh
+      - app-secrets:/secrets_extracted:ro
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql:3306/DbGDA?allowPublicKeyRetrieval=true&useSSL=false
+      FLYWAY_USER: root
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+      FLYWAY_PLACEHOLDERS_database: DbGDA
+    entrypoint: ["/bin/sh", "-c", "chmod +x /scripts/env-vars-check.sh && /scripts/env-vars-check.sh && set -a && . /secrets_extracted/env-vars && set +a && exec flyway -connectRetries=3 migrate"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: DbGDA
+    volumes:
+      - mongodb-data:/data/db/
+      - ./scripts/env-vars-check.sh:/data/db/env-vars-check.sh
+      - app-secrets:/secrets_extracted:ro
+    entrypoint: ["/bin/sh", "-c", "/data/db/env-vars-check.sh && . /secrets_extracted/env-vars && exec python3 /usr/local/bin/docker-entrypoint.py mongod"]
+    #ports:
+    #  - "27018:27017"
+    depends_on:
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-migrate:
+    image: node:20
+    container_name: mongo-migrate
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DATABASE: DbGDA
+      MONGO_DATABASE_ADMIN: admin
+      MONGO_AUTHENTICATION: SCRAM-SHA-256
+    volumes:
+      - ./mongodb:/app
+      - ./scripts/env-vars-check.sh:/scripts/env-vars-check.sh
+      - app-secrets:/secrets_extracted:ro
+    entrypoint: ["/bin/sh", "-c", "chmod +x /scripts/env-vars-check.sh && /scripts/env-vars-check.sh && . /secrets_extracted/env-vars && npm install -g migrate-mongo && migrate-mongo up"]
+    working_dir: /app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    #ports:
+    #  - "9000:9000"
+    #  - "9001:9001"
+    volumes:
+      - minio-data:/data
+      - ./scripts/env-vars-check.sh:/scripts/env-vars-check.sh
+      - app-secrets:/secrets_extracted:ro
+    entrypoint: ["/bin/sh", "-c", "chmod +x /scripts/env-vars-check.sh && /scripts/env-vars-check.sh && . /secrets_extracted/env-vars && exec /usr/bin/docker-entrypoint.sh minio server /data --console-address ':9001'"]
+    depends_on:
+      init-vault:
+        condition: service_completed_successfully
+    networks:
+      - GDA-net
+
+  vault-agent:
+    image: hashicorp/vault:latest
+    container_name: vault-agent
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
+      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
+    volumes:
+      - ./vault_agent/config:/vault/config
+      - ./vault_agent/secrets:/vault/secrets
+      - ./vault_agent/templates:/vault/templates:ro
+      - app-secrets:/secrets_extracted
+    entrypoint: >
+      sh -c "echo $$VAULT_ROLE_ID > /vault/config/role_id && echo $$VAULT_SECRET_ID > /vault/config/secret_id && exec vault agent -config=/vault/config/vault_agent_config.hcl"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /secrets_extracted/env-ready && test -f /secrets_extracted/dotnet-env-ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+      start_period: 5s
+    networks:
+      - GDA-net
+      - vault-net
+
+
+volumes:
+  mysql-data:
+  mongodb-data:
+  minio-data:
+  app-secrets:
+    driver: local
+
+networks:
+  GDA-net:
+    name: GDA-net
+    driver: bridge
+  vault-net:
+    name: vault-net
+    driver: bridge

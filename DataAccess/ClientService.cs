@@ -19,6 +19,7 @@ namespace DataAccess
         Task<Result<IEnumerable<ClientViewDTO>>> ClientsSearch();
         Task<Result<ClientViewDTO>> ClientSearch(int id);
         Task<Result<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO);
+        Task<Result<object>> ClientDelete(int id);
     }
 
     public class ClientService : IClientService
@@ -193,6 +194,37 @@ namespace DataAccess
             {
 
                 throw new InvalidOperationException("Error al actualizar la entidad.", ex);
+            }
+        }
+
+        public async Task<Result<object>> ClientDelete(int id)
+        {
+            try
+            {
+                Client? client = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
+                if (client != null)
+                {
+                    bool state = await _sqlGenericRepository.DeleteByIdAsync(client.Id);
+                    if (state == true)
+                    {
+                        return Result<object>.Ok(200, Activator.CreateInstance<object>(), "Cliente borrado correctamente.");
+                    }
+                    else
+                    {
+                        return Result<object>.Ok(404, Activator.CreateInstance<object>(), "No se encontro el cliente.");
+
+                    }
+                }
+                else
+                {
+                    return Result<object>.Fail(404, Activator.CreateInstance<object>(), "No se encontro el cliente.");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<object>.Fail(500, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
+
             }
         }
     }

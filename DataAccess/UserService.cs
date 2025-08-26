@@ -22,6 +22,7 @@ namespace DataAccess
         Task<Result<DataRecoberyResponseDTO>> AccountRecovery(DataRecoveryDTO dataRecovery);
         Task<Result<object>> PasswordRecovery(PasswordRecoveryDTO passwordRecovery);
         Task<Result<object>> PasswordUpdate(PasswordUpdateDTO passwordUpdate);
+        Task<Result<object>> UserDelete(int id);
 
     }
     public class UserService : IUserService
@@ -296,6 +297,37 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return Result<object>.Fail(500, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
+            }
+        }
+
+        public async Task<Result<object>> UserDelete(int id)
+        {
+            try
+            {
+                User? user = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
+                if (user != null)
+                {
+                    bool state = await _sqlGenericRepository.DeleteByIdAsync(user.Id);
+                    if (state == true)
+                    {
+                        return Result<object>.Ok(200, Activator.CreateInstance<object>(), "Usuario borrado correctamente.");
+                    }
+                    else
+                    {
+                        return Result<object>.Ok(404, Activator.CreateInstance<object>(), "Error al eliminar usuario.");
+
+                    }
+                }
+                else
+                {
+                    return Result<object>.Fail(404, Activator.CreateInstance<object>(), "No se encontro el usuario.");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<object>.Fail(500, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
+
             }
         }
     }

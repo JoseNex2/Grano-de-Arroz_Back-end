@@ -95,5 +95,14 @@ namespace GDA.Controller
             var result = await _userService.PasswordUpdate(password);
             return StatusCode(result.Code, result);
         }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpPut]
+        [Route("UserDelete")]
+        public async Task<IActionResult> UserDelete([FromQuery] int id)
+        {
+            var result = await _userService.UserDelete(id);
+            return StatusCode(result.Code, result);
+        }
     }
 }

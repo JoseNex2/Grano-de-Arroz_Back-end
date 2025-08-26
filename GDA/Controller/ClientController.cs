@@ -51,5 +51,14 @@ namespace GDA.Controller
             var result = await _clientService.ClientUpdate(clientUpdateDTO);
             return StatusCode(result.Code, result);
         }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpPut]
+        [Route("ClientDelete")]
+        public async Task<IActionResult> ClientDelete([FromQuery] int id)
+        {
+            var result = await _clientService.ClientDelete(id);
+            return StatusCode(result.Code, result);
+        }
     }
 }

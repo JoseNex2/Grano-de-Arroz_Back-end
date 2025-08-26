@@ -17,7 +17,7 @@ namespace GDA.Middleware
             services.AddScoped<IUserService, UserService>();
             services.AddDbContext<UserDbContext>(options =>
             {
-                string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_ACCESS_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_ACCESS_SERVICE_PASSWORD")}";
+                string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PASSWORD")}";
                 MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connectionString);
                 builder.ConnectionTimeout = uint.Parse(Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_TIMEOUT"));
                 options.UseMySQL(
@@ -40,8 +40,8 @@ namespace GDA.Middleware
                 var urlEncoder = sp.GetRequiredService<IUrlEncoderService>();
 
                 string connectionString = $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_PROTOCOL")}://" +
-                    $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_ACCESS_SERVICE_USER"))}:" +
-                    $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_ACCESS_SERVICE_PASSWORD"))}@" +
+                    $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_SERVICE_USER"))}:" +
+                    $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_SERVICE_PASSWORD"))}@" +
                     $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_HOST")}:" +
                     $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_PORT")}/" +
                     $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_DATABASE")}" +
