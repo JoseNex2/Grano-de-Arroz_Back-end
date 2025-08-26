@@ -6,37 +6,40 @@ using Entities.DataContext;
 using MimeKit;
 using MailKit.Security;
 using MailKit.Net.Smtp;
+using System.Runtime.Remoting;
+using Sprache;
+using System.Collections.Generic;
 
 namespace DataAccess
 {
     public interface IUserService
     {
-        Task<(int, bool, string)> UserRegister(UserDTO userDTO);
-        Task<(int, bool, int, string, string)> Login(LoginDTO loginDTO);
-        Task<IEnumerable<UserViewDTO>> UsersSearch();
-        Task<UserViewDTO> UserSearch(int id);
-        Task<(int, bool, string)> RoleUpdate(RoleUpdateDTO roleUpdate);
-        Task<(int, bool, int, string)> AccountRecovery(DataRecoveryDTO dataRecovery);
-        Task<(int, bool, string)> PasswordRecovery(PasswordRecoveryDTO passwordRecovery);
-        Task<(int, bool, string)> PasswordUpdate(PasswordUpdateDTO passwordUpdate);
+        Task<Result<UserViewDTO>> UserRegister(UserDTO userDTO);
+        Task<Result<LoginResponseDTO>> Login(LoginDTO loginDTO);
+        Task<Result<IEnumerable<UserViewDTO>>> UsersSearch();
+        Task<Result<UserViewDTO>> UserSearch(int id);
+        Task<Result<UserViewDTO>> RoleUpdate(RoleUpdateDTO roleUpdate);
+        Task<Result<DataRecoberyResponseDTO>> AccountRecovery(DataRecoveryDTO dataRecovery);
+        Task<Result<object>> PasswordRecovery(PasswordRecoveryDTO passwordRecovery);
+        Task<Result<object>> PasswordUpdate(PasswordUpdateDTO passwordUpdate);
 
     }
     public class UserService : IUserService
     {
-        private readonly ISqlGenericRepository<User, UserDbContext> _sqlGenericRepository;
+        private readonly ISqlGenericRepository<User, ServiceDbContext> _sqlGenericRepository;
         private readonly Authentication _authentication;
-        public UserService(ISqlGenericRepository<User, UserDbContext> sqlGenericRepository, Authentication authentication)
+        public UserService(ISqlGenericRepository<User, ServiceDbContext> sqlGenericRepository, Authentication authentication)
         {
             _sqlGenericRepository = sqlGenericRepository;
             _authentication = authentication;
         }
 
-        public async Task<(int, bool, string)> UserRegister(UserDTO user)
+        public async Task<Result<UserViewDTO>> UserRegister(UserDTO user)
         {
             try
             {
                 bool estado = false;
-                User usuarioEncontrado = (await _sqlGenericRepository.GetAsync(a => a.Username == user.Username || a.Email == user.Email)).SingleOrDefault();
+                User? usuarioEncontrado = (await _sqlGenericRepository.GetAsync(a => a.Username == user.Username || a.Email == user.Email)).SingleOrDefault();
                 if (usuarioEncontrado == null)
                 {
                     User userModel = new User
@@ -49,81 +52,119 @@ namespace DataAccess
                     };
                     int? id = await _sqlGenericRepository.CreateAsync(userModel);
                     estado = true;
+
+                    UserViewDTO userView = new UserViewDTO
+                    {
+                        Id = userModel.Id,
+                        Username = userModel.Username,
+                        Email = userModel.Email,
+                        Role = userModel.Role,
+                        DateRegistered = userModel.DateRegistered
+                    };
                     if (id != null && estado == true)
                     {
-                        return (200, true, "Usuario creado.");
+                        return Result<UserViewDTO>.Ok(201, userView, "Usuario creado.");
+
                     }
                     else
                     {
-                        return (500, false, "Error al registrar el usuario.");
+                        return Result<UserViewDTO>.Fail(500, Activator.CreateInstance<UserViewDTO>(),"Error al registrar el usuario.");
+
                     }
                 }
                 else
                 {
-                    return (200, false, "Usuario ya existe.");
+                    return Result<UserViewDTO>.Fail(409, Activator.CreateInstance<UserViewDTO>(), "Usuario ya existe.");
+                    
                 }
             }
             catch (Exception ex)
             {
-                return (500, true, ex.ToString());
+                return Result<UserViewDTO>.Fail(500, Activator.CreateInstance<UserViewDTO>(), ex.Message);
+                
             }
         }
 
-        public async Task<(int, bool, int, string, string)> Login(LoginDTO login)
+        public async Task<Result<LoginResponseDTO>> Login(LoginDTO login)
         {
             try
             {
-                User userFound = (await _sqlGenericRepository.GetAsync(a => a.Username == login.Username && a.Password == _authentication.EncryptationSHA256(login.Password))).SingleOrDefault();
+                User? userFound = (await _sqlGenericRepository.GetAsync(a => a.Username == login.Username && a.Password == _authentication.EncryptationSHA256(login.Password))).SingleOrDefault();
                 if (userFound == null)
                 {
-                    return (200, false, 0, "", "");
+                    return Result<LoginResponseDTO>.Fail(404, Activator.CreateInstance<LoginResponseDTO>(), "Usuario no encontrado.");
+                    
                 }
                 else
                 {
-                    return (200, true, userFound.Id, userFound.Role, _authentication.GenerateAccessJwt(userFound));
+                    LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+                    {
+                        Username = userFound.Username,
+                        Role = userFound.Role,
+                        Token = _authentication.GenerateAccessJwt(userFound)
+                    };
+
+                    return Result<LoginResponseDTO>.Ok(200, loginResponseDTO);
+
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                return (500, true, 0, "", "Error interno del servidor, vuelva a intentarlo.");
+                return Result<LoginResponseDTO>.Fail(500, Activator.CreateInstance<LoginResponseDTO>(), "Error interno del servidor, vuelva a inentarlo. " + ex.Message);
+
             }
         }
 
-        public async Task<IEnumerable<UserViewDTO>> UsersSearch()
+        public async Task<Result<IEnumerable<UserViewDTO>>> UsersSearch()
         {
-            IEnumerable<User> users = await _sqlGenericRepository.GetAllAsync();
-            List<UserViewDTO> usersDTO = new List<UserViewDTO>();
-            foreach (User user in users)
+            try
             {
-                UserViewDTO userDTO = new UserViewDTO
+                IEnumerable<User> users = await _sqlGenericRepository.GetAllAsync();
+                List<UserViewDTO> usersDTO = new List<UserViewDTO>();
+                foreach (User user in users)
                 {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    Role = user.Role,
-                    DateRegistered = user.DateRegistered.ToLocalTime()
-                };
-                usersDTO.Add(userDTO);
+                    UserViewDTO userDTO = new UserViewDTO
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email,
+                        Role = user.Role,
+                        DateRegistered = user.DateRegistered.ToLocalTime()
+                    };
+                    usersDTO.Add(userDTO);
+                }
+                return Result<IEnumerable<UserViewDTO>>.Ok(200, usersDTO);
             }
-            return usersDTO;
+            catch (Exception ex)
+            {
+                return Result<IEnumerable<UserViewDTO>>.Fail(
+                    500,
+                    Activator.CreateInstance<IEnumerable<UserViewDTO>>(),
+                    "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+            }
         }
 
-        public async Task<UserViewDTO> UserSearch(int id)
+        public async Task<Result<UserViewDTO>> UserSearch(int id)
         {
-            User user = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
-            UserViewDTO usuarioDTO = new UserViewDTO
+            User? user = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
+
+            if (user == null)
+            {
+                return Result<UserViewDTO>.Ok(404, Activator.CreateInstance<UserViewDTO>(), "Usuario no encontrado.");
+            }
+
+            UserViewDTO userView = new UserViewDTO
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
                 Role = user.Role,
-                DateRegistered = user.DateRegistered.ToLocalTime()
+                DateRegistered = user.DateRegistered
             };
-            return usuarioDTO;
+            return Result<UserViewDTO>.Ok(200, userView);
         }
 
-        public async Task<(int, bool, string)> RoleUpdate(RoleUpdateDTO roleUpdate)
+        public async Task<Result<UserViewDTO>> RoleUpdate(RoleUpdateDTO roleUpdate)
         {
             try
             {
@@ -132,30 +173,32 @@ namespace DataAccess
                 bool state = await _sqlGenericRepository.UpdateByEntityAsync(userModel);
                 if (state)
                 {
-                    return(200, true, "");
+                    return Result<UserViewDTO>.Ok(200, Activator.CreateInstance<UserViewDTO>(), "Rol actualizado.");
                 }
                 else
                 {
-                    return(200, false, "");
+                    return Result<UserViewDTO>.Fail(404, Activator.CreateInstance<UserViewDTO>(), "El usuario no existe.");
+                    
                 }
             }
             catch (Exception ex)
             {
-                return(500, true, "Error interno del servidor, vuelva a intentarlo.");
+                return Result<UserViewDTO>.Fail(500, Activator.CreateInstance<UserViewDTO>(), "Error interno del servidor, vuleva a intentarlo." + ex.Message);
+
             }
         }
 
-        public async Task<(int, bool, int, string)> AccountRecovery(DataRecoveryDTO dataRecovery)
+        public async Task<Result<DataRecoberyResponseDTO>> AccountRecovery(DataRecoveryDTO dataRecovery)
         {
             try
             {
-                User userFound = (await _sqlGenericRepository.GetAsync(a => a.Email == dataRecovery.Email)).SingleOrDefault();
+                User? userFound = (await _sqlGenericRepository.GetAsync(a => a.Email == dataRecovery.Email)).SingleOrDefault();
                 if (userFound != null)
                 {
                     string tokenRecovery = _authentication.GenerateRecoveryJwt(userFound);
                     MimeMessage emailMessage = new MimeMessage();
 
-                    emailMessage.From.Add(new MailboxAddress("Sistema de recuperación de contraseña", "valentin.martinezdev@gmail.com"));
+                    emailMessage.From.Add(new MailboxAddress("Sistema de recuperación de contraseña", Environment.GetEnvironmentVariable("MAIL_RECOVERY")));
                     emailMessage.To.Add(new MailboxAddress("", dataRecovery.Email));
                     emailMessage.Subject = "Recuperar contraseña";
                     emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -165,25 +208,32 @@ namespace DataAccess
                     using (SmtpClient client = new SmtpClient())
                     {
                         await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                        await client.AuthenticateAsync("valentin.martinezdev@gmail.com", "evny knhp vhzc mtqa");
+                        await client.AuthenticateAsync(Environment.GetEnvironmentVariable("MAIL_RECOVERY"), "evny knhp vhzc mtqa");
                         await client.SendAsync(emailMessage);
 
                         await client.DisconnectAsync(true);
                     }
-                    return(200, true, userFound.Id, tokenRecovery);
+                    DataRecoberyResponseDTO responseDTO = new DataRecoberyResponseDTO
+                    {
+                        Id = userFound.Id,
+                        Token = tokenRecovery,
+                    };
+
+                    return Result<DataRecoberyResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada.") ;
                 }
                 else
                 {
-                    return(200, false, 0, "");
+                    return Result<DataRecoberyResponseDTO>.Fail(404, Activator.CreateInstance<DataRecoberyResponseDTO>(), "El usuario no se encuentra registrado.");
                 }
             }
             catch (Exception ex)
             {
-                return(500, true, 0, "Error interno del servidor, vuelva a intentarlo.");
+                return Result<DataRecoberyResponseDTO>.Fail(500, Activator.CreateInstance<DataRecoberyResponseDTO>(),
+                    "Error interno del servidor, vuelva a intentarlo." + ex.Message);
             }
         }
 
-        public async Task<(int, bool, string)> PasswordRecovery(PasswordRecoveryDTO passwordRecovery)
+        public async Task<Result<object>> PasswordRecovery(PasswordRecoveryDTO passwordRecovery)
         {
             try
             {
@@ -195,66 +245,57 @@ namespace DataAccess
                     bool state = await _sqlGenericRepository.UpdateByEntityAsync(user);
                     if (state)
                     {
-                        return(200, true, "La contraseña se a cambiado correctamente");
+                        return Result<object>.Ok(200, Activator.CreateInstance<object>(), "La contraseña se a cambiado correctamente.");
                     }
                     else
                     {
-                        return(200, false, "Error al cambiar la contraseña");
+                        return Result<object>.Fail(200, Activator.CreateInstance<object>(), "El usuario no existe.");
                     }
                 }
                 else
                 {
-                    return(200, false, "No puede utilizar la misma contraseña");
+                    return Result<object>.Fail(200, Activator.CreateInstance<object>(), "No puede utilizar la misma contraseña.");
                 }
             }
             catch (Exception ex)
             {
-                return(500, true, "Error interno del servidor, vuelva a intentarlo.");
+                return Result<object>.Fail(200, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
             }
         }
 
-        public async Task<(int, bool, string)> PasswordUpdate(PasswordUpdateDTO passwordUpdate)
+        public async Task<Result<object>> PasswordUpdate(PasswordUpdateDTO passwordUpdate)
         {
             try
             {
                 string currentPassword = _authentication.EncryptationSHA256(passwordUpdate.CurrentPassword);
                 string newPassword = _authentication.EncryptationSHA256(passwordUpdate.NewPassword);
                 User user = await _sqlGenericRepository.GetByIdAsync(passwordUpdate.Id);
-                if (user != null)
+
+                if (currentPassword == user.Password)
                 {
-                    if (currentPassword == user.Password)
+                    if (newPassword != currentPassword)
                     {
-                        if (newPassword != currentPassword)
+                        user.Password = newPassword;
+                        bool state = await _sqlGenericRepository.UpdateByEntityAsync(user);
+                        if (state)
                         {
-                            user.Password = newPassword;
-                            bool state = await _sqlGenericRepository.UpdateByEntityAsync(user);
-                            if (state)
-                            {
-                                return(200, true, "La contraseña se a cambiado correctamente");
-                            }
-                            else
-                            {
-                                return(200, false, "Error al cambiar la contraseña");
-                            }
+                            return Result<object>.Ok(200, Activator.CreateInstance<object>(), "La contraseña se a cambiado correctamente.");
                         }
                         else
                         {
-                            return(200, false, "La nueva contraseña es igual a la contraseña actual");
+                            return Result<object>.Fail(404, Activator.CreateInstance<object>(), "El usuario no existe.");
                         }
                     }
                     else
                     {
-                        return(200, false, "La contraseña actual no coincide");
+                        return Result<object>.Fail(409, Activator.CreateInstance<object>(), "La nueva contraseña es igual a la contraseña actual.");
                     }
                 }
-                else
-                {
-                    return(200, false, "No se encontro el usuario");
-                }
+                return Result<object>.Fail(401, Activator.CreateInstance<object>(), "La contraseña no coincide.");
             }
             catch (Exception ex)
             {
-                return(500, true, "Error interno del servidor, vuelva a intentarlo.");
+                return Result<object>.Fail(500, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
             }
         }
     }

@@ -21,8 +21,8 @@ namespace GDA.Controller
         [Route("registry")]
         public async Task<IActionResult> Registry([FromBody] UserDTO user)
         {
-            (int code, bool state, string message) = await _userService.UserRegister(user);
-            return StatusCode(code, new { isSuccess = state, message = message });
+            var result = await _userService.UserRegister(user);
+            return StatusCode(result.Code, result);
         }
 
         [AllowAnonymous]
@@ -30,24 +30,26 @@ namespace GDA.Controller
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO login)
         {
-            (int code, bool state, int id, string role, string token) = await _userService.Login(login);
-            return StatusCode(code, new { isSuccess = state, id = id, role = role, token = token });
+            var result = await _userService.Login(login);
+            return StatusCode(result.Code, result);
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
         [Route("UsersSearch")]
-        public async Task<IEnumerable<UserViewDTO>> UsersSearch()
+        public async Task<IActionResult> UsersSearch()
         {
-            return await _userService.UsersSearch();
+            var result = await _userService.UsersSearch();
+            return StatusCode(result.Code, result);
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
         [Route("UserSearch")]
-        public async Task<UserViewDTO> UserSearch([FromQuery] int id)
-        {
-            return await _userService.UserSearch(id);
+        public async Task<IActionResult> UserSearch([FromQuery] int id)
+        {   
+            var result = await _userService.UserSearch(id);
+            return StatusCode(result.Code, result);
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
@@ -55,8 +57,8 @@ namespace GDA.Controller
         [Route("RoleUpdate")]
         public async Task<IActionResult> RoleUpdate([FromBody] RoleUpdateDTO role)
         {
-            (int code, bool state, string message) = await _userService.RoleUpdate(role);
-            return StatusCode(code, new { isSuccess = state, message = message });
+            var result = await _userService.RoleUpdate(role);
+            return StatusCode(result.Code, result);
         }
 
         [AllowAnonymous]
@@ -64,8 +66,8 @@ namespace GDA.Controller
         [Route("AccountRecovery")]
         public async Task<IActionResult> AccountRecovery([FromBody] DataRecoveryDTO data)
         {
-            (int code, bool state, int id, string token) = await _userService.AccountRecovery(data);
-            return StatusCode(code, new { isSuccess = state, id = id, message = token });
+            var result = await _userService.AccountRecovery(data);
+            return StatusCode(result.Code, result);
         }
 
         [Authorize(AuthenticationSchemes = "RecoveryScheme")]
@@ -81,8 +83,8 @@ namespace GDA.Controller
         [Route("PasswordRecovery")]
         public async Task<IActionResult> PasswordRecovery([FromBody] PasswordRecoveryDTO passwordData)
         {
-            (int code, bool state, string message) = await _userService.PasswordRecovery(passwordData);
-            return StatusCode(code, new { isSuccess = state, message = message });
+            var result = await _userService.PasswordRecovery(passwordData);
+            return StatusCode(result.Code, result);
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
@@ -90,8 +92,8 @@ namespace GDA.Controller
         [Route("PasswordUpdate")]
         public async Task<IActionResult> PasswordUpdate([FromBody] PasswordUpdateDTO password)
         {
-            (int code, bool state, string message) = await _userService.PasswordUpdate(password);
-            return StatusCode(code, new { isSuccess = state, message = message });
+            var result = await _userService.PasswordUpdate(password);
+            return StatusCode(result.Code, result);
         }
     }
 }

@@ -126,7 +126,7 @@ namespace DataAccess.Generic
         {
             try
             {
-                TEntity existingEntity = await GetByIdAsync(Convert.ToInt32(typeof(TEntity).GetProperty("Id").GetValue(updatedEntity)));
+                TEntity? existingEntity = await GetByIdAsync(Convert.ToInt32(typeof(TEntity).GetProperty("Id").GetValue(updatedEntity)));
                 if (existingEntity == null)
                 {
                     return false;

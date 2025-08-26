@@ -1,0 +1,59 @@
+# -----------------------
+# Directorios de compilación
+# -----------------------
+bin/
+obj/
+
+# -----------------------
+# Directorio de salida de publicación
+# -----------------------
+publish/
+PublishOutput/
+
+# -----------------------
+# Visual Studio (solo archivos temporales y estado local)
+# -----------------------
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.cache
+
+# -----------------------
+# Visual Studio Code (opcional, si lo usas)
+# -----------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# -----------------------
+# Archivos temporales del sistema
+# -----------------------
+*~
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# -----------------------
+# Logs
+# -----------------------
+logs/
+*.log
+
+# -----------------------
+# Paquetes y dependencias (NuGet, npm, etc.)
+# -----------------------
+packages/
+**/node_modules/
+
+# -----------------------
+# Directorios generados por build (arquitectura)
+# -----------------------
+x64/
+x86/
+[Bb]uild/
+[Bb]uilds/
