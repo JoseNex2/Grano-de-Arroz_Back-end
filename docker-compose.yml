@@ -183,12 +183,16 @@ services:
     container_name: vault-agent
     cap_add:
       - IPC_LOCK
+    environment:
+      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
+      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
     volumes:
       - ./vault_agent/config:/vault/config
       - ./vault_agent/secrets:/vault/secrets
       - ./vault_agent/templates:/vault/templates:ro
       - app-secrets:/secrets_extracted
-    entrypoint: vault agent -config=/vault/config/vault_agent_config.hcl
+    entrypoint: >
+      sh -c "echo $$ROLE_ID > /vault/config/role_id && echo $$SECRET_ID > /vault/config/secret_id && exec vault agent -config=/vault/config/vault_agent_config.hcl"
     healthcheck:
       test: ["CMD", "sh", "-c", "test -f /secrets_extracted/env-ready && test -f /secrets_extracted/dotnet-env-ready"]
       interval: 2s
@@ -198,6 +202,7 @@ services:
     networks:
       - GDA-net
       - vault-net
+
 
 volumes:
   mysql-data:
