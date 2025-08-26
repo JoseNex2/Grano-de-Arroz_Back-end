@@ -1,16 +1,18 @@
-﻿using Entities.Domain;
+﻿using DataAccess;
+using Entities.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Entities.DataContext
 {
-    public class UserDbContext:DbContext
+    public class ServiceDbContext:DbContext
     {
-        public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
+        public ServiceDbContext(DbContextOptions<ServiceDbContext> options) : base(options)
         {
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Client> Clients { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +20,13 @@ namespace Entities.DataContext
             userEntity.ToTable("Users");
             userEntity.HasKey(e => e.Id);
             userEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+            userEntity.Property(e => e.DateRegistered).IsRequired();
+
+
+            EntityTypeBuilder<Client> clientEntity = modelBuilder.Entity<Client>();
+            clientEntity.ToTable("Clients");
+            clientEntity.HasKey(e => e.Id);
+            clientEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
             userEntity.Property(e => e.DateRegistered).IsRequired();
         }
     }
