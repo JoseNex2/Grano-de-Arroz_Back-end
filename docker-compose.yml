@@ -192,7 +192,7 @@ services:
       - ./vault_agent/templates:/vault/templates:ro
       - app-secrets:/secrets_extracted
     entrypoint: >
-      sh -c "echo $$ROLE_ID > /vault/config/role_id && echo $$SECRET_ID > /vault/config/secret_id && exec vault agent -config=/vault/config/vault_agent_config.hcl"
+      sh -c "echo $$VAULT_ROLE_ID > /vault/config/role_id && echo $$VAULT_SECRET_ID > /vault/config/secret_id && exec vault agent -config=/vault/config/vault_agent_config.hcl"
     healthcheck:
       test: ["CMD", "sh", "-c", "test -f /secrets_extracted/env-ready && test -f /secrets_extracted/dotnet-env-ready"]
       interval: 2s
