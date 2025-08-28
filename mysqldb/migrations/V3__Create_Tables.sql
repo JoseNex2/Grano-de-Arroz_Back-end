@@ -1,8 +1,11 @@
 USE ${database};
 CREATE TABLE IF NOT EXISTS `Users`(
     Id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    Username VARCHAR(20) NOT NULL,
+    Name VARCHAR(20) NOT NULL,
+    Lastname VARCHAR(20) NOT NULL,
     Email VARCHAR(100) NOT  NULL,
+    NationalId VARCHAR(20) NOT  NULL,
+    PhoneNumber VARCHAR(20) NOT NULL,
     Role VARCHAR(20) NOT  NULL,
     Password VARCHAR(100) NOT NULL,
     DateRegistered DATE NOT NULL

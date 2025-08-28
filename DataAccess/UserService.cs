@@ -6,9 +6,6 @@ using Entities.DataContext;
 using MimeKit;
 using MailKit.Security;
 using MailKit.Net.Smtp;
-using System.Runtime.Remoting;
-using Sprache;
-using System.Collections.Generic;
 
 namespace DataAccess
 {
@@ -40,13 +37,16 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                User? usuarioEncontrado = (await _sqlGenericRepository.GetAsync(a => a.Username == user.Username || a.Email == user.Email)).SingleOrDefault();
+                User? usuarioEncontrado = (await _sqlGenericRepository.GetAsync(a => a.NationalId == user.NationalId || a.Email == user.Email)).SingleOrDefault();
                 if (usuarioEncontrado == null)
                 {
                     User userModel = new User
                     {
-                        Username = user.Username,
+                        Name = user.Name,
+                        Lastname =user.Lastname,
+                        NationalId = user.NationalId,
                         Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
                         Role = user.Role,
                         Password = _authentication.EncryptationSHA256(user.Password),
                         DateRegistered = DateTime.Now
@@ -56,9 +56,12 @@ namespace DataAccess
 
                     UserViewDTO userView = new UserViewDTO
                     {
-                        Id = userModel.Id,
-                        Username = userModel.Username,
+                        Id = id.Value,
+                        Name = userModel.Name,
+                        Lastname = userModel.Lastname,
+                        NationalId = userModel.NationalId,
                         Email = userModel.Email,
+                        PhoneNumber = userModel.PhoneNumber,
                         Role = userModel.Role,
                         DateRegistered = userModel.DateRegistered
                     };
@@ -90,7 +93,7 @@ namespace DataAccess
         {
             try
             {
-                User? userFound = (await _sqlGenericRepository.GetAsync(a => a.Username == login.Username && a.Password == _authentication.EncryptationSHA256(login.Password))).SingleOrDefault();
+                User? userFound = (await _sqlGenericRepository.GetAsync(a => a.Email == login.Email && a.Password == _authentication.EncryptationSHA256(login.Password))).SingleOrDefault();
                 if (userFound == null)
                 {
                     return Result<LoginResponseDTO>.Fail(404, Activator.CreateInstance<LoginResponseDTO>(), "Usuario no encontrado.");
@@ -100,7 +103,7 @@ namespace DataAccess
                 {
                     LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
                     {
-                        Username = userFound.Username,
+                        Email = userFound.Email,
                         Role = userFound.Role,
                         Token = _authentication.GenerateAccessJwt(userFound)
                     };
@@ -127,8 +130,11 @@ namespace DataAccess
                     UserViewDTO userDTO = new UserViewDTO
                     {
                         Id = user.Id,
-                        Username = user.Username,
+                        Name = user.Name,
+                        Lastname = user.Lastname,
                         Email = user.Email,
+                        NationalId = user.NationalId,
+                        PhoneNumber = user.PhoneNumber,
                         Role = user.Role,
                         DateRegistered = user.DateRegistered.ToLocalTime()
                     };
@@ -157,8 +163,11 @@ namespace DataAccess
             UserViewDTO userView = new UserViewDTO
             {
                 Id = user.Id,
-                Username = user.Username,
+                Name = user.Name,
+                Lastname = user.Lastname,
                 Email = user.Email,
+                NationalId = user.NationalId,
+                PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
                 DateRegistered = user.DateRegistered
             };

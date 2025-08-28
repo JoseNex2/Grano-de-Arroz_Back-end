@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccess.Generic;
+﻿using DataAccess.Generic;
 using Entities.DataContext;
-using Entities.Domain;
 using Entities.Domain.DTO;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Core.Clusters;
 using Utilities;
 
 namespace DataAccess
@@ -46,7 +38,6 @@ namespace DataAccess
                         NationalId = clientDTO.NationalId,
                         NroGDA = clientDTO.NroGDA,
                         PhoneNumber = clientDTO.PhoneNumber,
-                        SaleDate = clientDTO.SaleDate,
                         DateRegistered = DateTime.Now
                     };
                     int? id = await _sqlGenericRepository.CreateAsync(clientModel);
@@ -54,14 +45,13 @@ namespace DataAccess
 
                     ClientViewDTO clientView = new ClientViewDTO
                     {
-                        Id = clientModel.Id,
+                        Id = id.Value,
                         Name = clientModel.Name,
                         Email = clientModel.Email,
                         LastName = clientModel.LastName,
                         NationalId = clientModel.NationalId,
                         NroGDA = clientModel.NroGDA,
                         PhoneNumber = clientModel.PhoneNumber,
-                        SaleDate = clientModel.SaleDate,
                         DateRegistered = clientModel.DateRegistered
 
                     };
@@ -105,7 +95,6 @@ namespace DataAccess
                         NationalId = client.NationalId,
                         NroGDA = client.NroGDA,
                         PhoneNumber = client.PhoneNumber,
-                        SaleDate = client.SaleDate,
                         DateRegistered = client.DateRegistered
                     };
                     clientsDTO.Add(clientDTO);
@@ -142,7 +131,6 @@ namespace DataAccess
                     NationalId = client.NationalId,
                     NroGDA = client.NroGDA,
                     PhoneNumber = client.PhoneNumber,
-                    SaleDate = client.SaleDate,
                     DateRegistered = client.DateRegistered
                 };
                 return Result<ClientViewDTO>.Ok(200, clientView);
@@ -170,7 +158,6 @@ namespace DataAccess
                 client.LastName = clientDTO.LastName;
                 client.NationalId = clientDTO.NationalId;
                 client.PhoneNumber = clientDTO.PhoneNumber;
-                client.SaleDate = clientDTO.SaleDate;
                 client.NroGDA = clientDTO.NroGDA;
 
                 bool state = await _sqlGenericRepository.UpdateByEntityAsync(client);
@@ -183,7 +170,6 @@ namespace DataAccess
                     LastName = client.LastName,
                     NationalId = client.NationalId,
                     PhoneNumber = client.PhoneNumber,
-                    SaleDate = client.SaleDate,
                     DateRegistered = client.DateRegistered,
                     NroGDA = client.NroGDA
                 };
