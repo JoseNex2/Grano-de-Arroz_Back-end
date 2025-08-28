@@ -16,6 +16,7 @@ namespace GDA
             EnvironmentVariableLoader.Initialize();
 
             UtilitiesInversionOfControl.AddDependency(services, configuration);
+            DataAccessInversionOfControl.AddDependency(services, configuration);
 
             services.AddAuthorization();
 
