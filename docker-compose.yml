@@ -78,8 +78,8 @@ services:
       #- ./mysqldb/config/my-custom.cnf:/etc/mysql/conf.d/my-custom.cnf
       - app-secrets:/secrets_extracted:ro
     entrypoint: ["/bin/sh", "-c", "chmod +x /scripts/env-vars-check.sh && /scripts/env-vars-check.sh && . /secrets_extracted/env-vars && exec docker-entrypoint.sh mysqld"] #chmod 644 /etc/mysql/conf.d/my-custom.cnf &&
-    #ports:
-    #  - "3307:3306"
+    ports:
+      - "3309:3306"
     depends_on:
       init-vault:
         condition: service_completed_successfully
