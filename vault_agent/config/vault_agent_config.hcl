@@ -11,7 +11,7 @@ auto_auth {
       config = {
         role_id_file_path = "/vault/config/role_id"
        secret_id_file_path = "/vault/config/secret_id"
-       remove_secret_id_file_after_reading = true
+       remove_secret_id_file_after_reading = false
      }
   }
   sink "file" {
