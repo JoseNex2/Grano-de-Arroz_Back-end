@@ -103,7 +103,12 @@ namespace DataAccess
                 {
                     LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
                     {
+                        Id = userFound.Id,
+                        Name = userFound.Name,
+                        Lastname = userFound.Lastname,
                         Email = userFound.Email,
+                        NationalId = userFound.NationalId,
+                        PhoneNumber = userFound.PhoneNumber,
                         Role = userFound.Role,
                         Token = _authentication.GenerateAccessJwt(userFound)
                     };
