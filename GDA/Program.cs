@@ -29,9 +29,9 @@ namespace GDA
                 options.AddPolicy("Produccion", builder =>
                 {
                     builder.WithOrigins(Environment.GetEnvironmentVariable("URL_DOMAIN"))
-                               .AllowAnyMethod()
-                               .AllowAnyHeader()
-                               .AllowCredentials();
+                           .AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .AllowCredentials();
                 });
             });
 
