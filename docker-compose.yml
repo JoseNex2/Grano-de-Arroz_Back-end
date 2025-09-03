@@ -185,7 +185,7 @@ services:
       - IPC_LOCK
     volumes:
       - ./vault_agent/config:/vault/config
-      - ./vault_agent/secrets:/vault/secrets
+    #  - ./vault_agent/secrets:/vault/secrets
       - ./vault_agent/templates:/vault/templates:ro
       - app-secrets:/secrets_extracted
     entrypoint: vault agent -config=/vault/config/vault_agent_config.hcl
@@ -198,7 +198,6 @@ services:
     networks:
       - GDA-net
       - vault-net
-
 
 volumes:
   mysql-data:
