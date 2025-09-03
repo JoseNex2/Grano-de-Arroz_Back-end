@@ -185,9 +185,10 @@ services:
       - IPC_LOCK
     volumes:
       - ./vault_agent/config:/vault/config
-    #  - ./vault_agent/secrets:/vault/secrets
       - ./vault_agent/templates:/vault/templates:ro
       - app-secrets:/secrets_extracted
+    tmpfs:
+      - /vault/secrets:size=16m,mode=1777
     entrypoint: vault agent -config=/vault/config/vault_agent_config.hcl
     healthcheck:
       test: ["CMD", "sh", "-c", "test -f /secrets_extracted/env-ready && test -f /secrets_extracted/dotnet-env-ready"]
