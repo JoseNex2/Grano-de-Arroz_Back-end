@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain
 {
-    public class RoleUpdateDTO
+    public class Role
     {
         public int Id { get; set; }
-        public int RoleId { get; set; }
+        public string Name { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }
