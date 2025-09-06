@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Entities.Domain.DTO
 {
-    public class RoleUpdateDTO
+    public class RoleViewDTO
     {
         public int Id { get; set; }
-        public int RoleId { get; set; }
+        public string Name { get; set; }
     }
 }

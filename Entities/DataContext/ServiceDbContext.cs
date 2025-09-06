@@ -19,15 +19,22 @@ namespace Entities.DataContext
             EntityTypeBuilder<User> userEntity = modelBuilder.Entity<User>();
             userEntity.ToTable("Users");
             userEntity.HasKey(e => e.Id);
-            userEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+            userEntity.Property(e => e.Id).ValueGeneratedOnAdd();
             userEntity.Property(e => e.DateRegistered).IsRequired();
-
+            userEntity.HasOne(u => u.Role)
+                      .WithMany(r => r.Users)
+                      .HasForeignKey(u => u.RoleId);
 
             EntityTypeBuilder<Client> clientEntity = modelBuilder.Entity<Client>();
             clientEntity.ToTable("Clients");
             clientEntity.HasKey(e => e.Id);
-            clientEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
-            userEntity.Property(e => e.DateRegistered).IsRequired();
+            clientEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+            clientEntity.Property(e => e.DateRegistered).IsRequired();
+
+            EntityTypeBuilder<Role> roleEntity = modelBuilder.Entity<Role>();
+            roleEntity.ToTable("Roles");
+            roleEntity.HasKey(e => e.Id);
+            roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
         }
     }
 }
