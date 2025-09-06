@@ -51,7 +51,7 @@ namespace DataAccess
                         Email = userDTO.Email,
                         PhoneNumber = userDTO.PhoneNumber,
                         RoleId = userDTO.RoleId,
-                        Password = _authentication.EncryptationSHA256(userDTO.Password),
+                        Password = _authentication.EncryptationSHA256(userDTO.NationalId),
                         DateRegistered = DateTime.Now
                     };
                     int? id = await _userSqlGenericRepository.CreateAsync(userModel);
