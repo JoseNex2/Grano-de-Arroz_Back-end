@@ -10,7 +10,7 @@ namespace DataAccess.Generic
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
 
-        Task<TEntity> GetByIdAsync(int id);
+        //Task<TEntity> GetByIdAsync(int id);
 
         Task<int?> CreateAsync(TEntity entity);
 
@@ -95,7 +95,7 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<TEntity> GetByIdAsync(int id)
+        private async Task<TEntity> GetByIdAsync(int id)
         {
             return await _sqlUnitOfWork.Context.Set<TEntity>().FindAsync(id);
         }

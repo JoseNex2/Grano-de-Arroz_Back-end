@@ -142,7 +142,7 @@ namespace DataAccess
         {
             try
             {
-                Client client = await _sqlGenericRepository.GetByIdAsync(clientDTO.Id);
+                Client client = (await _sqlGenericRepository.GetAsync(a => a.Id == clientDTO.Id)).SingleOrDefault();
 
                 if (client == null)
                 {

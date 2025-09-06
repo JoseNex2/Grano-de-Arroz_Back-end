@@ -40,8 +40,8 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                User? usuarioEncontrado = (await _userSqlGenericRepository.GetAsync(a => a.NationalId == userDTO.NationalId || a.Email == userDTO.Email)).SingleOrDefault();
-                if (usuarioEncontrado == null)
+                User? userFound = (await _userSqlGenericRepository.GetAsync(a => a.NationalId == userDTO.NationalId || a.Email == userDTO.Email)).SingleOrDefault();
+                if (userFound == null)
                 {
                     User userModel = new User
                     {
@@ -56,7 +56,7 @@ namespace DataAccess
                     };
                     int? id = await _userSqlGenericRepository.CreateAsync(userModel);
                     estado = true;
-
+                    Role? roleFound = (await _roleSqlGenericRepository.GetAsync(a => a.Id == userDTO.RoleId)).SingleOrDefault();
                     UserViewDTO userView = new UserViewDTO
                     {
                         Id = id.Value,
@@ -65,7 +65,7 @@ namespace DataAccess
                         NationalId = userModel.NationalId,
                         Email = userModel.Email,
                         PhoneNumber = userModel.PhoneNumber,
-                        Role = userModel.Role.Name,
+                        Role = roleFound.Name,
                         DateRegistered = userModel.DateRegistered
                     };
                     if (id != null && estado == true)
@@ -96,7 +96,7 @@ namespace DataAccess
         {
             try
             {
-                User? userFound = (await _userSqlGenericRepository.GetAsync(a => a.Email == login.Email && a.Password == _authentication.EncryptationSHA256(login.Password))).SingleOrDefault();
+                User? userFound = (await _userSqlGenericRepository.GetAsync(a => a.Email == login.Email && a.Password == _authentication.EncryptationSHA256(login.Password), u => u.Role)).SingleOrDefault();
                 if (userFound == null)
                 {
                     return Result<LoginResponseDTO>.Fail(404, Activator.CreateInstance<LoginResponseDTO>(), "Usuario no encontrado.");
@@ -186,7 +186,7 @@ namespace DataAccess
         {
             try
             {
-                User userModel = await _userSqlGenericRepository.GetByIdAsync(roleUpdate.Id);
+                User userModel = (await _userSqlGenericRepository.GetAsync(a => a.Id == roleUpdate.Id)).FirstOrDefault();
                 userModel.RoleId = roleUpdate.RoleId;
                 bool state = await _userSqlGenericRepository.UpdateByEntityAsync(userModel);
                 if (state)
@@ -255,7 +255,7 @@ namespace DataAccess
         {
             try
             {
-                User user = await _userSqlGenericRepository.GetByIdAsync(passwordRecovery.Id);
+                User user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordRecovery.Id)).FirstOrDefault();
                 string newPassword = _authentication.EncryptationSHA256(passwordRecovery.NewPassword);
                 if (newPassword != user.Password)
                 {
@@ -287,7 +287,7 @@ namespace DataAccess
             {
                 string currentPassword = _authentication.EncryptationSHA256(passwordUpdate.CurrentPassword);
                 string newPassword = _authentication.EncryptationSHA256(passwordUpdate.NewPassword);
-                User user = await _userSqlGenericRepository.GetByIdAsync(passwordUpdate.Id);
+                User user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordUpdate.Id)).FirstOrDefault();
 
                 if (currentPassword == user.Password)
                 {
