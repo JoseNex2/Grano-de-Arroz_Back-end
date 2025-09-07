@@ -131,7 +131,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<User> users = await _userSqlGenericRepository.GetAllAsync();
+                IEnumerable<User> users = await _userSqlGenericRepository.GetAllAsync(includes: u => u.Role);
                 List<UserViewDTO> usersDTO = new List<UserViewDTO>();
                 foreach (User user in users)
                 {
@@ -161,7 +161,7 @@ namespace DataAccess
 
         public async Task<Result<UserViewDTO>> UserSearch(int id)
         {
-            User? user = (await _userSqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
+            User? user = (await _userSqlGenericRepository.GetAsync(a => a.Id == id, u => u.Role)).FirstOrDefault();
 
             if (user == null)
             {
