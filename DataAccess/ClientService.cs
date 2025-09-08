@@ -36,7 +36,6 @@ namespace DataAccess
                         Email = clientDTO.Email,
                         LastName = clientDTO.LastName,
                         NationalId = clientDTO.NationalId,
-                        NroGDA = clientDTO.NroGDA,
                         PhoneNumber = clientDTO.PhoneNumber,
                         DateRegistered = DateTime.Now
                     };
@@ -50,7 +49,6 @@ namespace DataAccess
                         Email = clientModel.Email,
                         LastName = clientModel.LastName,
                         NationalId = clientModel.NationalId,
-                        NroGDA = clientModel.NroGDA,
                         PhoneNumber = clientModel.PhoneNumber,
                         DateRegistered = clientModel.DateRegistered
 
@@ -93,7 +91,6 @@ namespace DataAccess
                         Email = client.Email,
                         LastName = client.LastName,
                         NationalId = client.NationalId,
-                        NroGDA = client.NroGDA,
                         PhoneNumber = client.PhoneNumber,
                         DateRegistered = client.DateRegistered
                     };
@@ -129,7 +126,6 @@ namespace DataAccess
                     Email = client.Email,
                     LastName = client.LastName,
                     NationalId = client.NationalId,
-                    NroGDA = client.NroGDA,
                     PhoneNumber = client.PhoneNumber,
                     DateRegistered = client.DateRegistered
                 };
@@ -146,19 +142,15 @@ namespace DataAccess
         {
             try
             {
-                Client client = await _sqlGenericRepository.GetByIdAsync(clientDTO.Id);
+                Client client = (await _sqlGenericRepository.GetAsync(a => a.Id == clientDTO.Id)).SingleOrDefault();
 
                 if (client == null)
                 {
                     return Result<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "El cliente no se encuentra registrado");
                 }
 
-                client.Name = clientDTO.Name;
                 client.Email = clientDTO.Email;
-                client.LastName = clientDTO.LastName;
-                client.NationalId = clientDTO.NationalId;
                 client.PhoneNumber = clientDTO.PhoneNumber;
-                client.NroGDA = clientDTO.NroGDA;
 
                 bool state = await _sqlGenericRepository.UpdateByEntityAsync(client);
 
@@ -170,8 +162,7 @@ namespace DataAccess
                     LastName = client.LastName,
                     NationalId = client.NationalId,
                     PhoneNumber = client.PhoneNumber,
-                    DateRegistered = client.DateRegistered,
-                    NroGDA = client.NroGDA
+                    DateRegistered = client.DateRegistered
                 };
 
                 return Result<ClientViewDTO>.Ok(200, clientView, "Cliente  actualizado correctamente");
