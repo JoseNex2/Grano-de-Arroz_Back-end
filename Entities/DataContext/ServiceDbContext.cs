@@ -13,6 +13,7 @@ namespace Entities.DataContext
 
         public DbSet<User> Users { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Battery> Batteries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +26,12 @@ namespace Entities.DataContext
 
             EntityTypeBuilder<Client> clientEntity = modelBuilder.Entity<Client>();
             clientEntity.ToTable("Clients");
+            clientEntity.HasKey(e => e.Id);
+            clientEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+            userEntity.Property(e => e.DateRegistered).IsRequired();
+
+            EntityTypeBuilder<Battery> batterytEntity = modelBuilder.Entity<Battery>();
+            clientEntity.ToTable("Batteries");
             clientEntity.HasKey(e => e.Id);
             clientEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
             userEntity.Property(e => e.DateRegistered).IsRequired();
