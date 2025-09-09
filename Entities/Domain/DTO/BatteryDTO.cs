@@ -13,5 +13,6 @@ namespace Entities.Domain.DTO
         public string Type { get; set; }
         public string Status { get; set; }
         public DateTime SaleDate { get; set; } 
+        public int ClientID { get; set; }
     }
 }

@@ -11,110 +11,109 @@ using Utilities;
 
 namespace DataAccess
 {
-    public class BatteryService
+    public interface IBatteryService
     {
-        public interface IBatteryService
+        Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO clientDTO);
+        Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch();
+        //Task<Result<BatteryViewDTO>> BatterySearch(int id);
+        //Task<Result<BatteryViewDTO>> BatteryUpdate(BatteryUpdateDTO clientDTO);
+        //Task<Result<BatteryViewDTO>> BatteryDelete(int id);
+    }
+
+
+    public class BatteryService : IBatteryService
+    {
+        private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
+        private readonly ISqlGenericRepository<Client, ServiceDbContext> _clientSqlGenericRepository;
+
+        public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, ISqlGenericRepository<Client, ServiceDbContext> clientSqlRepository)
         {
-            Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO clientDTO);
-            Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch();
-            Task<Result<BatteryViewDTO>> BatterySearch(int id);
-            //Task<Result<BatteryViewDTO>> BatteryUpdate(BatteryUpdateDTO clientDTO);
-            Task<Result<BatteryViewDTO>> BatteryDelete(int id);
+            _batterySqlGenericRepository = batterySqlGenericRepository;
+            _clientSqlGenericRepository = clientSqlRepository;
         }
-
-
-        public class BatteryService : IBatteryService
+        public async Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
         {
-            private readonly ISqlGenericRepository<Battery, ServiceDbContext> _sqlGenericRepository;
+            try
+            {
+                bool estado = false;
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ID_Chip == batteryDTO.ID_Chip)).FirstOrDefault();
 
-            public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> sqlGenericRepository)
-            {
-                _sqlGenericRepository = sqlGenericRepository;
-            }
-            public async Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
-            {
-                try
+                if (batteryFound == null)
                 {
-                    bool estado = false;
-                    Battery? batteryFound = (await _sqlGenericRepository.GetAsync(a => a.ID_Chip == batteryDTO.ID_Chip)).FirstOrDefault();
-
-                    if (batteryFound == null)
+                    Battery batteryModel = new Battery
                     {
-                        Battery batteryModel = new Battery
-                        {
-                            ID_Chip = batteryDTO.ID_Chip,
-                            OT = batteryDTO.OT,
-                            Type = batteryDTO.Type,
-                            Status = batteryDTO.Status,
-                            SaleDate = batteryDTO.SaleDate,
-                            RegisterDate = DateTime.Now
-                        };
-                        int? id = await _sqlGenericRepository.CreateAsync(batteryModel);
-                        estado = true;
+                        ID_Chip = batteryDTO.ID_Chip,
+                        OT = batteryDTO.OT,
+                        Type = batteryDTO.Type,
+                        Status = batteryDTO.Status,
+                        SaleDate = batteryDTO.SaleDate,
+                        DateRegistered = DateTime.Now
+                    };
+                    int? id = await _batterySqlGenericRepository.CreateAsync(batteryModel);
+                    estado = true;
 
-                        BatteryViewDTO batteryView = new BatteryViewDTO
-                        {
-                            Id = id.Value,
-                            ID_Chip = batteryDTO.ID_Chip,
-                            OT = batteryDTO.OT,
-                            Type = batteryDTO.Type,
-                            Status = batteryDTO.Status,
-                            SaleDate = batteryDTO.SaleDate,
+                    BatteryViewDTO batteryView = new BatteryViewDTO
+                    {
+                        Id = id.Value,
+                        ID_Chip = batteryDTO.ID_Chip,
+                        OT = batteryDTO.OT,
+                        Type = batteryDTO.Type,
+                        Status = batteryDTO.Status,
+                        SaleDate = batteryDTO.SaleDate,
 
-                        };
-                        if (id != null && estado == true)
-                        {
-                            return Result<BatteryViewDTO>.Ok(201, batteryView, "Bateria registrado.");
+                    };
+                    if (id != null && estado == true)
+                    {
+                        return Result<BatteryViewDTO>.Ok(201, batteryView, "Bateria registrado.");
 
-                        }
-                        else
-                        {
-                            return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al registrar el cliente.");
-
-                        }
                     }
                     else
                     {
-                        return Result<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "Cliente ya registrado.");
+                        return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al registrar el cliente.");
 
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
+                    return Result<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "Cliente ya registrado.");
 
                 }
             }
-            public async Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch()
+            catch (Exception ex)
             {
-                try
-                {
-                    IEnumerable<Battery> batteries = await _sqlGenericRepository.GetAllAsync();
-                    List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
-                    foreach (Battery battery in batteries)
-                    {
-                        BatteryViewDTO batteryDTO = new BatteryViewDTO
-                        {
-                            Id = battery.Id,
-                            ID_Chip = battery.ID_Chip,
-                            OT = battery.OT,
-                            Type = battery.Type,
-                            Status = battery.Status,
-                            SaleDate = battery.SaleDate
-                        };
-                        batteriesDTO.Add(batteryDTO);
-                    }
-                    return Result<IEnumerable<BatteryViewDTO>>.Ok(200, batteriesDTO);
-                }
-                catch (Exception ex)
-                {
-                    return Result<IEnumerable<BatteryViewDTO>>.Fail(
-                        500,
-                        Activator.CreateInstance<IEnumerable<BatteryViewDTO>>(),
-                        "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
-                }
+                return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
+
             }
-            public async Task
         }
+        public async Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch()
+        {
+            try
+            {
+                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAllAsync();
+                List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
+                foreach (Battery battery in batteries)
+                {
+                    BatteryViewDTO batteryDTO = new BatteryViewDTO
+                    {
+                        Id = battery.Id,
+                        ID_Chip = battery.ID_Chip,
+                        OT = battery.OT,
+                        Type = battery.Type,
+                        Status = battery.Status,
+                        SaleDate = battery.SaleDate
+                    };
+                    batteriesDTO.Add(batteryDTO);
+                }
+                return Result<IEnumerable<BatteryViewDTO>>.Ok(200, batteriesDTO);
+            }
+            catch (Exception ex)
+            {
+                return Result<IEnumerable<BatteryViewDTO>>.Fail(
+                    500,
+                    Activator.CreateInstance<IEnumerable<BatteryViewDTO>>(),
+                    "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+            }
+        }
+
     }
 }

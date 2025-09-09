@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess;
 
 namespace Entities.Domain
 {
@@ -14,6 +15,8 @@ namespace Entities.Domain
         public string Type { get; set; }
         public string Status { get; set; }
         public DateTime SaleDate { get; set; }
-        public DateTime RegisterDate { get; set;
+        public DateTime DateRegistered { get; set; }
+        public int ClientID { get; set; }
+        public Client Client { get; set; }
     }
 }
