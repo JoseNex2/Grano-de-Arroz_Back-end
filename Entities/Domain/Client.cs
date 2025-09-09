@@ -12,6 +12,5 @@ namespace DataAccess
         public string PhoneNumber { get; set; }
         public DateTime DateRegistered { get; set; }
         public ICollection<Battery> Batteries { get; set; } = new List<Battery>();
-        public int TotalClients { get; set; }
     }
 }

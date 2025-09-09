@@ -107,10 +107,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                return Result<ClientsSearchResponseDTO>.Fail(
-                    500,
-                    Activator.CreateInstance<ClientsSearchResponseDTO>(),
-                    "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+                return Result<ClientsSearchResponseDTO>.Fail(500, Activator.CreateInstance<ClientsSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
 
         }

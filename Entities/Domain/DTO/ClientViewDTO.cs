@@ -15,6 +15,5 @@ namespace Entities.Domain.DTO
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime DateRegistered { get; set; }
-        public int TotalClients { get; set; }
     }
 }

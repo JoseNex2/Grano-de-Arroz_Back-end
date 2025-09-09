@@ -37,14 +37,23 @@ namespace Entities.DataContext
             roleEntity.HasKey(e => e.Id);
             roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
 
-            EntityTypeBuilder<Battery> batterytEntity = modelBuilder.Entity<Battery>();
-            batterytEntity.ToTable("Batteries");
-            batterytEntity.HasKey(e => e.Id);
-            batterytEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
-            batterytEntity.Property(e => e.DateRegistered).IsRequired();
-            batterytEntity.HasOne(u => u.Client)
+            EntityTypeBuilder<Battery> batteryEntity = modelBuilder.Entity<Battery>();
+            batteryEntity.ToTable("Batteries");
+            batteryEntity.HasKey(e => e.Id);
+            batteryEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+            batteryEntity.Property(e => e.DateRegistered).IsRequired();
+            batteryEntity.HasOne(u => u.Client)
                           .WithMany(r => r.Batteries)
                           .HasForeignKey(u => u.ClientId);
+
+            EntityTypeBuilder<Measurement> measurementEntity = modelBuilder.Entity<Measurement>();
+            measurementEntity.ToTable("Measurements");
+            measurementEntity.HasKey(e => e.Id);
+            measurementEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
+            measurementEntity.Property(e => e.MeasurementDate).IsRequired();
+            measurementEntity.HasOne(u => u.Battery)
+                          .WithMany(r => r.Measurements)
+                          .HasForeignKey(u => u.BatteryId);
 
         }
     }
