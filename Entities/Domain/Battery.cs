@@ -18,5 +18,6 @@ namespace Entities.Domain
         public DateTime DateRegistered { get; set; }
         public int ClientId { get; set; }
         public Client Client { get; set; }
+        public int TotalBatteries { get; set; }
     }
 }

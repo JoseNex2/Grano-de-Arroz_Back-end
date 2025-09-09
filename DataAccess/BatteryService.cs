@@ -14,7 +14,7 @@ namespace DataAccess
     public interface IBatteryService
     {
         Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO clientDTO);
-        Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch();
+        Task<Result<BatteriesSearchResponseDTO>> BatteriesSearch();
         //Task<Result<BatteryViewDTO>> BatterySearch(int id);
         //Task<Result<BatteryViewDTO>> BatteryUpdate(BatteryUpdateDTO clientDTO);
         //Task<Result<BatteryViewDTO>> BatteryDelete(int id);
@@ -85,7 +85,7 @@ namespace DataAccess
 
             }
         }
-        public async Task<Result<IEnumerable<BatteryViewDTO>>> BatteriesSearch()
+        public async Task<Result<BatteriesSearchResponseDTO>> BatteriesSearch()
         {
             try
             {
@@ -112,16 +112,23 @@ namespace DataAccess
                             DateRegistered = battery.Client.DateRegistered,
                         }
                     };
-  
                     batteriesDTO.Add(batteryDTO);
+
                 }
-                return Result<IEnumerable<BatteryViewDTO>>.Ok(200, batteriesDTO);
+
+                BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
+                {
+                    TotalBatteries = batteriesDTO.Count,
+                    Batteries = batteriesDTO
+                };
+
+                return Result<BatteriesSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<BatteryViewDTO>>.Fail(
+                return Result<BatteriesSearchResponseDTO>.Fail(
                     500,
-                    Activator.CreateInstance<IEnumerable<BatteryViewDTO>>(),
+                    Activator.CreateInstance<BatteriesSearchResponseDTO>(),
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
