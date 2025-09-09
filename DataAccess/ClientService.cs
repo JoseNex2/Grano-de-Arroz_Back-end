@@ -11,7 +11,7 @@ namespace DataAccess
         Task<Result<IEnumerable<ClientViewDTO>>> ClientsSearch();
         Task<Result<ClientViewDTO>> ClientSearch(int id);
         Task<Result<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO);
-        Task<Result<object>> ClientDelete(int id);
+        Task<Result<ClientViewDTO>> ClientDelete(int id);
     }
 
     public class ClientService : IClientService
@@ -174,7 +174,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<Result<object>> ClientDelete(int id)
+        public async Task<Result<ClientViewDTO>> ClientDelete(int id)
         {
             try
             {
@@ -184,23 +184,23 @@ namespace DataAccess
                     bool state = await _sqlGenericRepository.DeleteByIdAsync(client.Id);
                     if (state == true)
                     {
-                        return Result<object>.Ok(200, Activator.CreateInstance<object>(), "Cliente borrado correctamente.");
+                        return Result<ClientViewDTO>.Ok(200, Activator.CreateInstance<ClientViewDTO>(), "Cliente borrado correctamente.");
                     }
                     else
                     {
-                        return Result<object>.Ok(404, Activator.CreateInstance<object>(), "No se encontro el cliente.");
+                        return Result<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
 
                     }
                 }
                 else
                 {
-                    return Result<object>.Fail(404, Activator.CreateInstance<object>(), "No se encontro el cliente.");
+                    return Result<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
 
                 }
             }
             catch (Exception ex)
             {
-                return Result<object>.Fail(500, Activator.CreateInstance<object>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
+                return Result<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
 
             }
         }

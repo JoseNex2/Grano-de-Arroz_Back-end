@@ -1,4 +1,6 @@
-﻿namespace DataAccess
+﻿using Entities.Domain;
+
+namespace DataAccess
 {
     public class Client
     {
@@ -9,5 +11,6 @@
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime DateRegistered { get; set; }
+        public ICollection<Battery> Batteries { get; set; } = new List<Battery>();
     }
 }
