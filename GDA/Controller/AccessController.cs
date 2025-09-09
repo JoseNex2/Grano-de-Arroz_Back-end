@@ -107,7 +107,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
         [HttpGet]
-        [Route("rolesSearch")]
+        [Route("RolesSearch")]
         public async Task<IActionResult> RolesSearch()
         {
             var result = await _userService.RolesSearch();
