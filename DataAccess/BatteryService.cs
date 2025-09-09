@@ -36,14 +36,14 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ID_Chip == batteryDTO.ID_Chip)).FirstOrDefault();
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
 
                 if (batteryFound == null)
                 {
                     Battery batteryModel = new Battery
                     {
-                        ID_Chip = batteryDTO.ID_Chip,
-                        OT = batteryDTO.OT,
+                        ChipId = batteryDTO.ChipId,
+                        Ot = batteryDTO.Ot,
                         Type = batteryDTO.Type,
                         Status = batteryDTO.Status,
                         SaleDate = batteryDTO.SaleDate,
@@ -55,8 +55,8 @@ namespace DataAccess
                     BatteryViewDTO batteryView = new BatteryViewDTO
                     {
                         Id = id.Value,
-                        ID_Chip = batteryDTO.ID_Chip,
-                        OT = batteryDTO.OT,
+                        ChipId = batteryDTO.ChipId,
+                        Ot = batteryDTO.Ot,
                         Type = batteryDTO.Type,
                         Status = batteryDTO.Status,
                         SaleDate = batteryDTO.SaleDate,
@@ -69,13 +69,13 @@ namespace DataAccess
                     }
                     else
                     {
-                        return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al registrar el cliente.");
+                        return Result<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al registrar la bateria.");
 
                     }
                 }
                 else
                 {
-                    return Result<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "Cliente ya registrado.");
+                    return Result<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "Bateria ya registrada.");
 
                 }
             }
@@ -96,14 +96,14 @@ namespace DataAccess
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
-                        ID_Chip = battery.ID_Chip,
-                        OT = battery.OT,
+                        ChipId = battery.ChipId,
+                        Ot = battery.Ot,
                         Type = battery.Type,
                         Status = battery.Status,
                         SaleDate = battery.SaleDate,
                         Client = new ClientViewDTO
                         {
-                            Id = battery.ClientID,
+                            Id = battery.ClientId,
                             Name = battery.Client.Name,
                             LastName = battery.Client.LastName,
                             NationalId = battery.Client.NationalId,

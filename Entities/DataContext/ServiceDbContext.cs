@@ -44,7 +44,7 @@ namespace Entities.DataContext
             batterytEntity.Property(e => e.DateRegistered).IsRequired();
             batterytEntity.HasOne(u => u.Client)
                           .WithMany(r => r.Batteries)
-                          .HasForeignKey(u => u.ClientID);
+                          .HasForeignKey(u => u.ClientId);
 
         }
     }

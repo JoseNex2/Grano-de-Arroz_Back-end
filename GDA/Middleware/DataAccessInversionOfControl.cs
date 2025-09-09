@@ -16,6 +16,7 @@ namespace GDA.Middleware
             services.AddScoped(typeof(INonSqlGenericRepository<>), typeof(NonSqlGenericRepository<>));
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<IBatteryService, BatteryService>();
             services.AddDbContext<ServiceDbContext>(options =>
             {
                 string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PASSWORD")}";
