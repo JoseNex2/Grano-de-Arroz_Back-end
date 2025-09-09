@@ -8,7 +8,7 @@ namespace DataAccess
     public interface IClientService
     {
         Task<Result<ClientViewDTO>> ClientRegister(ClientDTO clientDTO);
-        Task<Result<IEnumerable<ClientViewDTO>>> ClientsSearch();
+        Task<Result<ClientsSearchResponseDTO>> ClientsSearch();
         Task<Result<ClientViewDTO>> ClientSearch(int id);
         Task<Result<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO);
         Task<Result<ClientViewDTO>> ClientDelete(int id);
@@ -76,7 +76,7 @@ namespace DataAccess
 
             }
         }
-        public async Task<Result<IEnumerable<ClientViewDTO>>> ClientsSearch()
+        public async Task<Result<ClientsSearchResponseDTO>> ClientsSearch()
         {
             try
             {
@@ -96,13 +96,20 @@ namespace DataAccess
                     };
                     clientsDTO.Add(clientDTO);
                 }
-                return Result<IEnumerable<ClientViewDTO>>.Ok(200, clientsDTO);
+
+                ClientsSearchResponseDTO response = new ClientsSearchResponseDTO
+                {
+                    TotalClients = clientsDTO.Count,
+                    Clients = clientsDTO
+                };
+
+                return Result<ClientsSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<ClientViewDTO>>.Fail(
+                return Result<ClientsSearchResponseDTO>.Fail(
                     500,
-                    Activator.CreateInstance<IEnumerable<ClientViewDTO>>(),
+                    Activator.CreateInstance<ClientsSearchResponseDTO>(),
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
 
