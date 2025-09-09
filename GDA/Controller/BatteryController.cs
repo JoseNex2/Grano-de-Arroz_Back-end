@@ -16,7 +16,7 @@ namespace GDA.Controller
             _batteryService = batteryService;
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "UserSales")]
         [HttpPost]
         [Route("registryBattery")]
         public async Task<IActionResult> Batteryregister([FromBody] BatteryDTO battery)
