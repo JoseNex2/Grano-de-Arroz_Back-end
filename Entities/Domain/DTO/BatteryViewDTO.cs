@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess;
 
 namespace Entities.Domain.DTO
 {
@@ -14,5 +15,6 @@ namespace Entities.Domain.DTO
         public string Type { get; set; }
         public string Status { get; set; }
         public DateTime SaleDate { get; set; }
+        public ClientViewDTO Client { get; set; }
     }
 }

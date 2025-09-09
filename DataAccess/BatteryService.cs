@@ -89,7 +89,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAllAsync();
+                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAllAsync(b => b.Client);
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {
@@ -100,8 +100,19 @@ namespace DataAccess
                         OT = battery.OT,
                         Type = battery.Type,
                         Status = battery.Status,
-                        SaleDate = battery.SaleDate
+                        SaleDate = battery.SaleDate,
+                        Client = new ClientViewDTO
+                        {
+                            Id = battery.ClientID,
+                            Name = battery.Client.Name,
+                            LastName = battery.Client.LastName,
+                            NationalId = battery.Client.NationalId,
+                            Email = battery.Client.Email,
+                            PhoneNumber = battery.Client.PhoneNumber,
+                            DateRegistered = battery.Client.DateRegistered,
+                        }
                     };
+  
                     batteriesDTO.Add(batteryDTO);
                 }
                 return Result<IEnumerable<BatteryViewDTO>>.Ok(200, batteriesDTO);

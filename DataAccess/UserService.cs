@@ -46,7 +46,7 @@ namespace DataAccess
                     User userModel = new User
                     {
                         Name = userDTO.Name,
-                        Lastname =userDTO.Lastname,
+                        Lastname = userDTO.Lastname,
                         NationalId = userDTO.NationalId,
                         Email = userDTO.Email,
                         PhoneNumber = userDTO.PhoneNumber,
@@ -186,7 +186,7 @@ namespace DataAccess
         {
             try
             {
-                User userModel = (await _userSqlGenericRepository.GetAsync(a => a.Id == roleUpdate.Id)).FirstOrDefault();
+                User? userModel = (await _userSqlGenericRepository.GetAsync(a => a.Id == roleUpdate.Id)).FirstOrDefault();
                 userModel.RoleId = roleUpdate.RoleId;
                 bool state = await _userSqlGenericRepository.UpdateByEntityAsync(userModel);
                 if (state)
@@ -255,7 +255,7 @@ namespace DataAccess
         {
             try
             {
-                User user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordRecovery.Id)).FirstOrDefault();
+                User? user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordRecovery.Id)).FirstOrDefault();
                 string newPassword = _authentication.EncryptationSHA256(passwordRecovery.NewPassword);
                 if (newPassword != user.Password)
                 {
@@ -287,7 +287,7 @@ namespace DataAccess
             {
                 string currentPassword = _authentication.EncryptationSHA256(passwordUpdate.CurrentPassword);
                 string newPassword = _authentication.EncryptationSHA256(passwordUpdate.NewPassword);
-                User user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordUpdate.Id)).FirstOrDefault();
+                User? user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordUpdate.Id)).FirstOrDefault();
 
                 if (currentPassword == user.Password)
                 {
