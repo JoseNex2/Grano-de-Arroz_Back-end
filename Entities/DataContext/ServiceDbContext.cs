@@ -14,6 +14,7 @@ namespace Entities.DataContext
         public DbSet<User> Users { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Battery> Batteries { get; set; }
+        public DbSet<Measurement> Measurements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

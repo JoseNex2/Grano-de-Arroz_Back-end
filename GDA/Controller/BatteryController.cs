@@ -26,11 +26,20 @@ namespace GDA.Controller
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
-        [HttpPut]
+        [HttpGet]
         [Route("BatteriesSearch")]
         public async Task<IActionResult> BatteriesSearch()
         {
             var result = await _batteryService.BatteriesSearch();
+            return StatusCode(result.Code, result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("UploadRawData")]
+        public async Task<IActionResult> UploadRawData(IFormFile file)
+        {
+            var result = await _batteryService.ReceiveRawData(battery);
             return StatusCode(result.Code, result);
         }
     }

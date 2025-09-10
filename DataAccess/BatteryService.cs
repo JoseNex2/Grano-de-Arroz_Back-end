@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccess.Generic;
+﻿using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
@@ -15,9 +10,7 @@ namespace DataAccess
     {
         Task<Result<BatteryViewDTO>> BatteryRegister(BatteryDTO clientDTO);
         Task<Result<BatteriesSearchResponseDTO>> BatteriesSearch();
-        //Task<Result<BatteryViewDTO>> BatterySearch(int id);
-        //Task<Result<BatteryViewDTO>> BatteryUpdate(BatteryUpdateDTO clientDTO);
-        //Task<Result<BatteryViewDTO>> BatteryDelete(int id);
+        Task ReceiveRawData();
     }
 
 
@@ -133,5 +126,9 @@ namespace DataAccess
             }
         }
 
+        public async Task ReceiveRawData()
+        {
+
+        }
     }
 }
