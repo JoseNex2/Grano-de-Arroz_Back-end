@@ -16,7 +16,7 @@ namespace GDA.Controller
             _userService = userService;
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpPost]
         [Route("registry")]
         public async Task<IActionResult> Registry([FromBody] UserDTO user)
@@ -34,7 +34,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpGet]
         [Route("UsersSearch")]
         public async Task<IActionResult> UsersSearch()
@@ -43,7 +43,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpGet]
         [Route("UserSearch")]
         public async Task<IActionResult> UserSearch([FromQuery] int id)
@@ -52,7 +52,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpPut]
         [Route("RoleUpdate")]
         public async Task<IActionResult> RoleUpdate([FromBody] RoleUpdateDTO role)
@@ -96,7 +96,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpPut]
         [Route("UserDelete")]
         public async Task<IActionResult> UserDelete([FromQuery] int id)
@@ -105,7 +105,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
         [HttpGet]
         [Route("RolesSearch")]
         public async Task<IActionResult> RolesSearch()
