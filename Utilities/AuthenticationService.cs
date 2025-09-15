@@ -7,9 +7,9 @@ using Entities.Domain;
 
 namespace Utilities
 {
-    public class Authentication
+    public class AuthenticationService
     {
-        public Authentication()
+        public AuthenticationService()
         {
 
         }

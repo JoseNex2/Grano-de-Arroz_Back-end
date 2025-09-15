@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain
 {
-    public class DataRecoberyResponseDTO
+    public class PointsRecord
     {
         public int Id { get; set; }
-        public string Token { get; set; }
+        public Dictionary<TimeOnly, float> Points { get; set; }
     }
 }

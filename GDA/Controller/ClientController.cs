@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GDA.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/clients")]
     [ApiController]
     public class ClientController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpPost]
-        [Route("registryClient")]
+        [Route("registryclient")]
         public async Task<IActionResult> Registry([FromBody] ClientDTO client)
         {
             var result = await _clientService.ClientRegister(client);
@@ -27,7 +27,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
-        [Route("ClientsSearch")]
+        [Route("clientssearch")]
         public async Task<IActionResult> ClientsSearch()
         {
             var result = await _clientService.ClientsSearch();
@@ -36,7 +36,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
-        [Route("ClientSearch")]
+        [Route("clientsearch")]
         public async Task<IActionResult> ClientSearch([FromQuery] int id)
         {
             var result = await _clientService.ClientSearch(id);
@@ -45,7 +45,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpPut]
-        [Route("ClientUpdate")]
+        [Route("clientupdate")]
         public async Task<IActionResult> ClientUpdate([FromBody] ClientUpdateDTO clientUpdateDTO)
         {
             var result = await _clientService.ClientUpdate(clientUpdateDTO);
@@ -54,7 +54,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpPut]
-        [Route("ClientDelete")]
+        [Route("clientdelete")]
         public async Task<IActionResult> ClientDelete([FromQuery] int id)
         {
             var result = await _clientService.ClientDelete(id);
