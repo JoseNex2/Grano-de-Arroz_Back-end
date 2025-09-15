@@ -10,10 +10,12 @@ namespace GDA.Controller
     public class BatteryController : ControllerBase
     {
         private readonly IBatteryService _batteryService;
+        private readonly ILogger<BatteryController> _logger;
 
-        public BatteryController(IBatteryService batteryService)
+        public BatteryController(IBatteryService batteryService, ILogger<BatteryController> logger)
         {
             _batteryService = batteryService;
+            _logger = logger;
         }
 
         [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Sucursal")]
@@ -22,6 +24,7 @@ namespace GDA.Controller
         public async Task<IActionResult> Batteryregister([FromBody] BatteryDTO battery)
         {
             var result = await _batteryService.BatteryRegister(battery);
+            _logger.LogInformation("Se asocio una bateria a un cliente.");
             return StatusCode(result.Code, result);
         }
 
@@ -31,6 +34,7 @@ namespace GDA.Controller
         public async Task<IActionResult> BatteriesSearch()
         {
             var result = await _batteryService.BatteriesSearch();
+            _logger.LogInformation("Se buscaron todas las baterias.");
             return StatusCode(result.Code, result);
         }
 
@@ -40,6 +44,7 @@ namespace GDA.Controller
         public async Task<IActionResult> UploadRawData([FromForm] RawDataDTO rawDataDTO)
         {
             var result = await _batteryService.UploadRawData(rawDataDTO);
+            _logger.LogInformation("Se subieron nuevas mediciones.");
             return StatusCode(result.Code, result);
         }
     }
