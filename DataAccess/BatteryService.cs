@@ -92,10 +92,10 @@ namespace DataAccess
                         ChipId = battery.ChipId,
                         Ot = battery.Ot,
                         Type = battery.Type,
-                        SaleDate = battery.SaleDate.Value,
+                        SaleDate = battery.SaleDate,
                         Client = new ClientViewDTO
                         {
-                            Id = battery.ClientId.Value,
+                            Id = battery.Client.Id,
                             Name = battery.Client.Name,
                             LastName = battery.Client.LastName,
                             NationalId = battery.Client.NationalId,
