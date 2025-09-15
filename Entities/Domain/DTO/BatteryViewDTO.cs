@@ -13,7 +13,6 @@ namespace Entities.Domain.DTO
         public string ChipId { get; set; }
         public string Ot { get; set; }
         public string Type { get; set; }
-        public string Status { get; set; }
         public DateTime SaleDate { get; set; }
         public ClientViewDTO Client { get; set; }
     }

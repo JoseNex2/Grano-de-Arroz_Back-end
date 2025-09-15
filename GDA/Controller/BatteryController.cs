@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GDA.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/battery")]
     [ApiController]
     public class BatteryController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Sucursal")]
         [HttpPost]
-        [Route("registryBattery")]
+        [Route("registrybattery")]
         public async Task<IActionResult> Batteryregister([FromBody] BatteryDTO battery)
         {
             var result = await _batteryService.BatteryRegister(battery);
@@ -27,7 +27,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
-        [Route("BatteriesSearch")]
+        [Route("batteriessearch")]
         public async Task<IActionResult> BatteriesSearch()
         {
             var result = await _batteryService.BatteriesSearch();
@@ -36,10 +36,10 @@ namespace GDA.Controller
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("UploadRawData")]
-        public async Task<IActionResult> UploadRawData(IFormFile file)
+        [Route("uploadrawdata")]
+        public async Task<IActionResult> UploadRawData([FromForm] RawDataDTO rawDataDTO)
         {
-            var result = await _batteryService.ReceiveRawData(battery);
+            var result = await _batteryService.UploadRawData(rawDataDTO);
             return StatusCode(result.Code, result);
         }
     }

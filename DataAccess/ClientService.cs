@@ -1,17 +1,18 @@
 ﻿using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain.DTO;
+using Entities.Domain.DTO.Response;
 using Utilities;
 
 namespace DataAccess
 {
     public interface IClientService
     {
-        Task<Result<ClientViewDTO>> ClientRegister(ClientDTO clientDTO);
-        Task<Result<ClientsSearchResponseDTO>> ClientsSearch();
-        Task<Result<ClientViewDTO>> ClientSearch(int id);
-        Task<Result<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO);
-        Task<Result<ClientViewDTO>> ClientDelete(int id);
+        Task<ResultService<ClientViewDTO>> ClientRegister(ClientDTO clientDTO);
+        Task<ResultService<ClientsSearchResponseDTO>> ClientsSearch();
+        Task<ResultService<ClientViewDTO>> ClientSearch(int id);
+        Task<ResultService<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO);
+        Task<ResultService<ClientViewDTO>> ClientDelete(int id);
     }
 
     public class ClientService : IClientService
@@ -22,7 +23,7 @@ namespace DataAccess
         {
             _sqlGenericRepository = sqlGenericRepository;
         }
-        public async Task<Result<ClientViewDTO>> ClientRegister(ClientDTO clientDTO)
+        public async Task<ResultService<ClientViewDTO>> ClientRegister(ClientDTO clientDTO)
         {
             try
             {
@@ -55,28 +56,24 @@ namespace DataAccess
                     };
                     if (id != null && estado == true)
                     {
-                        return Result<ClientViewDTO>.Ok(201, clientView, "Cliente registrado.");
-
+                        return ResultService<ClientViewDTO>.Ok(201, clientView, "Cliente registrado.");
                     }
                     else
                     {
-                        return Result<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error al registrar el cliente.");
-
+                        return ResultService<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error al registrar el cliente.");
                     }
                 }
                 else
                 {
-                    return Result<ClientViewDTO>.Fail(409, Activator.CreateInstance<ClientViewDTO>(), "Cliente ya registrado.");
-
+                    return ResultService<ClientViewDTO>.Fail(409, Activator.CreateInstance<ClientViewDTO>(), "Cliente ya registrado.");
                 }
             }
             catch (Exception ex)
             {
-                return Result<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), ex.Message);
-
+                return ResultService<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), ex.Message);
             }
         }
-        public async Task<Result<ClientsSearchResponseDTO>> ClientsSearch()
+        public async Task<ResultService<ClientsSearchResponseDTO>> ClientsSearch()
         {
             try
             {
@@ -103,16 +100,16 @@ namespace DataAccess
                     Clients = clientsDTO
                 };
 
-                return Result<ClientsSearchResponseDTO>.Ok(200, response);
+                return ResultService<ClientsSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return Result<ClientsSearchResponseDTO>.Fail(500, Activator.CreateInstance<ClientsSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+                return ResultService<ClientsSearchResponseDTO>.Fail(500, Activator.CreateInstance<ClientsSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
 
         }
 
-        public async Task<Result<ClientViewDTO>> ClientSearch(int id)
+        public async Task<ResultService<ClientViewDTO>> ClientSearch(int id)
         {
             try
             {
@@ -120,7 +117,7 @@ namespace DataAccess
 
                 if (client == null)
                 {
-                    return Result<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "Usuario no encontrado.");
+                    return ResultService<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "Usuario no encontrado.");
                 }
 
                 ClientViewDTO clientView = new ClientViewDTO
@@ -133,16 +130,15 @@ namespace DataAccess
                     PhoneNumber = client.PhoneNumber,
                     DateRegistered = client.DateRegistered
                 };
-                return Result<ClientViewDTO>.Ok(200, clientView);
+                return ResultService<ClientViewDTO>.Ok(200, clientView);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
 
-        public async Task<Result<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO)
+        public async Task<ResultService<ClientViewDTO>> ClientUpdate(ClientUpdateDTO clientDTO)
         {
             try
             {
@@ -150,7 +146,7 @@ namespace DataAccess
 
                 if (client == null)
                 {
-                    return Result<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "El cliente no se encuentra registrado");
+                    return ResultService<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "El cliente no se encuentra registrado");
                 }
 
                 client.Email = clientDTO.Email;
@@ -169,16 +165,15 @@ namespace DataAccess
                     DateRegistered = client.DateRegistered
                 };
 
-                return Result<ClientViewDTO>.Ok(200, clientView, "Cliente  actualizado correctamente");
+                return ResultService<ClientViewDTO>.Ok(200, clientView, "Cliente  actualizado correctamente");
             }
             catch (Exception ex)
             {
-
                 throw new InvalidOperationException("Error al actualizar la entidad.", ex);
             }
         }
 
-        public async Task<Result<ClientViewDTO>> ClientDelete(int id)
+        public async Task<ResultService<ClientViewDTO>> ClientDelete(int id)
         {
             try
             {
@@ -188,24 +183,21 @@ namespace DataAccess
                     bool state = await _sqlGenericRepository.DeleteByIdAsync(client.Id);
                     if (state == true)
                     {
-                        return Result<ClientViewDTO>.Ok(200, Activator.CreateInstance<ClientViewDTO>(), "Cliente borrado correctamente.");
+                        return ResultService<ClientViewDTO>.Ok(200, Activator.CreateInstance<ClientViewDTO>(), "Cliente borrado correctamente.");
                     }
                     else
                     {
-                        return Result<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
-
+                        return ResultService<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
                     }
                 }
                 else
                 {
-                    return Result<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
-
+                    return ResultService<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
                 }
             }
             catch (Exception ex)
             {
-                return Result<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
-
+                return ResultService<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error interno del servidor, vuelva a intentarlo." + ex.Message);
             }
         }
     }

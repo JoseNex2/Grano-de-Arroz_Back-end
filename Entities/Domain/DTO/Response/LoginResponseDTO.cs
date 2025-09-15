@@ -1,4 +1,4 @@
-﻿namespace Entities.Domain.DTO
+﻿namespace Entities.Domain.DTO.Response
 {
     public class LoginResponseDTO
     {
