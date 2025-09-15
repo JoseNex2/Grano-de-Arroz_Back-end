@@ -35,44 +35,41 @@ namespace DataAccess
             {
                 bool estado = false;
                 Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
-
-                if (batteryFound == null)
+                if (batteryFound != null)
                 {
-                    Battery batteryModel = new Battery
+                    if (batteryFound.Ot == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
                     {
-                        ChipId = batteryDTO.ChipId,
-                        Ot = batteryDTO.Ot,
-                        Type = batteryDTO.Type,
-                        SaleDate = batteryDTO.SaleDate,
-                        DateRegistered = DateTime.Now
-                    };
-                    int? id = await _batterySqlGenericRepository.CreateAsync(batteryModel);
-                    estado = true;
+                        batteryFound.Ot = batteryDTO.Ot;
+                        batteryFound.SaleDate = batteryDTO.SaleDate;
+                        batteryFound.ClientId = batteryDTO.ClientId;
+                        estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
 
-                    BatteryViewDTO batteryView = new BatteryViewDTO
-                    {
-                        Id = id.Value,
-                        ChipId = batteryDTO.ChipId,
-                        Ot = batteryDTO.Ot,
-                        Type = batteryDTO.Type,
-                        SaleDate = batteryDTO.SaleDate,
+                        BatteryViewDTO batteryView = new BatteryViewDTO
+                        {
+                            Id = batteryFound.Id,
+                            ChipId = batteryFound.ChipId,
+                            Ot = batteryFound.Ot,
+                            Type = batteryFound.Type,
+                            SaleDate = batteryFound.SaleDate.Value,
 
-                    };
-                    if (id != null && estado == true)
-                    {
-                        return ResultService<BatteryViewDTO>.Ok(201, batteryView, "Bateria registrada.");
-
+                        };
+                        if (estado == true)
+                        {
+                            return ResultService<BatteryViewDTO>.Ok(201, batteryView, "Bateria asociada al cliente.");
+                        }
+                        else
+                        {
+                            return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
+                        }
                     }
                     else
                     {
-                        return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al registrar la bateria.");
-
+                        return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
                     }
                 }
                 else
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "Bateria ya registrada.");
-
+                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
                 }
             }
             catch (Exception ex)
