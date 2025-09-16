@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GDA.Controller
 {
-    [Route("api/clients")]
+    [Route("api/client")]
     [ApiController]
     public class ClientController : ControllerBase
     {
