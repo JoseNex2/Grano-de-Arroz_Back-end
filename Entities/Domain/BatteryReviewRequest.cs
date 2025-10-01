@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain
 {
-    public class BatteryDTO
+    public class BatteryReviewRequest
     {
         public string BatteryGDA { get; set; }
-        public string Ot { get; set; }
-        public DateTime SaleDate { get; set; } 
+        public string ClientName { get; set; }
         public int ClientId { get; set; }
     }
 }

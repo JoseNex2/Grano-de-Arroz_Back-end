@@ -34,7 +34,7 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.BatteryGDA == batteryDTO.BatteryGDA)).FirstOrDefault();
                 if (batteryFound != null)
                 {
                     if (batteryFound.Ot == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
@@ -47,7 +47,7 @@ namespace DataAccess
                         BatteryViewDTO batteryView = new BatteryViewDTO
                         {
                             Id = batteryFound.Id,
-                            ChipId = batteryFound.ChipId,
+                            BatteryGDA = batteryFound.BatteryGDA,
                             Ot = batteryFound.Ot,
                             Type = batteryFound.Type,
                             SaleDate = batteryFound.SaleDate.Value,
@@ -89,7 +89,7 @@ namespace DataAccess
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
-                        ChipId = battery.ChipId,
+                        BatteryGDA = battery.BatteryGDA,
                         Ot = battery.Ot,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
@@ -138,12 +138,12 @@ namespace DataAccess
                 else
                 {
                     DateTime measurementDateTime = rawDataDTO.MeasurementDate.ToDateTime(TimeOnly.MinValue);
-                    Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == rawDataDTO.ChipId)).FirstOrDefault();
+                    Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.BatteryGDA == rawDataDTO.BatteryGDA)).FirstOrDefault();
                     if (batteryFound == null)
                     {
                         Battery battery = new Battery
                         {
-                            ChipId = rawDataDTO.ChipId,
+                            BatteryGDA = rawDataDTO.BatteryGDA,
                             Ot = null,
                             Type = rawDataDTO.Type,
                             SaleDate = null,
