@@ -40,14 +40,14 @@ namespace DataAccess
             try
             {
                 var batteryExists = (await _batterySqlGenericRepository
-                    .GetAsync(b => b.BatteryGDA == reportRequest.BatteryGDA))
+                    .GetAsync(b => b.ChipId == reportRequest.ChipId))
                     .Any();
 
                 if (!batteryExists)
                     return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
 
                 var existingReport = (await _reportSqlGenericRepository
-                    .GetAsync(r => r.BatteryGDA == reportRequest.BatteryGDA))
+                    .GetAsync(r => r.ChipId == reportRequest.ChipId))
                     .FirstOrDefault();
 
                 if (existingReport != null)
@@ -55,7 +55,7 @@ namespace DataAccess
 
                 var reportModel = new Report
                 {
-                    BatteryGDA = reportRequest.BatteryGDA,
+                    ChipId = reportRequest.ChipId,
                     ReportState = "Pendiente",
                     ReportDate = DateOnly.FromDateTime(DateTime.UtcNow),
                     ClientId = reportRequest.ClientId
@@ -69,7 +69,7 @@ namespace DataAccess
                 var reportView = new ReportViewDTO
                 {
                     Id = id.Value,
-                    BatteryGDA = reportModel.BatteryGDA,
+                    ChipId = reportModel.ChipId,
                     ClientId = reportModel.ClientId,
                     ReportDate = reportModel.ReportDate,
                     ReportState = reportModel.ReportState
@@ -91,9 +91,9 @@ namespace DataAccess
                     r => r.Client
                 );
 
-                if (!string.IsNullOrWhiteSpace(filter.BatteryGDA))
+                if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
-                    reports = reports.Where(r => r.BatteryGDA.Contains(filter.BatteryGDA, StringComparison.OrdinalIgnoreCase));
+                    reports = reports.Where(r => r.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (!string.IsNullOrWhiteSpace(filter.ClientName))
@@ -114,7 +114,7 @@ namespace DataAccess
                 var reportsView = reports.Select(r => new ReportSearchDTO
                 {
                     Id = r.Id,
-                    BatteryGDA = r.BatteryGDA,
+                    ChipId = r.ChipId,
                     ClientName = r.Client.Name,
                     ReportState = r.ReportState,
                     ReportDate = r.ReportDate
@@ -158,7 +158,7 @@ namespace DataAccess
                 var dto = new ReportViewDTO
                 {
                     Id = report.Id,
-                    BatteryGDA = report.BatteryGDA,
+                    ChipId = report.ChipId,
                     ReportState = report.ReportState,
                     ReportDate = report.ReportDate
                 };
@@ -198,7 +198,7 @@ namespace DataAccess
                 var reportDetail = new ReportDetailDTO
                 {
                     Id = report.Id,
-                    BatteryGDA = report.BatteryGDA,
+                    ChipId = report.ChipId,
                     ReportState = report.ReportState,
                     ReportDate = report.ReportDate,
 
@@ -207,7 +207,7 @@ namespace DataAccess
                     ClientEmail = report.Client.Email,
 
                     BatteryType = report.Battery.Type,
-                    BatteryOt = report.Battery.Ot,
+                    BatteryWorkOrder = report.Battery.WorkOrder,
                     SaleDate = report.Battery.SaleDate,
                     DateRegistered = report.Battery.DateRegistered,
 

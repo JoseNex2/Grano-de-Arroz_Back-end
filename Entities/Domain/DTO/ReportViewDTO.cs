@@ -11,7 +11,7 @@ namespace Entities.Domain.DTO
         public int Id { get; set; }
         public int ClientId { get; set; }
         public ClientViewDTO Client { get; set; }
-        public string BatteryGDA { get; set; }
+        public string ChipId { get; set; }
         public string ReportState { get; set; }
         public DateOnly ReportDate { get; set; }
     }

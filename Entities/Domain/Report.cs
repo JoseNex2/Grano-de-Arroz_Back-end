@@ -14,7 +14,7 @@ namespace Entities.Domain
         public string ReportState { get; set; }
         public Client Client { get; set; }
         public int ClientId { get; set; }
-        public string BatteryGDA { get; set; }
+        public string ChipId { get; set; }
         public Battery Battery {  get; set; }
         public DateOnly ReportDate { get; set; }
     }

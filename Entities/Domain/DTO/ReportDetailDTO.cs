@@ -9,7 +9,7 @@ namespace Entities.Domain.DTO
     public class ReportDetailDTO
     {
         public int Id { get; set; }
-        public string BatteryGDA { get; set; }
+        public string ChipId { get; set; }
         public string ReportState { get; set; }
         public DateOnly ReportDate { get; set; }
 
@@ -20,7 +20,7 @@ namespace Entities.Domain.DTO
 
 
         public string BatteryType { get; set; }
-        public string? BatteryOt { get; set; }
+        public string? BatteryWorkOrder { get; set; }
         public DateTime? SaleDate { get; set; }
         public DateTime DateRegistered { get; set; }
 

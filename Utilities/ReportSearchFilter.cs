@@ -8,7 +8,7 @@ namespace Utilities
 {
     public class ReportSearchFilter
     {
-        public string? BatteryGDA { get; set; }
+        public string? ChipId { get; set; }
         public string? ClientName { get; set; }
         public string? State { get; set; }
         public DateOnly? ReportDate { get; set; }

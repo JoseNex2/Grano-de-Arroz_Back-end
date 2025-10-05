@@ -34,12 +34,12 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.BatteryGDA == batteryDTO.BatteryGDA)).FirstOrDefault();
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
                 if (batteryFound != null)
                 {
-                    if (batteryFound.Ot == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
+                    if (batteryFound.WorkOrder == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
                     {
-                        batteryFound.Ot = batteryDTO.Ot;
+                        batteryFound.WorkOrder = batteryDTO.WorkOrder;
                         batteryFound.SaleDate = batteryDTO.SaleDate;
                         batteryFound.ClientId = batteryDTO.ClientId;
                         estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
@@ -47,8 +47,8 @@ namespace DataAccess
                         BatteryViewDTO batteryView = new BatteryViewDTO
                         {
                             Id = batteryFound.Id,
-                            BatteryGDA = batteryFound.BatteryGDA,
-                            Ot = batteryFound.Ot,
+                            ChipId = batteryFound.ChipId,
+                            WorkOrder = batteryFound.WorkOrder,
                             Type = batteryFound.Type,
                             SaleDate = batteryFound.SaleDate.Value,
 
@@ -89,8 +89,8 @@ namespace DataAccess
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
-                        BatteryGDA = battery.BatteryGDA,
-                        Ot = battery.Ot,
+                        ChipId = battery.ChipId,
+                        WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
                         Client = new ClientViewDTO
@@ -138,13 +138,13 @@ namespace DataAccess
                 else
                 {
                     DateTime measurementDateTime = rawDataDTO.MeasurementDate.ToDateTime(TimeOnly.MinValue);
-                    Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.BatteryGDA == rawDataDTO.BatteryGDA)).FirstOrDefault();
+                    Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == rawDataDTO.ChipId)).FirstOrDefault();
                     if (batteryFound == null)
                     {
                         Battery battery = new Battery
                         {
-                            BatteryGDA = rawDataDTO.BatteryGDA,
-                            Ot = null,
+                            ChipId = rawDataDTO.ChipId,
+                            WorkOrder = null,
                             Type = rawDataDTO.Type,
                             SaleDate = null,
                             DateRegistered = DateTime.Now,
