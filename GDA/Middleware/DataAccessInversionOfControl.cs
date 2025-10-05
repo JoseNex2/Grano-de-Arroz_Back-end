@@ -18,6 +18,7 @@ namespace GDA.Middleware
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IBatteryService, BatteryService>();
             services.AddScoped<ICsvService, CsvService>();
+            services.AddScoped<IReportService, ReportService>();
             services.AddDbContext<ServiceDbContext>(options =>
             {
                 string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PASSWORD")}";

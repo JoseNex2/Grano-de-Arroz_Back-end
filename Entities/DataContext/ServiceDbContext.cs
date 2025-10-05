@@ -38,6 +38,14 @@ namespace Entities.DataContext
             roleEntity.HasKey(e => e.Id);
             roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
 
+            EntityTypeBuilder<Report> reportEntity = modelBuilder.Entity<Report>();
+            reportEntity.ToTable("Reports");
+            reportEntity.HasKey(e => e.Id);
+            reportEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+            reportEntity.HasOne(r => r.Battery)
+                        .WithOne(b => b.Report)
+                        .HasForeignKey<Battery>(b => b.ReportId);
+
             EntityTypeBuilder<Battery> batteryEntity = modelBuilder.Entity<Battery>();
             batteryEntity.ToTable("Batteries");
             batteryEntity.HasKey(e => e.Id);

@@ -12,6 +12,8 @@ namespace Entities.Domain
         public DateTime DateRegistered { get; set; }
         public int? ClientId { get; set; }
         public Client Client { get; set; }
+        public int? ReportId { get; set; }
+        public Report Report { get; set; }
         public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
     }
 }

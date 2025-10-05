@@ -18,10 +18,10 @@ namespace DataAccess
 {
     public interface IReportService
     {
-        Task<ResultService<ReportDetailDTO>> GetReportByIdAsync(int id);
-        Task<ResultService<IEnumerable<ReportSearchDTO>>> SearchReportsAsync(ReportSearchFilter filter);
-        Task<ResultService<ReportViewDTO>> CreateReport(BatteryReviewRequest reportRequest);
-        Task<ResultService<ReportViewDTO>> UpdateReportMeasurementsAsync(ReportUpdateDTO update);
+        Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int id);
+        Task<ResultService<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilter filter);
+        Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest);
+        Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update);
     }
     public class ReportService : IReportService 
     {
@@ -35,7 +35,7 @@ namespace DataAccess
             _batterySqlGenericRepository = batterySqlGenericRepository;
         }
 
-        public async Task<ResultService<ReportViewDTO>> CreateReport(BatteryReviewRequest reportRequest)
+        public async Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest)
         {
             try
             {
@@ -82,13 +82,13 @@ namespace DataAccess
                 return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
             }
         }
-        public async Task<ResultService<IEnumerable<ReportSearchDTO>>> SearchReportsAsync(ReportSearchFilter filter)
+        public async Task<ResultService<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilter filter)
         {
             try
             {
                 var reports = await _reportSqlGenericRepository.GetAllAsync(
                     null,
-                    r => r.Client
+                    r => r.Battery.Client
                 );
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
@@ -98,7 +98,7 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(filter.ClientName))
                 {
-                    reports = reports.Where(r => r.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
+                    reports = reports.Where(r => r.Battery.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (!string.IsNullOrWhiteSpace(filter.State))
@@ -115,7 +115,7 @@ namespace DataAccess
                 {
                     Id = r.Id,
                     ChipId = r.ChipId,
-                    ClientName = r.Client.Name,
+                    ClientName = r.Battery.Client.Name,
                     ReportState = r.ReportState,
                     ReportDate = r.ReportDate
                 });
@@ -128,7 +128,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<ResultService<ReportViewDTO>> UpdateReportMeasurementsAsync(ReportUpdateDTO update)
+        public async Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update)
         {
             try
             {
@@ -170,13 +170,13 @@ namespace DataAccess
                 return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
             }
         }
-        public async Task<ResultService<ReportDetailDTO>> GetReportByIdAsync(int reportId)
+        public async Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int reportId)
         {
             try
             {
                 var report = (await _reportSqlGenericRepository.GetAsync(
                     r => r.Id == reportId,
-                    r => r.Client,
+                    r => r.Battery.Client,
                     r => r.Battery,
                     r => r.Battery.Measurements
                 )).FirstOrDefault();
@@ -203,8 +203,8 @@ namespace DataAccess
                     ReportDate = report.ReportDate,
 
                     ClientId = report.ClientId,
-                    ClientName = report.Client.Name,
-                    ClientEmail = report.Client.Email,
+                    ClientName = report.Battery.Client.Name,
+                    ClientEmail = report.Battery.Client.Email,
 
                     BatteryType = report.Battery.Type,
                     BatteryWorkOrder = report.Battery.WorkOrder,
