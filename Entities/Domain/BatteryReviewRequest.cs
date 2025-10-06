@@ -10,7 +10,5 @@ namespace Entities.Domain
     public class BatteryReviewRequest
     {
         public string ChipId { get; set; }
-        public string ClientName { get; set; }
-        public int ClientId { get; set; }
     }
 }
