@@ -39,26 +39,19 @@ namespace DataAccess
         {
             try
             {
-                var batteryExists = (await _batterySqlGenericRepository
-                    .GetAsync(b => b.ChipId == reportRequest.ChipId))
-                    .Any();
+                var batteryExist = (await _batterySqlGenericRepository.GetAsync(b => b.ChipId == reportRequest.ChipId)).FirstOrDefault();
 
-                if (!batteryExists)
+                if (batteryExist == null)
                     return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
 
-                var existingReport = (await _reportSqlGenericRepository
-                    .GetAsync(r => r.ChipId == reportRequest.ChipId))
-                    .FirstOrDefault();
-
-                if (existingReport != null)
+                if (batteryExist.Report != null)
                     return ResultService<ReportViewDTO>.Fail(409, Activator.CreateInstance<ReportViewDTO>(), "Ya se hizo un reporte de la batería.");
 
                 var reportModel = new Report
                 {
-                    ChipId = reportRequest.ChipId,
                     ReportState = "Pendiente",
-                    ReportDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                    ClientId = reportRequest.ClientId
+                    ReportDate = DateTime.UtcNow,
+                    BatteryId = batteryExist.Id
                 };
 
                 var id = await _reportSqlGenericRepository.CreateAsync(reportModel);
@@ -69,9 +62,9 @@ namespace DataAccess
                 var reportView = new ReportViewDTO
                 {
                     Id = id.Value,
-                    ChipId = reportModel.ChipId,
-                    ClientId = reportModel.ClientId,
-                    ReportDate = reportModel.ReportDate,
+                    ChipId = batteryExist.ChipId,
+                    ClientId = batteryExist.ClientId.Value,
+                    ReportDate = DateOnly.FromDateTime(reportModel.ReportDate),
                     ReportState = reportModel.ReportState
                 };
 
@@ -93,7 +86,7 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
-                    reports = reports.Where(r => r.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
+                    reports = reports.Where(r => r.Battery.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (!string.IsNullOrWhiteSpace(filter.ClientName))
@@ -108,16 +101,16 @@ namespace DataAccess
 
                 if (filter.ReportDate.HasValue)
                 {
-                    reports = reports.Where(r => r.ReportDate == filter.ReportDate.Value);
+                    reports = reports.Where(r => DateOnly.FromDateTime(r.ReportDate) == filter.ReportDate.Value);
                 }
 
                 var reportsView = reports.Select(r => new ReportSearchDTO
                 {
                     Id = r.Id,
-                    ChipId = r.ChipId,
+                    ChipId = r.Battery.ChipId,
                     ClientName = r.Battery.Client.Name,
                     ReportState = r.ReportState,
-                    ReportDate = r.ReportDate
+                    ReportDate = DateOnly.FromDateTime(r.ReportDate)
                 });
 
                 return ResultService<IEnumerable<ReportSearchDTO>>.Ok(200, reportsView);
@@ -158,9 +151,9 @@ namespace DataAccess
                 var dto = new ReportViewDTO
                 {
                     Id = report.Id,
-                    ChipId = report.ChipId,
+                    ChipId = report.Battery.ChipId,
                     ReportState = report.ReportState,
-                    ReportDate = report.ReportDate
+                    ReportDate = DateOnly.FromDateTime(report.ReportDate)
                 };
 
                 return ResultService<ReportViewDTO>.Ok(200, dto, "Reporte actualizado con mediciones.");
@@ -198,11 +191,11 @@ namespace DataAccess
                 var reportDetail = new ReportDetailDTO
                 {
                     Id = report.Id,
-                    ChipId = report.ChipId,
+                    ChipId = report.Battery.ChipId,
                     ReportState = report.ReportState,
-                    ReportDate = report.ReportDate,
+                    ReportDate = DateOnly.FromDateTime(report.ReportDate),
 
-                    ClientId = report.ClientId,
+                    ClientId = report.Battery.Client.Id,
                     ClientName = report.Battery.Client.Name,
                     ClientEmail = report.Battery.Client.Email,
 

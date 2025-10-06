@@ -13,6 +13,7 @@ namespace Entities.DataContext
 
         public DbSet<User> Users { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Report> Reports { get; set; }
         public DbSet<Battery> Batteries { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
 
@@ -44,7 +45,7 @@ namespace Entities.DataContext
             reportEntity.Property(e => e.Id).ValueGeneratedOnAdd();
             reportEntity.HasOne(r => r.Battery)
                         .WithOne(b => b.Report)
-                        .HasForeignKey<Battery>(b => b.ReportId);
+                        .HasForeignKey<Report>(u => u.BatteryId);
 
             EntityTypeBuilder<Battery> batteryEntity = modelBuilder.Entity<Battery>();
             batteryEntity.ToTable("Batteries");
@@ -52,8 +53,8 @@ namespace Entities.DataContext
             batteryEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
             batteryEntity.Property(e => e.DateRegistered).IsRequired();
             batteryEntity.HasOne(u => u.Client)
-                          .WithMany(r => r.Batteries)
-                          .HasForeignKey(u => u.ClientId);
+                         .WithMany(r => r.Batteries)
+                         .HasForeignKey(u => u.ClientId);
 
             EntityTypeBuilder<Measurement> measurementEntity = modelBuilder.Entity<Measurement>();
             measurementEntity.ToTable("Measurements");
@@ -61,8 +62,8 @@ namespace Entities.DataContext
             measurementEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
             measurementEntity.Property(e => e.MeasurementDate).IsRequired();
             measurementEntity.HasOne(u => u.Battery)
-                          .WithMany(r => r.Measurements)
-                          .HasForeignKey(u => u.BatteryId);
+                             .WithMany(r => r.Measurements)
+                             .HasForeignKey(u => u.BatteryId);
 
         }
     }

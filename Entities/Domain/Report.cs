@@ -13,6 +13,7 @@ namespace Entities.Domain
         public int Id { get; set; }
         public string ReportState { get; set; }
         public DateTime ReportDate { get; set; }
-        public Battery Battery {  get; set; }
+        public int? BatteryId { get; set; }
+        public Battery Battery { get; set; }
     }
 }
