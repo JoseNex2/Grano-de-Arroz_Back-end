@@ -11,6 +11,7 @@ namespace DataAccess
     {
         Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
         Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
+        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
         Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO);
     }
 
@@ -82,7 +83,70 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAllAsync(b => b.Client);
+                IEnumerable<Battery> batteries = (await _batterySqlGenericRepository.GetAsync(null, b => b.Client));
+                List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
+                foreach (Battery battery in batteries)
+                {
+                    BatteryViewDTO batteryDTO = new BatteryViewDTO
+                    {
+                        Id = battery.Id,
+                        ChipId = battery.ChipId,
+                        WorkOrder = battery.WorkOrder,
+                        Type = battery.Type,
+                        SaleDate = battery.SaleDate,
+                        Client = new ClientViewDTO
+                        {
+                            Id = battery.Client.Id,
+                            Name = battery.Client.Name,
+                            LastName = battery.Client.LastName,
+                            NationalId = battery.Client.NationalId,
+                            Email = battery.Client.Email,
+                            PhoneNumber = battery.Client.PhoneNumber,
+                            DateRegistered = battery.Client.DateRegistered,
+                        }
+                    };
+                    batteriesDTO.Add(batteryDTO);
+
+                }
+
+                BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
+                {
+                    TotalBatteries = batteriesDTO.Count,
+                    Batteries = batteriesDTO
+                };
+
+                return ResultService<BatteriesSearchResponseDTO>.Ok(200, response);
+            }
+            catch (Exception ex)
+            {
+                return ResultService<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+            }
+        }
+
+        public async Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
+        {
+            try
+            {
+                var batteries = await _batterySqlGenericRepository.GetAsync(
+                    null,
+                    r => r.Client
+                );
+
+                if (!string.IsNullOrWhiteSpace(filter.ChipId))
+                {
+                    batteries = batteries.Where(r => r.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (!string.IsNullOrWhiteSpace(filter.ClientName))
+                {
+                    batteries = batteries.Where(r => r.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (filter.SaleDate.HasValue)
+                {
+                    batteries = batteries.Where(r => DateOnly.FromDateTime(r.SaleDate.Value) == filter.SaleDate.Value);
+                }
+
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {

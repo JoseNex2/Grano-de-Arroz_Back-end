@@ -77,7 +77,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Client> clients = await _sqlGenericRepository.GetAllAsync();
+                IEnumerable<Client> clients = await _sqlGenericRepository.GetAsync();
                 List<ClientViewDTO> clientsDTO = new List<ClientViewDTO>();
                 foreach (Client client in clients)
                 {

@@ -6,7 +6,7 @@ namespace DataAccess.Generic
     public interface ISqlGenericRepository<TEntity, TContext> where TEntity : class
     {
         Task<bool> IsConnectedAsync();
-        Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
+        //Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
 
@@ -42,7 +42,7 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
+        /*public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace DataAccess.Generic
                 Console.WriteLine(ex.ToString());
                 return null;
             }
-        }
+        }*/
 
         public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
         {

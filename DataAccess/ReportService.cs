@@ -79,7 +79,7 @@ namespace DataAccess
         {
             try
             {
-                var reports = await _reportSqlGenericRepository.GetAllAsync(
+                var reports = await _reportSqlGenericRepository.GetAsync(
                     null,
                     r => r.Battery.Client
                 );

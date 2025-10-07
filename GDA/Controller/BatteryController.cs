@@ -38,6 +38,16 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpPost]
+        [Route("batteriessearchwithfilter")]
+        public async Task<IActionResult> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
+        {
+            var result = await _batteryService.BatteriesSearchWithFilter(filter);
+            _logger.LogInformation("Se buscaron ciertas baterias.");
+            return StatusCode(result.Code, result);
+        }
+
         [AllowAnonymous]
         [HttpPost]
         [Route("uploadrawdata")]

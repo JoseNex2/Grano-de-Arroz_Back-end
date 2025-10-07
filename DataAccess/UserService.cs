@@ -132,7 +132,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<User> users = await _userSqlGenericRepository.GetAllAsync(includes: u => u.Role);
+                IEnumerable<User> users = await _userSqlGenericRepository.GetAsync(includes: u => u.Role);
                 List<UserViewDTO> usersDTO = new List<UserViewDTO>();
                 foreach (User user in users)
                 {
@@ -353,7 +353,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Role> roles = await _roleSqlGenericRepository.GetAllAsync();
+                IEnumerable<Role> roles = await _roleSqlGenericRepository.GetAsync();
                 List<RoleViewDTO> rolesDTO = new List<RoleViewDTO>();
                 foreach (Role role in roles)
                 {
