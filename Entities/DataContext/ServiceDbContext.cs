@@ -54,7 +54,8 @@ namespace Entities.DataContext
             batteryEntity.Property(e => e.DateRegistered).IsRequired();
             batteryEntity.HasOne(u => u.Client)
                          .WithMany(r => r.Batteries)
-                         .HasForeignKey(u => u.ClientId);
+                         .HasForeignKey(u => u.ClientId)
+                         .IsRequired(false);
 
             EntityTypeBuilder<Measurement> measurementEntity = modelBuilder.Entity<Measurement>();
             measurementEntity.ToTable("Measurements");

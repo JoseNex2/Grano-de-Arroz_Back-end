@@ -94,7 +94,7 @@ namespace DataAccess
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
-                        Client = new ClientViewDTO
+                        Client = battery.Client == null ? null : new ClientViewDTO
                         {
                             Id = battery.Client.Id,
                             Name = battery.Client.Name,
