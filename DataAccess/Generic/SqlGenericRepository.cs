@@ -65,19 +65,27 @@ namespace DataAccess.Generic
 
         public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
         {
-            IQueryable<TEntity> query =_sqlUnitOfWork.Context.Set<TEntity>();
-            if (includes != null)
+            try
             {
-                foreach (var include in includes)
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+                if (includes != null)
                 {
-                    query = query.Include(include);
+                    foreach (var include in includes)
+                    {
+                        query = query.Include(include);
+                    }
                 }
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
+                }
+                return await query.ToListAsync();
             }
-            if (whereCondition != null)
+            catch (Exception ex)
             {
-                query = query.Where(whereCondition);
+                Console.WriteLine(ex.ToString());
+                return null;
             }
-            return await query.ToListAsync();
         }
 
         public async Task<int?> CreateAsync(TEntity entity)
@@ -89,8 +97,9 @@ namespace DataAccess.Generic
                 _sqlUnitOfWork.Context.Entry(entity).Reload();
                 return Convert.ToInt32(entity.GetType().GetProperty("Id").GetValue(entity));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return null;
             }
         }
