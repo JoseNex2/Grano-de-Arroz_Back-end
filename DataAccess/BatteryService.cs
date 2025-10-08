@@ -83,7 +83,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAsync();
+                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAsync(includes: b => b.Client);
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {
@@ -94,7 +94,7 @@ namespace DataAccess
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
-                        /*Client = new ClientViewDTO
+                        Client = new ClientViewDTO
                         {
                             Id = battery.Client.Id,
                             Name = battery.Client.Name,
@@ -103,7 +103,7 @@ namespace DataAccess
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
                             DateRegistered = battery.Client.DateRegistered,
-                        }*/
+                        }
                     };
                     batteriesDTO.Add(batteryDTO);
 
@@ -127,10 +127,7 @@ namespace DataAccess
         {
             try
             {
-                var batteries = await _batterySqlGenericRepository.GetAsync(
-                    null,
-                    r => r.Client
-                );
+                var batteries = await _batterySqlGenericRepository.GetAsync(includes: r => r.Client);
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
@@ -157,7 +154,7 @@ namespace DataAccess
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
-                        /*Client = new ClientViewDTO
+                        Client = new ClientViewDTO
                         {
                             Id = battery.Client.Id,
                             Name = battery.Client.Name,
@@ -166,7 +163,7 @@ namespace DataAccess
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
                             DateRegistered = battery.Client.DateRegistered,
-                        }*/
+                        }
                     };
                     batteriesDTO.Add(batteryDTO);
 

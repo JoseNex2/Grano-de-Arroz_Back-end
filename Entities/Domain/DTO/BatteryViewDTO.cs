@@ -14,6 +14,6 @@ namespace Entities.Domain.DTO
         public string? WorkOrder { get; set; }
         public string Type { get; set; }
         public DateTime? SaleDate { get; set; }
-        //public ClientViewDTO? Client { get; set; }
+        public ClientViewDTO? Client { get; set; }
     }
 }
