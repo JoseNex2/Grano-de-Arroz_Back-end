@@ -83,7 +83,7 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Battery> batteries = (await _batterySqlGenericRepository.GetAsync(null, b => b.Client));
+                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAsync(includes: b => b.Client);
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {
