@@ -136,12 +136,12 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(filter.ClientName))
                 {
-                    batteries = batteries.Where(r => r.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
+                    batteries = batteries.Where(r => r.Client != null && r.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (filter.SaleDate.HasValue)
                 {
-                    batteries = batteries.Where(r => DateOnly.FromDateTime(r.SaleDate.Value) == filter.SaleDate.Value);
+                    batteries = batteries.Where(r => r.SaleDate.HasValue && DateOnly.FromDateTime(r.SaleDate.Value) == filter.SaleDate.Value);
                 }
 
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
@@ -154,7 +154,7 @@ namespace DataAccess
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
                         SaleDate = battery.SaleDate,
-                        Client = new ClientViewDTO
+                        Client = battery.Client == null ? null : new ClientViewDTO
                         {
                             Id = battery.Client.Id,
                             Name = battery.Client.Name,
