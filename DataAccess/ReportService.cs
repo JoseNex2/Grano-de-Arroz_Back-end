@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccess.Generic;
+﻿using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
-using Entities.Domain.DTO.Response;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using MySqlX.XDevAPI.Common;
 using Sprache;
 using Utilities;
 

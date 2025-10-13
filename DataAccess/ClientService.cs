@@ -29,43 +29,40 @@ namespace DataAccess
             {
                 bool estado = false;
                 Client? clienteEncontrado = (await _sqlGenericRepository.GetAsync(a => a.NationalId == clientDTO.NationalId || a.Email == clientDTO.Email)).SingleOrDefault();
-                if (clienteEncontrado == null)
+                if (clienteEncontrado != null)
                 {
-                    Client clientModel = new Client
-                    {
-                        Name = clientDTO.Name,
-                        Email = clientDTO.Email,
-                        LastName = clientDTO.LastName,
-                        NationalId = clientDTO.NationalId,
-                        PhoneNumber = clientDTO.PhoneNumber,
-                        DateRegistered = DateTime.Now
-                    };
-                    int? id = await _sqlGenericRepository.CreateAsync(clientModel);
-                    estado = true;
+                    return ResultService<ClientViewDTO>.Fail(409, Activator.CreateInstance<ClientViewDTO>(), "Cliente ya registrado.");
+                }
+                Client clientModel = new Client
+                {
+                    Name = clientDTO.Name,
+                    Email = clientDTO.Email,
+                    LastName = clientDTO.LastName,
+                    NationalId = clientDTO.NationalId,
+                    PhoneNumber = clientDTO.PhoneNumber,
+                    DateRegistered = DateTime.Now
+                };
+                int? id = await _sqlGenericRepository.CreateAsync(clientModel);
+                estado = true;
 
-                    ClientViewDTO clientView = new ClientViewDTO
-                    {
-                        Id = id.Value,
-                        Name = clientModel.Name,
-                        Email = clientModel.Email,
-                        LastName = clientModel.LastName,
-                        NationalId = clientModel.NationalId,
-                        PhoneNumber = clientModel.PhoneNumber,
-                        DateRegistered = clientModel.DateRegistered
+                ClientViewDTO clientView = new ClientViewDTO
+                {
+                    Id = id.Value,
+                    Name = clientModel.Name,
+                    Email = clientModel.Email,
+                    LastName = clientModel.LastName,
+                    NationalId = clientModel.NationalId,
+                    PhoneNumber = clientModel.PhoneNumber,
+                    DateRegistered = clientModel.DateRegistered
 
-                    };
-                    if (id != null && estado == true)
-                    {
-                        return ResultService<ClientViewDTO>.Ok(201, clientView, "Cliente registrado.");
-                    }
-                    else
-                    {
-                        return ResultService<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error al registrar el cliente.");
-                    }
+                };
+                if (id != null && estado == true)
+                {
+                    return ResultService<ClientViewDTO>.Ok(201, clientView, "Cliente registrado.");
                 }
                 else
                 {
-                    return ResultService<ClientViewDTO>.Fail(409, Activator.CreateInstance<ClientViewDTO>(), "Cliente ya registrado.");
+                    return ResultService<ClientViewDTO>.Fail(500, Activator.CreateInstance<ClientViewDTO>(), "Error al registrar el cliente.");
                 }
             }
             catch (Exception ex)
@@ -178,21 +175,18 @@ namespace DataAccess
             try
             {
                 Client? client = (await _sqlGenericRepository.GetAsync(a => a.Id == id)).FirstOrDefault();
-                if (client != null)
+                if (client == null)
                 {
-                    bool state = await _sqlGenericRepository.DeleteByIdAsync(client.Id);
-                    if (state == true)
-                    {
-                        return ResultService<ClientViewDTO>.Ok(200, Activator.CreateInstance<ClientViewDTO>(), "Cliente borrado correctamente.");
-                    }
-                    else
-                    {
-                        return ResultService<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
-                    }
+                    return ResultService<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
+                }
+                bool state = await _sqlGenericRepository.DeleteByIdAsync(client.Id);
+                if (state == true)
+                {
+                    return ResultService<ClientViewDTO>.Ok(200, Activator.CreateInstance<ClientViewDTO>(), "Cliente borrado correctamente.");
                 }
                 else
                 {
-                    return ResultService<ClientViewDTO>.Fail(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
+                    return ResultService<ClientViewDTO>.Ok(404, Activator.CreateInstance<ClientViewDTO>(), "No se encontro el cliente.");
                 }
             }
             catch (Exception ex)
