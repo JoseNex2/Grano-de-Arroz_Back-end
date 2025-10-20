@@ -10,8 +10,11 @@ namespace Entities.Domain.DTO
     {
         public int Id { get; set; }
         public string ChipId { get; set; }
-        public string ReportState { get; set; }
         public DateOnly ReportDate { get; set; }
+
+
+        public int StatusId { get; set; }
+        public string ReportState { get; set; }
 
 
         public int ClientId { get; set; }

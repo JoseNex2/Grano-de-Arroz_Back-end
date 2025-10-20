@@ -30,7 +30,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
         [HttpPost]
         [Route("reportssearch")]
         public async Task<IActionResult> ReportsSearchAsync([FromBody] ReportSearchFilter filter)
@@ -40,7 +40,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Laboratorio")]
         [HttpPut]
         [Route("updatemeasurementreport")]
         public async Task<IActionResult> UpdateMeasurementReportAsync([FromBody] ReportUpdateDTO update)
@@ -50,7 +50,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal")]
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
         [HttpGet]
         [Route("reportgetbyid")]
         public async Task<IActionResult> ReportGetByIdAsync([FromQuery] int reportId)

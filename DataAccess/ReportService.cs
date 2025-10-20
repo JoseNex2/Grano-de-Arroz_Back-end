@@ -19,12 +19,14 @@ namespace DataAccess
     {
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
+        private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
-            ISqlGenericRepository<Client, ServiceDbContext> clientSqlGenericRepository)
+            ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository)
         {
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _batterySqlGenericRepository = batterySqlGenericRepository;
+            _statusSqlGenericRepository = statusSqlGenericRepository;
         }
 
         public async Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest)
@@ -39,11 +41,17 @@ namespace DataAccess
                 if (batteryExist.Report != null)
                     return ResultService<ReportViewDTO>.Fail(409, Activator.CreateInstance<ReportViewDTO>(), "Ya se hizo un reporte de la batería.");
 
+                var pendingStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == "Pendiente")).FirstOrDefault();
+
+                if (pendingStatus == null)
+                    return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), "El estado 'Pendiente' no existe en la base de datos.");
+
+
                 var reportModel = new Report
                 {
-                    ReportState = "Pendiente",
                     ReportDate = DateTime.UtcNow,
-                    BatteryId = batteryExist.Id
+                    BatteryId = batteryExist.Id,
+                    StatusId = pendingStatus.Id,
                 };
 
                 var id = await _reportSqlGenericRepository.CreateAsync(reportModel);
@@ -57,7 +65,7 @@ namespace DataAccess
                     ChipId = batteryExist.ChipId,
                     ClientId = batteryExist.ClientId.Value,
                     ReportDate = DateOnly.FromDateTime(reportModel.ReportDate),
-                    ReportState = reportModel.ReportState
+                    ReportState = pendingStatus.Name
                 };
 
                 return ResultService<ReportViewDTO>.Ok(201, reportView, "Reporte creado.");
@@ -73,7 +81,8 @@ namespace DataAccess
             {
                 var reports = await _reportSqlGenericRepository.GetAsync(
                     null,
-                    r => r.Battery.Client
+                    r => r.Battery.Client,
+                    r => r.Status
                 );
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
@@ -88,7 +97,7 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(filter.State))
                 {
-                    reports = reports.Where(r => r.ReportState == filter.State);
+                    reports = reports.Where(r => r.Status.Name.Equals(filter.State, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (filter.ReportDate.HasValue)
@@ -96,13 +105,16 @@ namespace DataAccess
                     reports = reports.Where(r => DateOnly.FromDateTime(r.ReportDate) == filter.ReportDate.Value);
                 }
 
-                var reportsView = reports.Select(r => new ReportSearchDTO
+                var reportsList = reports.ToList();
+
+                var reportsView = reportsList.Select(r => new ReportSearchDTO
                 {
                     Id = r.Id,
-                    ChipId = r.Battery.ChipId,
-                    ClientName = r.Battery.Client.Name,
-                    ReportState = r.ReportState,
-                    ReportDate = DateOnly.FromDateTime(r.ReportDate)
+                    ChipId = r.Battery?.ChipId ?? string.Empty, 
+                    ClientName = r.Battery?.Client?.Name ?? string.Empty, 
+                    ReportState = r.Status?.Name ?? string.Empty, 
+                    ReportDate = r.ReportDate != DateTime.MinValue ?
+                    DateOnly.FromDateTime(r.ReportDate) : DateOnly.MinValue
                 });
 
                 return ResultService<IEnumerable<ReportSearchDTO>>.Ok(200, reportsView);
@@ -136,15 +148,21 @@ namespace DataAccess
                     }
                 }
 
-                report.ReportState = update.ReportState;
+                var newStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == update.ReportState)).FirstOrDefault();
+
+                if (newStatus == null)
+                    return ResultService<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{update.ReportState}' no existe.");
+
+                report.StatusId = newStatus.Id;
 
                 await _batterySqlGenericRepository.UpdateByEntityAsync(report.Battery);
+                await _reportSqlGenericRepository.UpdateByEntityAsync(report);
 
                 var dto = new ReportViewDTO
                 {
                     Id = report.Id,
                     ChipId = report.Battery.ChipId,
-                    ReportState = report.ReportState,
+                    ReportState = report.Status.Name,
                     ReportDate = DateOnly.FromDateTime(report.ReportDate)
                 };
 
@@ -163,7 +181,8 @@ namespace DataAccess
                     r => r.Id == reportId,
                     r => r.Battery.Client,
                     r => r.Battery,
-                    r => r.Battery.Measurements
+                    r => r.Battery.Measurements,
+                    r => r.Status
                 )).FirstOrDefault();
 
                 if (report == null)
@@ -184,7 +203,7 @@ namespace DataAccess
                 {
                     Id = report.Id,
                     ChipId = report.Battery.ChipId,
-                    ReportState = report.ReportState,
+                    ReportState = report.Status.Name,
                     ReportDate = DateOnly.FromDateTime(report.ReportDate),
 
                     ClientId = report.Battery.Client.Id,
