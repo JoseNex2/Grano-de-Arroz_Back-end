@@ -16,6 +16,7 @@ namespace Entities.DataContext
         public DbSet<Report> Reports { get; set; }
         public DbSet<Battery> Batteries { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
+        public DbSet<Status> Status { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +47,9 @@ namespace Entities.DataContext
             reportEntity.HasOne(r => r.Battery)
                         .WithOne(b => b.Report)
                         .HasForeignKey<Report>(u => u.BatteryId);
+            reportEntity.HasOne(r => r.Status)
+                        .WithMany(r => r.Reports)
+                        .HasForeignKey(u => u.StatusId);
 
             EntityTypeBuilder<Battery> batteryEntity = modelBuilder.Entity<Battery>();
             batteryEntity.ToTable("Batteries");
@@ -66,6 +70,10 @@ namespace Entities.DataContext
                              .WithMany(r => r.Measurements)
                              .HasForeignKey(u => u.BatteryId);
 
+            EntityTypeBuilder<Status> statusEntity = modelBuilder.Entity<Status>();
+            statusEntity.ToTable("Status");
+            statusEntity.HasKey(e => e.Id);
+            statusEntity.Property(e => e.Id).ValueGeneratedOnAdd();
         }
     }
 }
