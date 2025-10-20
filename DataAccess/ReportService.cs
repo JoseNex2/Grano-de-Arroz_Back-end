@@ -81,6 +81,7 @@ namespace DataAccess
             {
                 var reports = await _reportSqlGenericRepository.GetAsync(
                     null,
+                    r => r.Battery,
                     r => r.Battery.Client,
                     r => r.Status
                 );

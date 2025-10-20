@@ -14,7 +14,7 @@ namespace Entities.Domain
         public int StatusId { get; set; }
         public Status Status { get; set; }
         public DateTime ReportDate { get; set; }
-        public int? BatteryId { get; set; }
+        public int BatteryId { get; set; }
         public Battery Battery { get; set; }
     }
 }
