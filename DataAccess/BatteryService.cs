@@ -26,8 +26,7 @@ namespace DataAccess
 
         public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
             ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository, 
-            INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService, 
-            ISqlGenericRepository<Client, ServiceDbContext> clientSqlGenericRepository)
+            INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService)
         {
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _measurementSqlGenericRepository = measurementSqlGenericRepository;
@@ -48,28 +47,10 @@ namespace DataAccess
                         batteryFound.SaleDate = batteryDTO.SaleDate;
                         batteryFound.ClientId = batteryDTO.ClientId;
                         estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
-                        //Client Client = (await _clientSqlGenericRepository.GetAsync(r => r.Id == batteryDTO.ClientId)).FirstOrDefault();
 
-                        BatteryViewDTO batteryView = new BatteryViewDTO
-                        {
-                            Id = batteryFound.Id,
-                            ChipId = batteryFound.ChipId,
-                            WorkOrder = batteryFound.WorkOrder,
-                            Type = batteryFound.Type,
-                            SaleDate = batteryFound.SaleDate.Value,
-                            //Client = new ClientViewDTO
-                            //{
-                            //    Id = Client.Id,
-                            //    NationalId = Client.NationalId,
-                            //    Name = Client.Name,
-                            //    LastName = Client.LastName,
-                            //    Email = Client.Email,
-                            //    PhoneNumber = Client.PhoneNumber,
-                            //}
-                        };
                         if (estado == true)
                         {
-                            return ResultService<BatteryViewDTO>.Ok(201, batteryView, "Bateria asociada al cliente.");
+                            return ResultService<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
                         }
                         else
                         {
