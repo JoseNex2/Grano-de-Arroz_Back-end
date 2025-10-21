@@ -33,7 +33,7 @@ namespace DataAccess
         {
             try
             {
-                var batteryExist = (await _batterySqlGenericRepository.GetAsync(b => b.ChipId == reportRequest.ChipId)).FirstOrDefault();
+                var batteryExist = (await _batterySqlGenericRepository.GetAsync(b => b.ChipId == reportRequest.ChipId, r => r.Client)).FirstOrDefault();
 
                 if (batteryExist == null)
                     return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
@@ -65,7 +65,16 @@ namespace DataAccess
                     ChipId = batteryExist.ChipId,
                     ClientId = batteryExist.ClientId.Value,
                     ReportDate = DateOnly.FromDateTime(reportModel.ReportDate),
-                    ReportState = pendingStatus.Name
+                    ReportState = pendingStatus.Name,
+                    Client = new ClientViewDTO
+                    {
+                        Id = batteryExist.Client.Id,
+                        Name = batteryExist.Client.Name,
+                        LastName = batteryExist.Client.LastName,
+                        Email = batteryExist.Client.Email,
+                        PhoneNumber = batteryExist.Client.PhoneNumber,
+                        DateRegistered = batteryExist.Client.DateRegistered,
+                    }
                 };
 
                 return ResultService<ReportViewDTO>.Ok(201, reportView, "Reporte creado.");

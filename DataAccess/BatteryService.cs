@@ -35,7 +35,7 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId, r => r.Client)).FirstOrDefault();
                 if (batteryFound != null)
                 {
                     if (batteryFound.WorkOrder == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
@@ -52,6 +52,15 @@ namespace DataAccess
                             WorkOrder = batteryFound.WorkOrder,
                             Type = batteryFound.Type,
                             SaleDate = batteryFound.SaleDate.Value,
+                            Client = new ClientViewDTO
+                            {
+                                Id = batteryFound.Client.Id,
+                                Name = batteryFound.Client.Name,
+                                LastName = batteryFound.Client.LastName,
+                                Email = batteryFound.Client.Email,
+                                PhoneNumber = batteryFound.Client.PhoneNumber,
+                                DateRegistered = batteryFound.Client.DateRegistered,
+                            }
 
                         };
                         if (estado == true)
