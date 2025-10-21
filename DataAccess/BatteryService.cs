@@ -20,10 +20,14 @@ namespace DataAccess
     {
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Measurement, ServiceDbContext> _measurementSqlGenericRepository;
+        private readonly ISqlGenericRepository<Client, ServiceDbContext> _clientSqlGenericRepository;
         private readonly INonSqlGenericRepository<PointsRecord> _nonSqlGenericRepository;
         private readonly ICsvService _csvService;
 
-        public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository, INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService)
+        public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
+            ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository, 
+            INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService, 
+            ISqlGenericRepository<Client, ServiceDbContext> clientSqlGenericRepository)
         {
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _measurementSqlGenericRepository = measurementSqlGenericRepository;
@@ -44,6 +48,7 @@ namespace DataAccess
                         batteryFound.SaleDate = batteryDTO.SaleDate;
                         batteryFound.ClientId = batteryDTO.ClientId;
                         estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
+                        Client Client = (await _clientSqlGenericRepository.GetAsync(r => r.Id == batteryDTO.ClientId)).FirstOrDefault();
 
                         BatteryViewDTO batteryView = new BatteryViewDTO
                         {
@@ -54,14 +59,14 @@ namespace DataAccess
                             SaleDate = batteryFound.SaleDate.Value,
                             Client = new ClientViewDTO
                             {
-                                Id = batteryFound.Client.Id,
-                                Name = batteryFound.Client.Name,
-                                LastName = batteryFound.Client.LastName,
-                                Email = batteryFound.Client.Email,
-                                PhoneNumber = batteryFound.Client.PhoneNumber,
-                                DateRegistered = batteryFound.Client.DateRegistered,
+                                Id = Client.Id,
+                                NationalId = Client.NationalId,
+                                Name = Client.Name,
+                                LastName = Client.LastName,
+                                Email = Client.Email,
+                                PhoneNumber = Client.PhoneNumber,
+                                DateRegistered = batteryFound.DateRegistered
                             }
-
                         };
                         if (estado == true)
                         {
