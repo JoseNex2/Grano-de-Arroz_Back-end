@@ -39,7 +39,7 @@ namespace DataAccess
             try
             {
                 bool estado = false;
-                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId, r => r.Client)).FirstOrDefault();
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
                 if (batteryFound != null)
                 {
                     if (batteryFound.WorkOrder == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
@@ -65,7 +65,6 @@ namespace DataAccess
                                 LastName = Client.LastName,
                                 Email = Client.Email,
                                 PhoneNumber = Client.PhoneNumber,
-                                DateRegistered = batteryFound.DateRegistered
                             }
                         };
                         if (estado == true)
