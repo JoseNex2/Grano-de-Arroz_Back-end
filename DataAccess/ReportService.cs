@@ -38,7 +38,9 @@ namespace DataAccess
                 if (batteryExist == null)
                     return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
 
-                if (batteryExist.Report != null)
+                var reportExist = (await _reportSqlGenericRepository.GetAsync(b => b.BatteryId == batteryExist.Id));
+
+                if (reportExist != null)
                     return ResultService<ReportViewDTO>.Fail(409, Activator.CreateInstance<ReportViewDTO>(), "Ya se hizo un reporte de la batería.");
 
                 var pendingStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == "Pendiente")).FirstOrDefault();
