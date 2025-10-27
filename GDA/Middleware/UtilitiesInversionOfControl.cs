@@ -48,6 +48,7 @@ namespace GDA.Middleware
                 };
             });
             services.AddSingleton<AuthenticationService>();
+            services.AddScoped<IStorageService, StorageService>();
             return services;
         }
     }
