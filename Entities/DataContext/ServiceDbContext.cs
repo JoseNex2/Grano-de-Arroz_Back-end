@@ -20,6 +20,11 @@ namespace Entities.DataContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            EntityTypeBuilder<Role> roleEntity = modelBuilder.Entity<Role>();
+            roleEntity.ToTable("Roles");
+            roleEntity.HasKey(e => e.Id);
+            roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+
             EntityTypeBuilder<User> userEntity = modelBuilder.Entity<User>();
             userEntity.ToTable("Users");
             userEntity.HasKey(e => e.Id);
@@ -35,10 +40,21 @@ namespace Entities.DataContext
             clientEntity.Property(e => e.Id).ValueGeneratedOnAdd();
             clientEntity.Property(e => e.DateRegistered).IsRequired();
 
-            EntityTypeBuilder<Role> roleEntity = modelBuilder.Entity<Role>();
-            roleEntity.ToTable("Roles");
-            roleEntity.HasKey(e => e.Id);
-            roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+            EntityTypeBuilder<Status> statusEntity = modelBuilder.Entity<Status>();
+            statusEntity.ToTable("Status");
+            statusEntity.HasKey(e => e.Id);
+            statusEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            EntityTypeBuilder<MeasurementStatus> measurementStatusEntity = modelBuilder.Entity<MeasurementStatus>();
+            measurementStatusEntity.ToTable("MeasurementsStatus");
+            measurementStatusEntity.HasKey(e => e.Id);
+            measurementStatusEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+            measurementStatusEntity.HasOne(r => r.Status)
+                        .WithMany(r => r.MeasurementsStatus)
+                        .HasForeignKey(u => u.StatusId);
+            measurementStatusEntity.HasOne(r => r.Report)
+                        .WithMany(r => r.MeasurementsStatus)
+                        .HasForeignKey(u => u.ReportId);
 
             EntityTypeBuilder<Report> reportEntity = modelBuilder.Entity<Report>();
             reportEntity.ToTable("Reports");
@@ -69,11 +85,6 @@ namespace Entities.DataContext
             measurementEntity.HasOne(u => u.Battery)
                              .WithMany(r => r.Measurements)
                              .HasForeignKey(u => u.BatteryId);
-
-            EntityTypeBuilder<Status> statusEntity = modelBuilder.Entity<Status>();
-            statusEntity.ToTable("Status");
-            statusEntity.HasKey(e => e.Id);
-            statusEntity.Property(e => e.Id).ValueGeneratedOnAdd();
         }
     }
 }

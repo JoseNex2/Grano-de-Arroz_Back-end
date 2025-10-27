@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using DataAccess;
-
-namespace Entities.Domain
+﻿namespace Entities.Domain
 {
     public class Report
     {
@@ -16,5 +8,6 @@ namespace Entities.Domain
         public DateTime ReportDate { get; set; }
         public int BatteryId { get; set; }
         public Battery Battery { get; set; }
+        public ICollection<MeasurementStatus> MeasurementsStatus { get; set; } = new List<MeasurementStatus>();
     }
 }

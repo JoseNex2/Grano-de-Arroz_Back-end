@@ -2,8 +2,6 @@
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Sprache;
 using Utilities;
 
 namespace DataAccess
@@ -143,21 +141,29 @@ namespace DataAccess
             {
                 var report = (await _reportSqlGenericRepository.GetAsync(
                     r => r.Id == update.ReportId,
-                    r => r.Battery,
-                    r => r.Battery.Measurements
+                    r => r.Battery
                 )).FirstOrDefault();
 
                 if (report == null)
                     return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "Reporte no encontrado.");
 
-                foreach (var mUpdate in update.Measurements)
+                if(report.MeasurementsStatus.Count > 0)
+                    return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "El status de una magnitud ya fue cargada.");
+
+                foreach (var mUpdate in update.MeasurementsState)
                 {
-                    var measurement = report.Battery.Measurements.FirstOrDefault(m => m.Id == mUpdate.MeasurementId);
-                    if (measurement != null)
+                    var newMeasurementStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == mUpdate.Status)).FirstOrDefault();
+
+                    if (newMeasurementStatus == null)
+                        return ResultService<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{mUpdate.Status}' no existe.");
+
+                    report.MeasurementsStatus.Add(new MeasurementStatus
                     {
-                        measurement.Status = mUpdate.Status;
-                        measurement.Coment = mUpdate.Coment;
-                    }
+                        MeasurementId = mUpdate.MeasurementId,
+                        StatusId = newMeasurementStatus.Id,
+                        Coment = mUpdate.Coment,
+                        ReportId = update.ReportId
+                    });
                 }
 
                 var newStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == update.ReportState)).FirstOrDefault();
@@ -167,7 +173,6 @@ namespace DataAccess
 
                 report.StatusId = newStatus.Id;
 
-                await _batterySqlGenericRepository.UpdateByEntityAsync(report.Battery);
                 await _reportSqlGenericRepository.UpdateByEntityAsync(report);
 
                 var dto = new ReportViewDTO
@@ -194,22 +199,26 @@ namespace DataAccess
                     r => r.Battery.Client,
                     r => r.Battery,
                     r => r.Battery.Measurements,
-                    r => r.Status
+                    r => r.Status,
+                    r => r.MeasurementsStatus
                 )).FirstOrDefault();
 
                 if (report == null)
                     return ResultService<ReportDetailDTO>.Fail(404, new ReportDetailDTO(), "Reporte no encontrado.");
 
-                var measurementsDto = report.Battery.Measurements
-                    .Select(m => new MeasurementDTO
+                var measurementsDto = new List<MeasurementDTO>();
+
+                foreach(var measurementStatus in report.MeasurementsStatus)
+                {
+                    measurementsDto.Add(new MeasurementDTO
                     {
-                        Id = m.Id,
-                        Magnitude = m.Magnitude,
-                        Status = m.Status,
-                        Coment = m.Coment,
-                        MeasurementDate = m.MeasurementDate
-                    })
-                    .ToList();
+                        Id = measurementStatus.MeasurementId,
+                        Magnitude = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).Magnitude,
+                        Status = measurementStatus.Status.Name,
+                        Coment = measurementStatus.Coment,
+                        MeasurementDate = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).MeasurementDate
+                    });
+                }
 
                 var reportDetail = new ReportDetailDTO
                 {

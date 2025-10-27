@@ -9,7 +9,7 @@ namespace Entities.Domain.DTO
     public class ReportUpdateDTO
     {
         public int ReportId { get; set; }
-        public List<MeasurementUpdateDTO> Measurements { get; set; }
+        public List<MeasurementUpdateDTO> MeasurementsState { get; set; }
         public string ReportState { get; set; }
     }
 }
