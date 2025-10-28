@@ -48,6 +48,17 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("batterysearchwithid")]
+        public async Task<IActionResult> BatterySearchWithId(int id)
+        {
+            var result = await _batteryService.BatterySearchWithId(id);
+            _logger.LogInformation("Se busco una bateria por Id.");
+            return StatusCode(result.Code, result);
+        }
+
         [AllowAnonymous]
         [HttpPost]
         [Route("uploadrawdata")]
