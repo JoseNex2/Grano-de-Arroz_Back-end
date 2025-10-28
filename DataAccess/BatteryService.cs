@@ -22,15 +22,18 @@ namespace DataAccess
     {
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Measurement, ServiceDbContext> _measurementSqlGenericRepository;
+        private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly INonSqlGenericRepository<PointsRecord> _nonSqlGenericRepository;
         private readonly ICsvService _csvService;
 
         public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
-            ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository, 
+            ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository,
+            ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
             INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService)
         {
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _measurementSqlGenericRepository = measurementSqlGenericRepository;
+            _reportSqlGenericRepository = reportSqlGenericRepository;
             _nonSqlGenericRepository = nonSqlGenericRepository;
             _csvService = csvService;
         }
@@ -138,13 +141,26 @@ namespace DataAccess
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {
+                    Report report = (await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id)).FirstOrDefault();
+
+                    string reportValid = "";
+
+                    if (report == null)
+                    {
+                        reportValid = "No iniciado";
+                    }
+                    else if(report != null)
+                    {
+                        reportValid = report.Status.Name;
+                    }
+
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
                         ChipId = battery.ChipId,
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
-                        Status = battery.Report.Status.Name,
+                        Status = reportValid,
                         SaleDate = battery.SaleDate,
                         Client = battery.Client == null ? null : new ClientViewDTO
                         {
