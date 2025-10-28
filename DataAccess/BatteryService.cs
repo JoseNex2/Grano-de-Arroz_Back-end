@@ -3,6 +3,7 @@ using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
 using Entities.Domain.DTO.Response;
+using Minio.DataModel;
 using System.Diagnostics.Metrics;
 using Utilities;
 
@@ -150,9 +151,9 @@ namespace DataAccess
                     {
                         reportValid = "No iniciado";
                     }
-                    else if(report != null)
+                    else
                     {
-                        reportValid = report.Status.Name;
+                        reportValid = report.Status?.Name ?? "Pendiente";
                     }
 
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
