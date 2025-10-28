@@ -28,6 +28,6 @@ namespace Entities.Domain.DTO
         public DateTime DateRegistered { get; set; }
 
 
-        public List<MeasurementDTO> Measurements { get; set; } = new List<MeasurementDTO>();
+        public List<MeasurementReportDTO> Measurements { get; set; } = new List<MeasurementReportDTO>();
     }
 }

@@ -206,11 +206,11 @@ namespace DataAccess
                 if (report == null)
                     return ResultService<ReportDetailDTO>.Fail(404, new ReportDetailDTO(), "Reporte no encontrado.");
 
-                var measurementsDto = new List<MeasurementDTO>();
+                var measurementsDto = new List<MeasurementReportDTO>();
 
                 foreach(var measurementStatus in report.MeasurementsStatus)
                 {
-                    measurementsDto.Add(new MeasurementDTO
+                    measurementsDto.Add(new MeasurementReportDTO
                     {
                         Id = measurementStatus.MeasurementId,
                         Magnitude = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).Magnitude,

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Entities.Domain.DTO
 {
-    public class MeasurementDTO
+    public class MeasurementReportDTO
     {
         public int Id { get; set; }
         public string Magnitude { get; set; }
+        public string Status { get; set; }
+        public string Coment { get; set; }
         public DateTime MeasurementDate { get; set; }
-        public Dictionary<TimeOnly, float> Points { get; set; }
     }
 }

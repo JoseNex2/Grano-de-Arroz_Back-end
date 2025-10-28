@@ -3,6 +3,7 @@ using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
 using Entities.Domain.DTO.Response;
+using System.Diagnostics.Metrics;
 using Utilities;
 
 namespace DataAccess
@@ -12,6 +13,7 @@ namespace DataAccess
         Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
         Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
         Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
+        Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id);
         Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO);
     }
 
@@ -20,7 +22,6 @@ namespace DataAccess
     {
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Measurement, ServiceDbContext> _measurementSqlGenericRepository;
-        private readonly ISqlGenericRepository<Client, ServiceDbContext> _clientSqlGenericRepository;
         private readonly INonSqlGenericRepository<PointsRecord> _nonSqlGenericRepository;
         private readonly ICsvService _csvService;
 
@@ -39,32 +40,28 @@ namespace DataAccess
             {
                 bool estado = false;
                 Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
-                if (batteryFound != null)
+                if (batteryFound == null)
                 {
-                    if (batteryFound.WorkOrder == null && batteryFound.SaleDate == null && batteryFound.ClientId == null)
-                    {
-                        batteryFound.WorkOrder = batteryDTO.WorkOrder;
-                        batteryFound.SaleDate = batteryDTO.SaleDate;
-                        batteryFound.ClientId = batteryDTO.ClientId;
-                        estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
+                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
+                }
 
-                        if (estado == true)
-                        {
-                            return ResultService<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
-                        }
-                        else
-                        {
-                            return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
-                        }
-                    }
-                    else
-                    {
-                        return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
-                    }
+                if (batteryFound.WorkOrder != null && batteryFound.SaleDate != null && batteryFound.ClientId != null)
+                {
+                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
+                }
+
+                batteryFound.WorkOrder = batteryDTO.WorkOrder;
+                batteryFound.SaleDate = batteryDTO.SaleDate;
+                batteryFound.ClientId = batteryDTO.ClientId;
+                estado = await _batterySqlGenericRepository.UpdateByEntityAsync(batteryFound);
+
+                if (estado == true)
+                {
+                    return ResultService<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
                 }
                 else
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
+                    return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
                 }
             }
             catch (Exception ex)
@@ -174,6 +171,59 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return ResultService<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+            }
+        }
+
+        public async Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id)
+        {
+            try
+            {
+                var batteryFound = (await _batterySqlGenericRepository.GetAsync(r => r.Id == id, r => r.Measurements)).FirstOrDefault();
+                if (batteryFound == null)
+                {
+                    return ResultService<BatterySearchResponseDTO>.Fail(409, Activator.CreateInstance<BatterySearchResponseDTO>(), "No se encuentra la bateria registrada.");
+                }
+
+                BatteryViewDTO batteryDto = new BatteryViewDTO
+                {
+                    Id = id,
+                    ChipId = batteryFound.ChipId,
+                    WorkOrder = batteryFound.WorkOrder,
+                    Type = batteryFound.Type,
+                    SaleDate = batteryFound.SaleDate
+                };
+                List<MeasurementDTO> measurementsDto = new List<MeasurementDTO>();
+
+                foreach(Measurement measurement in batteryFound.Measurements)
+                {
+                    PointsRecord ?pointsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
+
+                    if (pointsRecord == null)
+                    {
+                        return ResultService<BatterySearchResponseDTO>.Fail(409, Activator.CreateInstance<BatterySearchResponseDTO>(), "No se encontraron mediciones cargadas para esta bateria.");
+                    }
+
+                    MeasurementDTO measurementDto = new MeasurementDTO
+                    {
+                        Id = measurement.Id,
+                        Magnitude = measurement.Magnitude,
+                        MeasurementDate = measurement.MeasurementDate,
+                        Points = pointsRecord.Points
+                    };
+                    measurementsDto.Add(measurementDto);
+                }
+
+                BatterySearchResponseDTO response = new BatterySearchResponseDTO
+                {
+                    battery = batteryDto,
+                    measurements = measurementsDto
+                };
+
+                return ResultService<BatterySearchResponseDTO>.Ok(200, response);
+            }
+            catch(Exception ex)
+            {
+                return ResultService<BatterySearchResponseDTO>.Fail(500, Activator.CreateInstance<BatterySearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
