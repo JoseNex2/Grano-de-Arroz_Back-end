@@ -121,7 +121,7 @@ namespace DataAccess
         {
             try
             {
-                var batteries = await _batterySqlGenericRepository.GetAsync(r => r.Client != null && r.Report == null,r => r.Client);
+                var batteries = await _batterySqlGenericRepository.GetAsync(r => r.Client != null,r => r.Client); // && r.Report == null
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
@@ -147,6 +147,7 @@ namespace DataAccess
                         ChipId = battery.ChipId,
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
+                        Status = battery.Report.Status.Name,
                         SaleDate = battery.SaleDate,
                         Client = battery.Client == null ? null : new ClientViewDTO
                         {
