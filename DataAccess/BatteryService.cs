@@ -141,7 +141,7 @@ namespace DataAccess
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
                 foreach (Battery battery in batteries)
                 {
-                    Report report = (await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id)).FirstOrDefault();
+                    Report? report = (await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id)).FirstOrDefault();
 
                     string reportValid = "";
 
