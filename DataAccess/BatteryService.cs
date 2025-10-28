@@ -118,7 +118,7 @@ namespace DataAccess
         {
             try
             {
-                var batteries = await _batterySqlGenericRepository.GetAsync(r => r.Client != null,r => r.Client); // && r.Report == null
+                var batteries = await _batterySqlGenericRepository.GetAsync(r => r.Client != null,r => r.Client, r => r.Report); // && r.Report == null
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
