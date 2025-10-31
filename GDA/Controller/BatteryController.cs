@@ -59,7 +59,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         [HttpPost]
         [Route("uploadrawdata")]
         public async Task<IActionResult> UploadRawData([FromForm] RawDataDTO rawDataDTO)
@@ -67,6 +67,6 @@ namespace GDA.Controller
             var result = await _batteryService.UploadRawData(rawDataDTO);
             _logger.LogInformation("Se subieron nuevas mediciones.");
             return StatusCode(result.Code, result);
-        }
+        }*/
     }
 }

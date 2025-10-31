@@ -15,7 +15,7 @@ namespace DataAccess
         Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
         Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
         Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id);
-        Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO);
+        //Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO);
     }
 
 
@@ -24,13 +24,13 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Measurement, ServiceDbContext> _measurementSqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
-        private readonly INonSqlGenericRepository<PointsRecord> _nonSqlGenericRepository;
+        private readonly INonSqlGenericRepository<MetricsRecord> _nonSqlGenericRepository;
         private readonly ICsvService _csvService;
 
         public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
             ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
-            INonSqlGenericRepository<PointsRecord> nonSqlGenericRepository, ICsvService csvService)
+            INonSqlGenericRepository<MetricsRecord> nonSqlGenericRepository, ICsvService csvService)
         {
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _measurementSqlGenericRepository = measurementSqlGenericRepository;
@@ -215,9 +215,9 @@ namespace DataAccess
 
                 foreach(Measurement measurement in batteryFound.Measurements)
                 {
-                    PointsRecord ?pointsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
+                    MetricsRecord ?metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
 
-                    if (pointsRecord == null)
+                    if (metricsRecord == null)
                     {
                         return ResultService<BatterySearchResponseDTO>.Fail(409, Activator.CreateInstance<BatterySearchResponseDTO>(), "No se encontraron mediciones cargadas para esta bateria.");
                     }
@@ -227,7 +227,8 @@ namespace DataAccess
                         Id = measurement.Id,
                         Magnitude = measurement.Magnitude,
                         MeasurementDate = measurement.MeasurementDate,
-                        Points = pointsRecord.Points
+                        Metrics = metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value
+    )
                     };
                     measurementsDto.Add(measurementDto);
                 }
@@ -246,7 +247,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
+        /*public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
         {
             try
             {
@@ -285,7 +286,7 @@ namespace DataAccess
                         using (StreamReader reader = new StreamReader(rawDataDTO.File.OpenReadStream()))
                         {
                             Dictionary<TimeOnly, float> points = await _csvService.CsvToDictionary(reader);
-                            PointsRecord pointsRecord = new PointsRecord
+                            MetricsRecord pointsRecord = new MetricsRecord
                             {
                                 Id = id.Value,
                                 Points = points
@@ -309,7 +310,7 @@ namespace DataAccess
                             using (StreamReader reader = new StreamReader(rawDataDTO.File.OpenReadStream()))
                             {
                                 Dictionary<TimeOnly, float> points = await _csvService.CsvToDictionary(reader);
-                                PointsRecord pointsRecord = new PointsRecord
+                                MetricsRecord pointsRecord = new MetricsRecord
                                 {
                                     Id = id.Value,
                                     Points = points
@@ -329,6 +330,6 @@ namespace DataAccess
             {
                 return ResultService<RawDataResponseDTO>.Fail(500, Activator.CreateInstance<RawDataResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
-        }
+        }*/
     }
 }
