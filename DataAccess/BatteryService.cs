@@ -221,8 +221,8 @@ namespace DataAccess
                     {
                         Id = measurement.Id,
                         Magnitude = measurement.Magnitude,
-                        MeasurementDate = measurement.MeasurementDate
-                        //Metrics = metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value)
+                        MeasurementDate = measurement.MeasurementDate,
+                        Metrics = metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value)
                     };
                     measurementsDto.Add(measurementDto);
                 }
