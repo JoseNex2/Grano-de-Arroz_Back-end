@@ -30,6 +30,7 @@ namespace DataAccess.Generic
             _collection = context.Set<TEntity>();
             _client = context.Client;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger.LogInformation("Consultando colección {Collection}", _collection.CollectionNamespace.CollectionName);
         }
 
         public async Task<bool> IsConnectedAsync()
