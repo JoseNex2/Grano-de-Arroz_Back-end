@@ -217,12 +217,13 @@ namespace DataAccess
                 {
                     MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByFieldAsync("Id", measurement.Id.ToString())).FirstOrDefault();
 
+
                     MeasurementDTO measurementDto = new MeasurementDTO
                     {
                         Id = measurement.Id,
                         Magnitude = measurement.Magnitude,
                         MeasurementDate = measurement.MeasurementDate,
-                        Metrics = metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value)
+                        Metrics = metricsRecord?.Metrics != null ? metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value) : new Dictionary<TimeOnly, float>()
                     };
                     measurementsDto.Add(measurementDto);
                 }
