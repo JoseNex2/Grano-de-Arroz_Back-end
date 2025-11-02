@@ -215,7 +215,7 @@ namespace DataAccess
 
                 foreach(Measurement measurement in batteryFound.Measurements)
                 {
-                    MetricsRecord ?metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id.ToString())).FirstOrDefault();
+                    MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByFieldAsync("Id", measurement.Id.ToString())).FirstOrDefault();
 
                     MeasurementDTO measurementDto = new MeasurementDTO
                     {
