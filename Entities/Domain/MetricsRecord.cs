@@ -11,6 +11,6 @@ namespace Entities.Domain
         [BsonElement("Id")]
         public int Id { get; set; }
         [BsonElement("Metrics")]
-        public Dictionary<string, float> Metrics { get; set; }
+        public Dictionary<string, double> Metrics { get; set; }
     }
 }

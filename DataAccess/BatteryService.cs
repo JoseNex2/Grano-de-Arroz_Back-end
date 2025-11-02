@@ -236,7 +236,7 @@ namespace DataAccess
                         Id = measurement.Id,
                         Magnitude = measurement.Magnitude,
                         MeasurementDate = measurement.MeasurementDate,
-                        Metrics = metricsRecord?.Metrics != null ? metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value) : new Dictionary<TimeOnly, float>()
+                        Metrics = metricsRecord?.Metrics != null ? metricsRecord.Metrics.ToDictionary(kvp => TimeOnly.Parse(kvp.Key), kvp => kvp.Value) : new Dictionary<TimeOnly, double>()
                     };
                     measurementsDto.Add(measurementDto);
                 }

@@ -11,6 +11,6 @@ namespace Entities.Domain.DTO
         public int Id { get; set; }
         public string Magnitude { get; set; }
         public DateTime MeasurementDate { get; set; }
-        public Dictionary<TimeOnly, float> Metrics { get; set; }
+        public Dictionary<TimeOnly, double> Metrics { get; set; }
     }
 }
