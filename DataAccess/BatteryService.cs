@@ -222,13 +222,13 @@ namespace DataAccess
                 foreach (var item in allMetrics)
                 {
                     _logger.LogInformation("Mongo Id: {MongoId}, Campo Id: {Id}",
-                        item.GetType().GetProperty("ObjectId")?.GetValue(item),
+                        item.GetType().GetProperty("_id")?.GetValue(item),
                         item.GetType().GetProperty("Id")?.GetValue(item));
                 }
                 ////////////////////////////////////////////
                 foreach (Measurement measurement in batteryFound.Measurements)
                 {
-                    MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByFieldAsync("Id", measurement.Id.ToString())).FirstOrDefault();
+                    MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
 
 
                     MeasurementDTO measurementDto = new MeasurementDTO

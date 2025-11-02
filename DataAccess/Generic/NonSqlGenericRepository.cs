@@ -14,7 +14,7 @@ namespace DataAccess.Generic
         Task<bool> UpdateByEntityAsync(TEntity entity);
         Task<bool> AddToArrayAsync<TItem>(int entityId, string arrayName, TItem newItem);
         Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value);
+        //Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value);
         Task<IEnumerable<TEntity>> GetByParameterAsync(Expression<Func<TEntity, bool>> whereCondition = null, FilterDefinition<TEntity> filterDefinition = null);
         Task<IEnumerable<TEntity>> GetByParameterNestedAsync<TArrayElement>(Expression<Func<TEntity, bool>> whereCondition = null, Expression<Func<TEntity, IEnumerable<TArrayElement>>> arrayField = null, Expression<Func<TArrayElement, bool>> arrayCondition = null, bool onlyMatchingElements = false);
     }
@@ -62,13 +62,13 @@ namespace DataAccess.Generic
             return result;
         }*/
 
-        public async Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value)
+        /*public async Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value)
         {
             var filter = Builders<TEntity>.Filter.Eq(fieldName, value);
             var results = await _collection.Find(filter).ToListAsync();
             _logger.LogDebug("Consulta por campo {FieldName}={Value}. Resultados: {Count}", fieldName, value, results.Count);
             return results;
-        }
+        }*/
 
         public async Task<IEnumerable<TEntity>> GetByParameterAsync(Expression<Func<TEntity, bool>> whereCondition = null, FilterDefinition<TEntity> filterDefinition = null)
         {
