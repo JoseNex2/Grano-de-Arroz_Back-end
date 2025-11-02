@@ -221,9 +221,10 @@ namespace DataAccess
 
                 foreach (var item in allMetrics)
                 {
-                    _logger.LogInformation("Mongo Id: {MongoId}, Campo Id: {Id}",
+                    _logger.LogInformation("Mongo Id: {MongoId}, Campo Id: {Id}, Puntos medidos: {Points}",
                         item.GetType().GetProperty("_id")?.GetValue(item),
-                        item.GetType().GetProperty("Id")?.GetValue(item));
+                        item.GetType().GetProperty("Id")?.GetValue(item),
+                        item.GetType().GetProperty("Metrics")?.GetValue(item));
                 }
                 ////////////////////////////////////////////
                 foreach (Measurement measurement in batteryFound.Measurements)
