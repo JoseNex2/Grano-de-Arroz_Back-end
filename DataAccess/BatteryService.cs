@@ -5,6 +5,7 @@ using Entities.Domain.DTO;
 using Entities.Domain.DTO.Response;
 using Microsoft.Extensions.Logging;
 using Minio.DataModel;
+using MongoDB.Driver;
 using System.Diagnostics.Metrics;
 using Utilities;
 
@@ -218,7 +219,8 @@ namespace DataAccess
 
                 foreach (Measurement measurement in batteryFound.Measurements)
                 {
-                    MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
+                    var filter = Builders<MetricsRecord>.Filter.Eq("Id", measurement.Id);
+                    MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(filterDefinition: filter)).FirstOrDefault();
 
                     _logger.LogInformation("Campo Id de measurement: {Id}, Campo Id de metric: {Id}",
                     measurement.Id,
