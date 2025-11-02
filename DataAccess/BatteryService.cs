@@ -3,6 +3,7 @@ using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
 using Entities.Domain.DTO.Response;
+using Microsoft.Extensions.Logging;
 using Minio.DataModel;
 using System.Diagnostics.Metrics;
 using Utilities;
@@ -26,17 +27,19 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly INonSqlGenericRepository<MetricsRecord> _nonSqlGenericRepository;
         private readonly ICsvService _csvService;
+        private readonly ILogger<BatteryService> _logger;
 
         public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
             ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
-            INonSqlGenericRepository<MetricsRecord> nonSqlGenericRepository, ICsvService csvService)
+            INonSqlGenericRepository<MetricsRecord> nonSqlGenericRepository, ICsvService csvService, ILogger<BatteryService> logger)
         {
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _measurementSqlGenericRepository = measurementSqlGenericRepository;
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _nonSqlGenericRepository = nonSqlGenericRepository;
             _csvService = csvService;
+            _logger = logger;
         }
         public async Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
         {
@@ -212,8 +215,18 @@ namespace DataAccess
                     SaleDate = batteryFound.SaleDate
                 };
                 List<MeasurementDTO> measurementsDto = new List<MeasurementDTO>();
+                /////////////////////////////////////////////
+                var allMetrics = await _nonSqlGenericRepository.GetAllAsync();
+                _logger.LogInformation("Documentos totales en MetricsRecord: {Count}", allMetrics.Count());
 
-                foreach(Measurement measurement in batteryFound.Measurements)
+                foreach (var item in allMetrics)
+                {
+                    _logger.LogInformation("Mongo Id: {MongoId}, Campo Id: {Id}",
+                        item.GetType().GetProperty("ObjectId")?.GetValue(item),
+                        item.GetType().GetProperty("Id")?.GetValue(item));
+                }
+                ////////////////////////////////////////////
+                foreach (Measurement measurement in batteryFound.Measurements)
                 {
                     MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByFieldAsync("Id", measurement.Id.ToString())).FirstOrDefault();
 

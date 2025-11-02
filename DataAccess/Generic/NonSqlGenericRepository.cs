@@ -13,7 +13,7 @@ namespace DataAccess.Generic
         Task<bool> CreateAsync(TEntity entity);
         Task<bool> UpdateByEntityAsync(TEntity entity);
         Task<bool> AddToArrayAsync<TItem>(int entityId, string arrayName, TItem newItem);
-        Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch);
+        Task<IEnumerable<TEntity>> GetAllAsync();
         Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value);
         Task<IEnumerable<TEntity>> GetByParameterAsync(Expression<Func<TEntity, bool>> whereCondition = null, FilterDefinition<TEntity> filterDefinition = null);
         Task<IEnumerable<TEntity>> GetByParameterNestedAsync<TArrayElement>(Expression<Func<TEntity, bool>> whereCondition = null, Expression<Func<TEntity, IEnumerable<TArrayElement>>> arrayField = null, Expression<Func<TArrayElement, bool>> arrayCondition = null, bool onlyMatchingElements = false);
@@ -30,7 +30,6 @@ namespace DataAccess.Generic
             _collection = context.Set<TEntity>();
             _client = context.Client;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogInformation("Consultando colección {Collection}", _collection.CollectionNamespace.CollectionName);
         }
 
         public async Task<bool> IsConnectedAsync()
@@ -48,13 +47,20 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch)
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            List<TEntity> result = await _collection.Find(Builders<TEntity>.Filter.Empty).ToListAsync();
+            _logger.LogDebug("Obtenidas {Count} entidades.", result.Count);
+            return result;
+        }
+
+        /*public async Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch)
         {
             FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Empty;
             List<TEntity> result = await _collection.Find(filter).Skip(offset).Limit(fetch).ToListAsync();
             _logger.LogDebug("Obtenidas {Count} entidades desde offset {Offset} con fetch {Fetch}.", result.Count, offset, fetch);
             return result;
-        }
+        }*/
 
         public async Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value)
         {
