@@ -215,22 +215,14 @@ namespace DataAccess
                     SaleDate = batteryFound.SaleDate
                 };
                 List<MeasurementDTO> measurementsDto = new List<MeasurementDTO>();
-                /////////////////////////////////////////////
-                var allMetrics = await _nonSqlGenericRepository.GetAllAsync();
-                _logger.LogInformation("Documentos totales en MetricsRecord: {Count}", allMetrics.Count());
 
-                foreach (var item in allMetrics)
-                {
-                    _logger.LogInformation("Mongo Id: {MongoId}, Campo Id: {Id}, Puntos medidos: {Points}",
-                        item.GetType().GetProperty("_id")?.GetValue(item),
-                        item.GetType().GetProperty("Id")?.GetValue(item),
-                        item.GetType().GetProperty("Metrics")?.GetValue(item));
-                }
-                ////////////////////////////////////////////
                 foreach (Measurement measurement in batteryFound.Measurements)
                 {
                     MetricsRecord? metricsRecord = (await _nonSqlGenericRepository.GetByParameterAsync(a => a.Id == measurement.Id)).FirstOrDefault();
 
+                    _logger.LogInformation("Campo Id de measurement: {Id}, Campo Id de metric: {Id}",
+                    measurement.Id,
+                    metricsRecord.Id);
 
                     MeasurementDTO measurementDto = new MeasurementDTO
                     {

@@ -54,22 +54,6 @@ namespace DataAccess.Generic
             return result;
         }
 
-        /*public async Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch)
-        {
-            FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Empty;
-            List<TEntity> result = await _collection.Find(filter).Skip(offset).Limit(fetch).ToListAsync();
-            _logger.LogDebug("Obtenidas {Count} entidades desde offset {Offset} con fetch {Fetch}.", result.Count, offset, fetch);
-            return result;
-        }*/
-
-        /*public async Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value)
-        {
-            var filter = Builders<TEntity>.Filter.Eq(fieldName, value);
-            var results = await _collection.Find(filter).ToListAsync();
-            _logger.LogDebug("Consulta por campo {FieldName}={Value}. Resultados: {Count}", fieldName, value, results.Count);
-            return results;
-        }*/
-
         public async Task<IEnumerable<TEntity>> GetByParameterAsync(Expression<Func<TEntity, bool>> whereCondition = null, FilterDefinition<TEntity> filterDefinition = null)
         {
             FilterDefinition<TEntity> filter = filterDefinition ?? (whereCondition != null ? Builders<TEntity>.Filter.Where(whereCondition) : Builders<TEntity>.Filter.Empty);
