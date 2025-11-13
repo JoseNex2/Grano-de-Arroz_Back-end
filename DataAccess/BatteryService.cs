@@ -1,4 +1,5 @@
-﻿using DataAccess.Generic;
+﻿using System.Reactive.Joins;
+using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
@@ -24,6 +25,7 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Measurement, ServiceDbContext> _measurementSqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly INonSqlGenericRepository<MetricsRecord> _nonSqlGenericRepository;
+        private string statusNotInit = "No iniciada";
 
         public BatteryService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository, 
             ISqlGenericRepository<Measurement, ServiceDbContext> measurementSqlGenericRepository,
@@ -75,11 +77,16 @@ namespace DataAccess
         {
             try
             {
-                IEnumerable<Battery> batteries = await _batterySqlGenericRepository.GetAsync(includes: b => b.Client);
-                List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
-                foreach (Battery battery in batteries)
+                var batteries = await _batterySqlGenericRepository.GetAsync(includes: b => b.Client);
+
+                var batteriesDTO = batteries.Select(b => new BatteryViewDTO
                 {
-                    BatteryViewDTO batteryDTO = new BatteryViewDTO
+                    Id = b.Id,
+                    ChipId = b.ChipId,
+                    WorkOrder = b.WorkOrder,
+                    Type = b.Type,
+                    SaleDate = b.SaleDate,
+                    Client = b.Client == null ? null : new ClientViewDTO
                     {
                         Id = battery.Id,
                         ChipId = battery.ChipId,
@@ -94,7 +101,7 @@ namespace DataAccess
                             NationalId = battery.Client.NationalId,
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
-                            RegisteredDate = battery.Client.RegisteredDate,
+                            DateRegistered = battery.Client.DateRegistered,
                         }
                     };
                     batteriesDTO.Add(batteryDTO);
@@ -119,21 +126,30 @@ namespace DataAccess
         {
             try
             {
-                var batteries = await _batterySqlGenericRepository.GetAsync(r => r.Client != null,r => r.Client); // && r.Report == null
+                var batteries = await _batterySqlGenericRepository.GetAsync(
+                    b => b.Client != null,
+                    b => b.Client,
+                    b => b.Report,
+                    b => b.Report.Status
+                );
 
                 if (!string.IsNullOrWhiteSpace(filter.ChipId))
                 {
-                    batteries = batteries.Where(r => r.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
+                    batteries = batteries.Where(b =>
+                        b.ChipId.Contains(filter.ChipId, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (!string.IsNullOrWhiteSpace(filter.ClientName))
                 {
-                    batteries = batteries.Where(r => r.Client != null && r.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
+                    batteries = batteries.Where(b =>
+                        b.Client.Name.Contains(filter.ClientName, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (filter.SaleDate.HasValue)
                 {
-                    batteries = batteries.Where(r => r.SaleDate.HasValue && DateOnly.FromDateTime(r.SaleDate.Value) == filter.SaleDate.Value);
+                    batteries = batteries.Where(b =>
+                        b.SaleDate.HasValue &&
+                        DateOnly.FromDateTime(b.SaleDate.Value) == filter.SaleDate.Value);
                 }
 
                 List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
@@ -142,12 +158,24 @@ namespace DataAccess
                     var reports = await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id);
                     Report? report = reports?.FirstOrDefault();
 
+                    string reportValid = "";
+
+                    if (report == null)
+                    {
+                        reportValid = "No iniciado";
+                    }
+                    else
+                    {
+                        reportValid = report.Status?.Name ?? "Pendiente";
+                    }
+
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
                         ChipId = battery.ChipId,
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
+                        Status = reportValid,
                         SaleDate = battery.SaleDate,
                         Client = battery.Client == null ? null : new ClientViewDTO
                         {
@@ -157,14 +185,14 @@ namespace DataAccess
                             NationalId = battery.Client.NationalId,
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
-                            RegisteredDate = battery.Client.RegisteredDate,
+                            DateRegistered = battery.Client.DateRegistered,
                         }
                     };
                     batteriesDTO.Add(batteryDTO);
 
                 }
 
-                BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
+                var response = new BatteriesSearchResponseDTO
                 {
                     TotalBatteries = batteriesDTO.Count,
                     Batteries = batteriesDTO
@@ -174,9 +202,14 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                return ResultService<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+                return ResultService<BatteriesSearchResponseDTO>.Fail(
+                    500,
+                    Activator.CreateInstance<BatteriesSearchResponseDTO>(),
+                    "Error interno del servidor, vuelva a intentarlo. " + ex.Message
+                );
             }
         }
+
 
         public async Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id)
         {
