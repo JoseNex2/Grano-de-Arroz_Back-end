@@ -236,7 +236,7 @@ namespace DataAccess
                     SaleDate = report.Battery.SaleDate,
                     DateRegistered = report.Battery.DateRegistered,
 
-                    Measurements = measurementsDto
+                    //Measurements = measurementsDto
                 };
 
                 return ResultService<ReportDetailDTO>.Ok(200, reportDetail, "Detalle del reporte obtenido.");
