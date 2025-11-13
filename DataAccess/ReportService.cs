@@ -211,7 +211,7 @@ namespace DataAccess
 
                 var measurementsDto = new List<MeasurementReportDTO>();
 
-                if (report.MeasurementsStatus != null)
+                if (report.MeasurementsStatus != null && report.Battery?.Measurements != null)
                 {
                     foreach (var measurementStatus in report.MeasurementsStatus)
                     {
