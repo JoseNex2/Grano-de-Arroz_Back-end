@@ -73,7 +73,7 @@ namespace DataAccess
                         LastName = batteryExist.Client.LastName,
                         Email = batteryExist.Client.Email,
                         PhoneNumber = batteryExist.Client.PhoneNumber,
-                        DateRegistered = batteryExist.Client.DateRegistered,
+                        RegisteredDate = batteryExist.Client.RegisteredDate
                     }
                 };
 
@@ -234,7 +234,7 @@ namespace DataAccess
                     BatteryType = report.Battery.Type,
                     BatteryWorkOrder = report.Battery.WorkOrder,
                     SaleDate = report.Battery.SaleDate,
-                    DateRegistered = report.Battery.DateRegistered,
+                    RegisteredDate = report.Battery.RegisteredDate,
 
                     Measurements = measurementsDto
                 };

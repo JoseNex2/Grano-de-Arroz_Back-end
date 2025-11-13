@@ -94,7 +94,7 @@ namespace DataAccess
                             NationalId = battery.Client.NationalId,
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
-                            DateRegistered = battery.Client.DateRegistered,
+                            RegisteredDate = battery.Client.RegisteredDate,
                         }
                     };
                     batteriesDTO.Add(batteryDTO);
@@ -142,24 +142,12 @@ namespace DataAccess
                     var reports = await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id);
                     Report? report = reports?.FirstOrDefault();
 
-                    string reportValid = "";
-
-                    if (report == null)
-                    {
-                        reportValid = "No iniciado";
-                    }
-                    else
-                    {
-                        reportValid = report.Status?.Name ?? "Pendiente";
-                    }
-
                     BatteryViewDTO batteryDTO = new BatteryViewDTO
                     {
                         Id = battery.Id,
                         ChipId = battery.ChipId,
                         WorkOrder = battery.WorkOrder,
                         Type = battery.Type,
-                        Status = reportValid,
                         SaleDate = battery.SaleDate,
                         Client = battery.Client == null ? null : new ClientViewDTO
                         {
@@ -169,7 +157,7 @@ namespace DataAccess
                             NationalId = battery.Client.NationalId,
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
-                            DateRegistered = battery.Client.DateRegistered,
+                            RegisteredDate = battery.Client.RegisteredDate,
                         }
                     };
                     batteriesDTO.Add(batteryDTO);

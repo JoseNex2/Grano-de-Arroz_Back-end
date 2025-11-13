@@ -40,7 +40,7 @@ namespace DataAccess
                     LastName = clientDTO.LastName,
                     NationalId = clientDTO.NationalId,
                     PhoneNumber = clientDTO.PhoneNumber,
-                    DateRegistered = DateTime.Now
+                    RegisteredDate = DateTime.Now
                 };
                 int? id = await _sqlGenericRepository.CreateAsync(clientModel);
                 estado = true;
@@ -53,7 +53,7 @@ namespace DataAccess
                     LastName = clientModel.LastName,
                     NationalId = clientModel.NationalId,
                     PhoneNumber = clientModel.PhoneNumber,
-                    DateRegistered = clientModel.DateRegistered
+                    RegisteredDate = clientModel.RegisteredDate
 
                 };
                 if (id != null && estado == true)
@@ -86,7 +86,7 @@ namespace DataAccess
                         LastName = client.LastName,
                         NationalId = client.NationalId,
                         PhoneNumber = client.PhoneNumber,
-                        DateRegistered = client.DateRegistered
+                        RegisteredDate = client.RegisteredDate
                     };
                     clientsDTO.Add(clientDTO);
                 }
@@ -125,7 +125,7 @@ namespace DataAccess
                     LastName = client.LastName,
                     NationalId = client.NationalId,
                     PhoneNumber = client.PhoneNumber,
-                    DateRegistered = client.DateRegistered
+                    RegisteredDate = client.RegisteredDate
                 };
                 return ResultService<ClientViewDTO>.Ok(200, clientView);
             }
@@ -159,7 +159,7 @@ namespace DataAccess
                     LastName = client.LastName,
                     NationalId = client.NationalId,
                     PhoneNumber = client.PhoneNumber,
-                    DateRegistered = client.DateRegistered
+                    RegisteredDate = client.RegisteredDate
                 };
 
                 return ResultService<ClientViewDTO>.Ok(200, clientView, "Cliente  actualizado correctamente");

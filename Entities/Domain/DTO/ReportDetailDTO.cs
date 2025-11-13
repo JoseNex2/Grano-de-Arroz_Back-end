@@ -25,7 +25,7 @@ namespace Entities.Domain.DTO
         public string BatteryType { get; set; }
         public string? BatteryWorkOrder { get; set; }
         public DateTime? SaleDate { get; set; }
-        public DateTime DateRegistered { get; set; }
+        public DateTime RegisteredDate { get; set; }
 
 
         public List<MeasurementReportDTO> Measurements { get; set; } = new List<MeasurementReportDTO>();
