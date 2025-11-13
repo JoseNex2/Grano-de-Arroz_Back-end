@@ -8,6 +8,7 @@ namespace DataAccess.Generic
         Task<bool> IsConnectedAsync();
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
+        Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths);
 
         Task<int?> CreateAsync(TEntity entity);
 
@@ -61,6 +62,35 @@ namespace DataAccess.Generic
             {
                 Console.WriteLine(ex.ToString());
                 return null;
+            }
+        }
+        public async Task<IEnumerable<TEntity>> GetAsync(
+        Expression<Func<TEntity, bool>> whereCondition = null,
+        params string[] includePaths)
+        {
+            try
+            {
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+
+                if (includePaths != null)
+                {
+                    foreach (var path in includePaths)
+                    {
+                        query = query.Include(path);
+                    }
+                }
+
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
+                }
+
+                return await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Enumerable.Empty<TEntity>();
             }
         }
 
