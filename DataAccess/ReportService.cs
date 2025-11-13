@@ -18,6 +18,7 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
+        private string statusNotInit = "No iniciada";
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
             ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository)
@@ -190,6 +191,7 @@ namespace DataAccess
                 return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
             }
         }
+
         public async Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int reportId)
         {
             try
@@ -200,7 +202,8 @@ namespace DataAccess
                     r => r.Battery,
                     r => r.Battery.Measurements,
                     r => r.Status,
-                    r => r.MeasurementsStatus
+                    r => r.MeasurementsStatus,
+                    r => r.MeasurementsStatus.Select(ms => ms.Status) 
                 )).FirstOrDefault();
 
                 if (report == null)
@@ -208,16 +211,22 @@ namespace DataAccess
 
                 var measurementsDto = new List<MeasurementReportDTO>();
 
-                foreach(var measurementStatus in report.MeasurementsStatus)
+                if (report.MeasurementsStatus != null)
                 {
-                    measurementsDto.Add(new MeasurementReportDTO
+                    foreach (var measurementStatus in report.MeasurementsStatus)
                     {
-                        Id = measurementStatus.MeasurementId,
-                        Magnitude = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).Magnitude,
-                        Status = measurementStatus.Status.Name,
-                        Coment = measurementStatus.Coment,
-                        MeasurementDate = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).MeasurementDate
-                    });
+                        var measurement = report.Battery.Measurements?
+                            .FirstOrDefault(m => m.Id == measurementStatus.MeasurementId);
+
+                        measurementsDto.Add(new MeasurementReportDTO
+                        {
+                            Id = measurementStatus.MeasurementId,
+                            Magnitude = measurement?.Magnitude ?? string.Empty, 
+                            Status = measurementStatus.Status?.Name ?? statusNotInit,
+                            Coment = measurementStatus.Coment ?? string.Empty,
+                            MeasurementDate = measurement.MeasurementDate
+                        });
+                    }
                 }
 
                 var reportDetail = new ReportDetailDTO
@@ -236,16 +245,75 @@ namespace DataAccess
                     SaleDate = report.Battery.SaleDate,
                     DateRegistered = report.Battery.DateRegistered,
 
-                    //Measurements = measurementsDto
+                    Measurements = measurementsDto
                 };
 
                 return ResultService<ReportDetailDTO>.Ok(200, reportDetail, "Detalle del reporte obtenido.");
             }
             catch (Exception ex)
             {
-                return ResultService<ReportDetailDTO>.Fail(500, new ReportDetailDTO(), ex.Message);
+                return ResultService<ReportDetailDTO>.Fail(500, new ReportDetailDTO(), "Error interno: " + ex.Message);
             }
         }
+
+
+
+        //public async Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int reportId)
+        //{
+        //    try
+        //    {
+        //        var report = (await _reportSqlGenericRepository.GetAsync(
+        //            r => r.Id == reportId,
+        //            r => r.Battery.Client,
+        //            r => r.Battery,
+        //            r => r.Battery.Measurements,
+        //            r => r.Status,
+        //            r => r.MeasurementsStatus
+        //        )).FirstOrDefault();
+
+        //        if (report == null)
+        //            return ResultService<ReportDetailDTO>.Fail(404, new ReportDetailDTO(), "Reporte no encontrado.");
+
+        //        var measurementsDto = new List<MeasurementReportDTO>();
+
+        //        foreach(var measurementStatus in report.MeasurementsStatus)
+        //        {
+        //            measurementsDto.Add(new MeasurementReportDTO
+        //            {
+        //                Id = measurementStatus.MeasurementId,
+        //                Magnitude = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).Magnitude,
+        //                Status = measurementStatus.Status.Name,
+        //                Coment = measurementStatus.Coment,
+        //                MeasurementDate = report.Battery.Measurements.FirstOrDefault(m => m.Id == measurementStatus.MeasurementId).MeasurementDate
+        //            });
+        //        }
+
+        //        var reportDetail = new ReportDetailDTO
+        //        {
+        //            Id = report.Id,
+        //            ChipId = report.Battery.ChipId,
+        //            ReportState = report.Status.Name,
+        //            ReportDate = DateOnly.FromDateTime(report.ReportDate),
+
+        //            ClientId = report.Battery.Client.Id,
+        //            ClientName = report.Battery.Client.Name,
+        //            ClientEmail = report.Battery.Client.Email,
+
+        //            BatteryType = report.Battery.Type,
+        //            BatteryWorkOrder = report.Battery.WorkOrder,
+        //            SaleDate = report.Battery.SaleDate,
+        //            DateRegistered = report.Battery.DateRegistered,
+
+        //            Measurements = measurementsDto
+        //        };
+
+        //        return ResultService<ReportDetailDTO>.Ok(200, reportDetail, "Detalle del reporte obtenido.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ResultService<ReportDetailDTO>.Fail(500, new ReportDetailDTO(), ex.Message);
+        //    }
+        //}
 
     }
 }
