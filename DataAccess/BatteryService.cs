@@ -270,10 +270,11 @@ namespace DataAccess
 
         public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
         {
+
             try
             {
                 var batteries = await _batterySqlGenericRepository.GetAsync(
-                    b => b.Report != null,
+                    b => b.Report != null && b.Report.Status != null,
                     b => b.Report,
                     b => b.Report.Status
                 );
@@ -286,8 +287,10 @@ namespace DataAccess
                 }
 
                 int totalEvaluated = batteries.Count();
-                int approved = batteries.Count(b => b.Report.Status.Name == "Aprobada");
-                int rejected = batteries.Count(b => b.Report.Status.Name == "Desaprobada");
+                int approved = batteries.Count(b =>
+                    b.Report.Status.Name.Equals("Aprobada", StringComparison.OrdinalIgnoreCase));
+                int rejected = batteries.Count(b =>
+                    b.Report.Status.Name.Equals("Desaprobada", StringComparison.OrdinalIgnoreCase));
 
                 var result = new BatteryAnalysisPercentageResponse
                 {
