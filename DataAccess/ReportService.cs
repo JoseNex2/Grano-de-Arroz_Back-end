@@ -292,7 +292,7 @@ namespace DataAccess
         {
             try
             {
-                var report = (await _reportSqlGenericRepository.GetAsync(
+                var report = (await _reportSqlGenericRepository.GetWithStringIncludesAsync(
                     r => r.Id == reportId,
                     "Battery",
                     "Battery.Client",
