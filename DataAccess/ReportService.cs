@@ -332,13 +332,16 @@ namespace DataAccess
                     ChipId = report.Battery?.ChipId ?? "Desconocido",
                     ReportState = report.Status?.Name ?? "Sin estado",
                     ReportDate = DateOnly.FromDateTime(report.ReportDate),
+
                     ClientId = report.Battery?.Client?.Id ?? 0,
                     ClientName = report.Battery?.Client?.Name ?? "Desconocido",
                     ClientEmail = report.Battery?.Client?.Email ?? "Desconocido",
+
                     BatteryType = report.Battery?.Type ?? "N/A",
                     BatteryWorkOrder = report.Battery?.WorkOrder ?? "N/A",
                     SaleDate = report.Battery?.SaleDate,
                     DateRegistered = report.Battery?.DateRegistered ?? DateTime.MinValue,
+
                     Measurements = measurementsDto
                 };
 
