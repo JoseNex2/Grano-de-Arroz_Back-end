@@ -270,11 +270,10 @@ namespace DataAccess
 
         public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
         {
-
             try
             {
                 var batteries = await _batterySqlGenericRepository.GetAsync(
-                    b => b.Report != null && b.Report.Status != null,
+                    b => b.Report != null,
                     b => b.Report,
                     b => b.Report.Status
                 );
@@ -282,20 +281,40 @@ namespace DataAccess
                 if (batteries == null || !batteries.Any())
                 {
                     return ResultService<BatteryAnalysisPercentageResponse>.Fail(
-                        404, Activator.CreateInstance<BatteryAnalysisPercentageResponse>(), 
+                        404,
+                        new BatteryAnalysisPercentageResponse(),
                         "No hay baterías evaluadas.");
                 }
 
-                int totalEvaluated = batteries.Count();
-                int approved = batteries.Count(b =>
+                // Filtrar solo baterías con reporte y estado válido
+                var evaluatedBatteries = batteries
+                    .Where(b => b.Report != null && b.Report.Status != null)
+                    .ToList();
+
+                if (!evaluatedBatteries.Any())
+                {
+                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                        404,
+                        new BatteryAnalysisPercentageResponse(),
+                        "No hay baterías con reportes válidos.");
+                }
+
+                int totalEvaluated = evaluatedBatteries.Count;
+                int approved = evaluatedBatteries.Count(b =>
                     b.Report.Status.Name.Equals("Aprobada", StringComparison.OrdinalIgnoreCase));
-                int rejected = batteries.Count(b =>
+                int rejected = evaluatedBatteries.Count(b =>
                     b.Report.Status.Name.Equals("Desaprobada", StringComparison.OrdinalIgnoreCase));
 
+                // Calcular porcentajes
                 var result = new BatteryAnalysisPercentageResponse
                 {
-                    ApprovedPercentage = Math.Round((double)approved / totalEvaluated * 100, 2),
-                    RejectedPercentage = Math.Round((double)rejected / totalEvaluated * 100, 2)
+                    ApprovedPercentage = totalEvaluated > 0 ?
+                        Math.Round((double)approved / totalEvaluated * 100, 2) : 0,
+                    RejectedPercentage = totalEvaluated > 0 ?
+                        Math.Round((double)rejected / totalEvaluated * 100, 2) : 0,
+                    //TotalEvaluated = totalEvaluated,
+                    //ApprovedCount = approved,
+                    //RejectedCount = rejected
                 };
 
                 return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
@@ -304,11 +323,53 @@ namespace DataAccess
             {
                 return ResultService<BatteryAnalysisPercentageResponse>.Fail(
                     500,
-                    Activator.CreateInstance<BatteryAnalysisPercentageResponse>(),
+                    new BatteryAnalysisPercentageResponse(),
                     "Error interno. " + ex.Message
                 );
             }
         }
+
+        //public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
+        //{
+
+        //    try
+        //    {
+        //        var batteries = await _batterySqlGenericRepository.GetAsync(
+        //            b => b.Report != null && b.Report.Status != null,
+        //            b => b.Report,
+        //            b => b.Report.Status
+        //        );
+
+        //        if (batteries == null || !batteries.Any())
+        //        {
+        //            return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+        //                404, Activator.CreateInstance<BatteryAnalysisPercentageResponse>(), 
+        //                "No hay baterías evaluadas.");
+        //        }
+
+        //        int totalEvaluated = batteries.Count();
+        //        int approved = batteries.Count(b =>
+        //            b.Report.Status.Name.Equals("Aprobada", StringComparison.OrdinalIgnoreCase));
+        //        int rejected = batteries.Count(b =>
+        //            b.Report.Status.Name.Equals("Desaprobada", StringComparison.OrdinalIgnoreCase));
+
+        //        var result = new BatteryAnalysisPercentageResponse
+        //        {
+        //            ApprovedPercentage = Math.Round((double)approved / totalEvaluated * 100, 2),
+        //            RejectedPercentage = Math.Round((double)rejected / totalEvaluated * 100, 2)
+        //        };
+
+        //        return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+        //            500,
+        //            Activator.CreateInstance<BatteryAnalysisPercentageResponse>(),
+        //            "Error interno. " + ex.Message
+        //        );
+        //    }
+        //}
 
         /*public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
         {
