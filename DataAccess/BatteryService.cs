@@ -106,7 +106,7 @@ namespace DataAccess
                     };
                     batteriesDTO.Add(batteryDTO);
 
-                }
+                };
 
                 BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
                 {
@@ -185,7 +185,7 @@ namespace DataAccess
                             NationalId = battery.Client.NationalId,
                             Email = battery.Client.Email,
                             PhoneNumber = battery.Client.PhoneNumber,
-                            DateRegistered = battery.Client.DateRegistered,
+                            RegisteredDate = battery.Client.RegisteredDate,
                         }
                     };
                     batteriesDTO.Add(batteryDTO);
