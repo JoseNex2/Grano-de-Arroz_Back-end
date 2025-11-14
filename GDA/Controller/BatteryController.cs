@@ -62,7 +62,7 @@ namespace GDA.Controller
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
         [Route("batterysearchbyclientid")]
-        public async Task<IActionResult> BatterySearchByClientId(int ClientId)
+        public async Task<IActionResult> BatterySearchByClientId([FromQuery] int ClientId)
         {
             var result = await _batteryService.BatteriesSearchByClient(ClientId);
             _logger.LogInformation("Se busco una bateria por ClienteId.");
