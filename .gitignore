@@ -30,6 +30,11 @@ PublishOutput/
 !.vscode/extensions.json
 
 # -----------------------
+# Cursor IDE
+# -----------------------
+.cursor/
+
+# -----------------------
 # Archivos temporales del sistema
 # -----------------------
 *~
