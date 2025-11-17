@@ -36,6 +36,7 @@ namespace GDA.Middleware
             });
             services.AddSingleton<AuthenticationService>();
             services.AddScoped<IStorageService, StorageService>();
+            services.AddScoped<IMailHelper, MailHelper>();
             return services;
         }
     }
