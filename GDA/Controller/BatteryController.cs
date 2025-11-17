@@ -59,6 +59,29 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("batterysearchbyclientid")]
+        public async Task<IActionResult> BatterySearchByClientId([FromQuery] int ClientId)
+        {
+            var result = await _batteryService.BatteriesSearchByClient(ClientId);
+            _logger.LogInformation("Se busco una bateria por ClienteId.");
+            return StatusCode(result.Code, result);
+        }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("getbatteryanalysispercentageasync")]
+        public async Task<IActionResult> GetBatteryAnalysisPercentageAsync()
+        {
+            var result = await _batteryService.GetBatteryAnalysisPercentageAsync();
+            _logger.LogInformation("Porcentaje de baterias analizadas");
+            return StatusCode(result.Code, result);
+        }
+
+
+
+
         /*[AllowAnonymous]
         [HttpPost]
         [Route("uploadrawdata")]
