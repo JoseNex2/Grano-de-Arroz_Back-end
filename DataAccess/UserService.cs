@@ -217,9 +217,8 @@ namespace DataAccess
                 {
                     return ResultService<DataRecoveryResponseDTO>.Fail(404, Activator.CreateInstance<DataRecoveryResponseDTO>(), "El usuario no se encuentra registrado.");
                 }
-                string tokenRecovery = _authentication.GenerateRecoveryJwt(userFound);
+                string tokenRecovery = _authentication.GenerateSecureRandomToken();
                 
-                // Enviar email de recuperación con la plantilla HTML
                 await _mailHelper.SendRecoveryEmailAsync(dataRecovery, tokenRecovery);
                 
                 DataRecoveryResponseDTO responseDTO = new DataRecoveryResponseDTO
