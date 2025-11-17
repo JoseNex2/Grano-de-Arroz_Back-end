@@ -291,6 +291,9 @@ namespace DataAccess
         {
             try
             {
+                const int EstadoAprobadoId = 1;
+                const int EstadoDesaprobadoId = 2;
+
                 var batteries = await _batterySqlGenericRepository.GetAsync(
                     b => b.Report != null,
                     b => b.Report,
@@ -302,38 +305,34 @@ namespace DataAccess
                     return ResultService<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
-                        "No hay baterías evaluadas.");
+                        "No hay baterías evaluadas."
+                    );
                 }
 
-                // Filtrar solo baterías con reporte y estado válido
-                var evaluatedBatteries = batteries
-                    .Where(b => b.Report != null && b.Report.Status != null)
+                var batteriesEvaluated = batteries
+                    .Where(b => b.Report?.Status != null &&
+                                (b.Report.Status.Id == EstadoAprobadoId || b.Report.Status.Id == EstadoDesaprobadoId))
                     .ToList();
 
-                if (!evaluatedBatteries.Any())
+                if (!batteriesEvaluated.Any())
                 {
                     return ResultService<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
-                        "No hay baterías con reportes válidos.");
+                        "No hay baterías con reportes válidos (Aprobado/Desaprobado)."
+                    );
                 }
 
-                int totalEvaluated = evaluatedBatteries.Count;
-                int approved = evaluatedBatteries.Count(b =>
-                    b.Report.Status.Name.Equals("Aprobada", StringComparison.OrdinalIgnoreCase));
-                int rejected = evaluatedBatteries.Count(b =>
-                    b.Report.Status.Name.Equals("Desaprobada", StringComparison.OrdinalIgnoreCase));
+                int totalEvaluated = batteriesEvaluated.Count;
+                int approved = batteriesEvaluated.Count(b => b.Report.Status.Id == EstadoAprobadoId);
+                int rejected = batteriesEvaluated.Count(b => b.Report.Status.Id == EstadoDesaprobadoId);
 
-                // Calcular porcentajes
                 var result = new BatteryAnalysisPercentageResponse
                 {
                     ApprovedPercentage = totalEvaluated > 0 ?
                         Math.Round((double)approved / totalEvaluated * 100, 2) : 0,
                     RejectedPercentage = totalEvaluated > 0 ?
-                        Math.Round((double)rejected / totalEvaluated * 100, 2) : 0,
-                    //TotalEvaluated = totalEvaluated,
-                    //ApprovedCount = approved,
-                    //RejectedCount = rejected
+                        Math.Round((double)rejected / totalEvaluated * 100, 2) : 0
                 };
 
                 return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
@@ -347,48 +346,6 @@ namespace DataAccess
                 );
             }
         }
-
-        //public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
-        //{
-
-        //    try
-        //    {
-        //        var batteries = await _batterySqlGenericRepository.GetAsync(
-        //            b => b.Report != null && b.Report.Status != null,
-        //            b => b.Report,
-        //            b => b.Report.Status
-        //        );
-
-        //        if (batteries == null || !batteries.Any())
-        //        {
-        //            return ResultService<BatteryAnalysisPercentageResponse>.Fail(
-        //                404, Activator.CreateInstance<BatteryAnalysisPercentageResponse>(), 
-        //                "No hay baterías evaluadas.");
-        //        }
-
-        //        int totalEvaluated = batteries.Count();
-        //        int approved = batteries.Count(b =>
-        //            b.Report.Status.Name.Equals("Aprobada", StringComparison.OrdinalIgnoreCase));
-        //        int rejected = batteries.Count(b =>
-        //            b.Report.Status.Name.Equals("Desaprobada", StringComparison.OrdinalIgnoreCase));
-
-        //        var result = new BatteryAnalysisPercentageResponse
-        //        {
-        //            ApprovedPercentage = Math.Round((double)approved / totalEvaluated * 100, 2),
-        //            RejectedPercentage = Math.Round((double)rejected / totalEvaluated * 100, 2)
-        //        };
-
-        //        return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ResultService<BatteryAnalysisPercentageResponse>.Fail(
-        //            500,
-        //            Activator.CreateInstance<BatteryAnalysisPercentageResponse>(),
-        //            "Error interno. " + ex.Message
-        //        );
-        //    }
-        //}
 
         /*public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
         {
