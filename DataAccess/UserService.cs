@@ -29,11 +29,18 @@ namespace DataAccess
         private readonly ISqlGenericRepository<User, ServiceDbContext> _userSqlGenericRepository;
         private readonly ISqlGenericRepository<Role, ServiceDbContext> _roleSqlGenericRepository;
         private readonly AuthenticationService _authentication;
-        public UserService(ISqlGenericRepository<User, ServiceDbContext> userSqlGenericRepository, ISqlGenericRepository<Role, ServiceDbContext> roleSqlGenericRepository, AuthenticationService authentication)
+        private readonly IMailHelper _mailHelper;
+        
+        public UserService(
+            ISqlGenericRepository<User, ServiceDbContext> userSqlGenericRepository, 
+            ISqlGenericRepository<Role, ServiceDbContext> roleSqlGenericRepository, 
+            AuthenticationService authentication,
+            IMailHelper mailHelper)
         {
             _userSqlGenericRepository = userSqlGenericRepository;
             _roleSqlGenericRepository = roleSqlGenericRepository;
             _authentication = authentication;
+            _mailHelper = mailHelper;
         }
 
         public async Task<ResultService<UserViewDTO>> UserRegister(UserDTO userDTO)
@@ -211,30 +218,17 @@ namespace DataAccess
                     return ResultService<DataRecoveryResponseDTO>.Fail(404, Activator.CreateInstance<DataRecoveryResponseDTO>(), "El usuario no se encuentra registrado.");
                 }
                 string tokenRecovery = _authentication.GenerateRecoveryJwt(userFound);
-                MimeMessage emailMessage = new MimeMessage();
-
-                emailMessage.From.Add(new MailboxAddress("Sistema de recuperación de contraseña", Environment.GetEnvironmentVariable("MAIL_RECOVERY")));
-                emailMessage.To.Add(new MailboxAddress("", dataRecovery.Email));
-                emailMessage.Subject = "Recuperar contraseña";
-                emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-                {
-                    Text = dataRecovery.Url + "/" + tokenRecovery
-                };
-                using (SmtpClient client = new SmtpClient())
-                {
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync(Environment.GetEnvironmentVariable("MAIL_RECOVERY"), "evny knhp vhzc mtqa");
-                    await client.SendAsync(emailMessage);
-
-                    await client.DisconnectAsync(true);
-                }
+                
+                // Enviar email de recuperación con la plantilla HTML
+                await _mailHelper.SendRecoveryEmailAsync(dataRecovery, tokenRecovery);
+                
                 DataRecoveryResponseDTO responseDTO = new DataRecoveryResponseDTO
                 {
                     Id = userFound.Id,
                     Token = tokenRecovery,
                 };
 
-                return ResultService<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada.");
+                return ResultService<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
 
             }
             catch (Exception ex)
