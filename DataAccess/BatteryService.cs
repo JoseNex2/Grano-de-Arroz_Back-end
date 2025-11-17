@@ -88,26 +88,15 @@ namespace DataAccess
                     SaleDate = b.SaleDate,
                     Client = b.Client == null ? null : new ClientViewDTO
                     {
-                        Id = battery.Id,
-                        ChipId = battery.ChipId,
-                        WorkOrder = battery.WorkOrder,
-                        Type = battery.Type,
-                        SaleDate = battery.SaleDate,
-                        Client = battery.Client == null ? null : new ClientViewDTO
-                        {
-                            Id = battery.Client.Id,
-                            Name = battery.Client.Name,
-                            LastName = battery.Client.LastName,
-                            NationalId = battery.Client.NationalId,
-                            Email = battery.Client.Email,
-                            PhoneNumber = battery.Client.PhoneNumber,
-                            DateRegistered = battery.Client.DateRegistered,
-                        }
-                    };
-                    batteriesDTO.Add(batteryDTO);
-
-                };
-
+                        Id = b.Client.Id,
+                        Name = b.Client.Name,
+                        LastName = b.Client.LastName,
+                        NationalId = b.Client.NationalId,
+                        Email = b.Client.Email,
+                        PhoneNumber = b.Client.PhoneNumber,
+                        RegisteredDate = b.Client.RegisteredDate,
+                    }
+                }).ToList();
                 BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
                 {
                     TotalBatteries = batteriesDTO.Count,

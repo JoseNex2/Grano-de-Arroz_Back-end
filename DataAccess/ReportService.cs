@@ -338,7 +338,7 @@ namespace DataAccess
                     BatteryType = report.Battery?.Type ?? "N/A",
                     BatteryWorkOrder = report.Battery?.WorkOrder ?? "N/A",
                     SaleDate = report.Battery?.SaleDate,
-                    DateRegistered = report.Battery?.DateRegistered ?? DateTime.MinValue,
+                    RegisteredDate = report.Battery?.RegisteredDate ?? DateTime.MinValue,
                     Measurements = measurementsDto
                 };
 
