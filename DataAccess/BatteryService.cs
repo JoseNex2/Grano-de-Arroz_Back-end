@@ -270,11 +270,13 @@ namespace DataAccess
 
         public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
         {
-
             try
             {
+                const int EstadoAprobadoId = 1;
+                const int EstadoDesaprobadoId = 2;
+
                 var batteries = await _batterySqlGenericRepository.GetAsync(
-                    b => b.Report != null && b.Report.Status != null,
+                    b => b.Report != null,
                     b => b.Report,
                     b => b.Report.Status
                 );
@@ -282,20 +284,36 @@ namespace DataAccess
                 if (batteries == null || !batteries.Any())
                 {
                     return ResultService<BatteryAnalysisPercentageResponse>.Fail(
-                        404, Activator.CreateInstance<BatteryAnalysisPercentageResponse>(), 
-                        "No hay baterías evaluadas.");
+                        404,
+                        new BatteryAnalysisPercentageResponse(),
+                        "No hay baterías evaluadas."
+                    );
                 }
 
-                int totalEvaluated = batteries.Count();
-                int approved = batteries.Count(b =>
-                    b.Report.Status.Name.Equals("Aprobado", StringComparison.OrdinalIgnoreCase));
-                int rejected = batteries.Count(b =>
-                    b.Report.Status.Name.Equals("Desaprobado", StringComparison.OrdinalIgnoreCase));
+                var batteriesEvaluated = batteries
+                    .Where(b => b.Report?.Status != null &&
+                                (b.Report.Status.Id == EstadoAprobadoId || b.Report.Status.Id == EstadoDesaprobadoId))
+                    .ToList();
+
+                if (!batteriesEvaluated.Any())
+                {
+                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                        404,
+                        new BatteryAnalysisPercentageResponse(),
+                        "No hay baterías con reportes válidos (Aprobado/Desaprobado)."
+                    );
+                }
+
+                int totalEvaluated = batteriesEvaluated.Count;
+                int approved = batteriesEvaluated.Count(b => b.Report.Status.Id == EstadoAprobadoId);
+                int rejected = batteriesEvaluated.Count(b => b.Report.Status.Id == EstadoDesaprobadoId);
 
                 var result = new BatteryAnalysisPercentageResponse
                 {
-                    ApprovedPercentage = Math.Round((double)approved / totalEvaluated * 100, 2),
-                    RejectedPercentage = Math.Round((double)rejected / totalEvaluated * 100, 2)
+                    ApprovedPercentage = totalEvaluated > 0 ?
+                        Math.Round((double)approved / totalEvaluated * 100, 2) : 0,
+                    RejectedPercentage = totalEvaluated > 0 ?
+                        Math.Round((double)rejected / totalEvaluated * 100, 2) : 0
                 };
 
                 return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
@@ -304,7 +322,7 @@ namespace DataAccess
             {
                 return ResultService<BatteryAnalysisPercentageResponse>.Fail(
                     500,
-                    Activator.CreateInstance<BatteryAnalysisPercentageResponse>(),
+                    new BatteryAnalysisPercentageResponse(),
                     "Error interno. " + ex.Message
                 );
             }
