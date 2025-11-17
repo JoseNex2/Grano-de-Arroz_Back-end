@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Entities.Domain.DTO;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Hosting;
 using MimeKit;
 
 namespace Utilities
@@ -11,17 +12,23 @@ namespace Utilities
     public interface IMailHelper
     {
         Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token);
-        //Task SendWelcomeEmailAsync();
     }
 
     public class MailHelper : IMailHelper
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public MailHelper(IWebHostEnvironment webHostEnvironment)
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
+
         public async Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token)
         {
             try
             {
                 string templatePath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
+                    _webHostEnvironment.ContentRootPath,
                     "Entities", "Domain", "Template", "Mail", "email-templates", "recover-password.html"
                 );
 
