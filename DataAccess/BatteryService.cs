@@ -95,7 +95,7 @@ namespace DataAccess
                         NationalId = b.Client.NationalId,
                         Email = b.Client.Email,
                         PhoneNumber = b.Client.PhoneNumber,
-                        DateRegistered = b.Client.DateRegistered,
+                        RegisteredDate = b.Client.RegisteredDate,
                     }
                 }).ToList();
                 BatteriesSearchResponseDTO response = new BatteriesSearchResponseDTO
@@ -142,26 +142,45 @@ namespace DataAccess
                         DateOnly.FromDateTime(b.SaleDate.Value) == filter.SaleDate.Value);
                 }
 
-                var batteriesDTO = batteries.Select(b => new BatteryViewDTO
+                List<BatteryViewDTO> batteriesDTO = new List<BatteryViewDTO>();
+                foreach (Battery battery in batteries)
                 {
-                    Id = b.Id,
-                    ChipId = b.ChipId,
-                    WorkOrder = b.WorkOrder,
-                    Type = b.Type,
-                    SaleDate = b.SaleDate,
-                    Status = b.Report != null ? (b.Report.Status.Name) : statusNotInit.ToString(),
+                    var reports = await _reportSqlGenericRepository.GetAsync(a => a.BatteryId == battery.Id);
+                    Report? report = reports?.FirstOrDefault();
 
-                    Client = new ClientViewDTO
+                    string reportValid = "";
+
+                    if (report == null)
                     {
-                        Id = b.Client.Id,
-                        Name = b.Client.Name,
-                        LastName = b.Client.LastName,
-                        NationalId = b.Client.NationalId,
-                        Email = b.Client.Email,
-                        PhoneNumber = b.Client.PhoneNumber,
-                        DateRegistered = b.Client.DateRegistered,
+                        reportValid = "No iniciado";
                     }
-                }).ToList();
+                    else
+                    {
+                        reportValid = report.Status?.Name ?? "Pendiente";
+                    }
+
+                    BatteryViewDTO batteryDTO = new BatteryViewDTO
+                    {
+                        Id = battery.Id,
+                        ChipId = battery.ChipId,
+                        WorkOrder = battery.WorkOrder,
+                        Type = battery.Type,
+                        Status = reportValid,
+                        SaleDate = battery.SaleDate,
+                        Client = battery.Client == null ? null : new ClientViewDTO
+                        {
+                            Id = battery.Client.Id,
+                            Name = battery.Client.Name,
+                            LastName = battery.Client.LastName,
+                            NationalId = battery.Client.NationalId,
+                            Email = battery.Client.Email,
+                            PhoneNumber = battery.Client.PhoneNumber,
+                            RegisteredDate = battery.Client.RegisteredDate,
+                        }
+                    };
+                    batteriesDTO.Add(batteryDTO);
+
+                }
 
                 var response = new BatteriesSearchResponseDTO
                 {

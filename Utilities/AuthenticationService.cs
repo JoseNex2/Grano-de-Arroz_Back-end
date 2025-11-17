@@ -41,19 +41,10 @@ namespace Utilities
             return new JwtSecurityTokenHandler().WriteToken(jwtConfig);
         }
 
-        public string GenerateRecoveryJwt(User user)
+        public string GenerateSecureRandomToken(int length = 32)
         {
-            Claim[] userClaims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Surname, user.Lastname),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.Name)
-            };
-            SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_RECOVERY")));
-            SigningCredentials credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-            var jwtConfig = new JwtSecurityToken(claims: userClaims, expires: DateTime.UtcNow.AddMinutes(10), signingCredentials: credentials);
-            return new JwtSecurityTokenHandler().WriteToken(jwtConfig);
+            var bytes = RandomNumberGenerator.GetBytes(length);
+            return Convert.ToBase64String(bytes);
         }
     }
 }

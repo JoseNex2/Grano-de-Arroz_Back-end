@@ -63,7 +63,7 @@ namespace DataAccess
                     PhoneNumber = userDTO.PhoneNumber,
                     RoleId = userDTO.RoleId,
                     Password = _authentication.EncryptationSHA256(userDTO.NationalId),
-                    DateRegistered = DateTime.Now
+                    RegisteredDate = DateTime.Now
                 };
                 int? id = await _userSqlGenericRepository.CreateAsync(userModel);
                 estado = true;
@@ -77,7 +77,7 @@ namespace DataAccess
                     Email = userModel.Email,
                     PhoneNumber = userModel.PhoneNumber,
                     Role = roleFound.Name,
-                    DateRegistered = userModel.DateRegistered
+                    RegisteredDate = userModel.RegisteredDate
                 };
                 if (id != null && estado == true)
                 {
@@ -146,7 +146,7 @@ namespace DataAccess
                         NationalId = user.NationalId,
                         PhoneNumber = user.PhoneNumber,
                         Role = user.Role.Name,
-                        DateRegistered = user.DateRegistered.ToLocalTime()
+                        RegisteredDate = user.RegisteredDate.ToLocalTime()
                     };
                     usersDTO.Add(userDTO);
                 }
@@ -179,7 +179,7 @@ namespace DataAccess
                 NationalId = user.NationalId,
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role.Name,
-                DateRegistered = user.DateRegistered
+                RegisteredDate = user.RegisteredDate
             };
             return ResultService<UserViewDTO>.Ok(200, userView);
         }

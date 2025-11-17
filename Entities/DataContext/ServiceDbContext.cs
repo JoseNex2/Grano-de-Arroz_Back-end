@@ -29,7 +29,7 @@ namespace Entities.DataContext
             userEntity.ToTable("Users");
             userEntity.HasKey(e => e.Id);
             userEntity.Property(e => e.Id).ValueGeneratedOnAdd();
-            userEntity.Property(e => e.DateRegistered).IsRequired();
+            userEntity.Property(e => e.RegisteredDate).IsRequired();
             userEntity.HasOne(u => u.Role)
                       .WithMany(r => r.Users)
                       .HasForeignKey(u => u.RoleId);
@@ -38,7 +38,7 @@ namespace Entities.DataContext
             clientEntity.ToTable("Clients");
             clientEntity.HasKey(e => e.Id);
             clientEntity.Property(e => e.Id).ValueGeneratedOnAdd();
-            clientEntity.Property(e => e.DateRegistered).IsRequired();
+            clientEntity.Property(e => e.RegisteredDate).IsRequired();
 
             EntityTypeBuilder<Status> statusEntity = modelBuilder.Entity<Status>();
             statusEntity.ToTable("Status");
@@ -71,7 +71,7 @@ namespace Entities.DataContext
             batteryEntity.ToTable("Batteries");
             batteryEntity.HasKey(e => e.Id);
             batteryEntity.Property(e => e.Id).ValueGeneratedOnAdd().IsRequired();
-            batteryEntity.Property(e => e.DateRegistered).IsRequired();
+            batteryEntity.Property(e => e.RegisteredDate).IsRequired();
             batteryEntity.HasOne(u => u.Client)
                          .WithMany(r => r.Batteries)
                          .HasForeignKey(u => u.ClientId)

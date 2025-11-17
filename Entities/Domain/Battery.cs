@@ -9,7 +9,7 @@ namespace Entities.Domain
         public string? WorkOrder { get; set; }
         public string Type { get; set; }
         public DateTime? SaleDate { get; set; }
-        public DateTime DateRegistered { get; set; }
+        public DateTime RegisteredDate { get; set; }
         public int? ClientId { get; set; }
         public Client? Client { get; set; }
         public Report? Report { get; set; }
