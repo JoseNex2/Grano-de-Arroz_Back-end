@@ -11,7 +11,7 @@ namespace Utilities
     public interface IMailHelper
     {
         Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token);
-        Task SendWelcomeEmailAsync();
+        //Task SendWelcomeEmailAsync();
     }
 
     public class MailHelper : IMailHelper
