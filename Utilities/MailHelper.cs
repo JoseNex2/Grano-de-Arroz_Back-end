@@ -6,7 +6,6 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
 using MimeKit;
-using MimeKit.Utils;
 
 namespace Utilities
 {
