@@ -38,7 +38,51 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpPost]
+        [Route("batteriessearchwithfilter")]
+        public async Task<IActionResult> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
+        {
+            var result = await _batteryService.BatteriesSearchWithFilter(filter);
+            _logger.LogInformation("Se buscaron ciertas baterias.");
+            return StatusCode(result.Code, result);
+        }
+
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("batterysearchwithid")]
+        public async Task<IActionResult> BatterySearchWithId(int id)
+        {
+            var result = await _batteryService.BatterySearchWithId(id);
+            _logger.LogInformation("Se busco una bateria por Id.");
+            return StatusCode(result.Code, result);
+        }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("batterysearchbyclientid")]
+        public async Task<IActionResult> BatterySearchByClientId([FromQuery] int ClientId)
+        {
+            var result = await _batteryService.BatteriesSearchByClient(ClientId);
+            _logger.LogInformation("Se busco una bateria por ClienteId.");
+            return StatusCode(result.Code, result);
+        }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("getbatteryanalysispercentageasync")]
+        public async Task<IActionResult> GetBatteryAnalysisPercentageAsync()
+        {
+            var result = await _batteryService.GetBatteryAnalysisPercentageAsync();
+            _logger.LogInformation("Porcentaje de baterias analizadas");
+            return StatusCode(result.Code, result);
+        }
+
+
+
+
+        /*[AllowAnonymous]
         [HttpPost]
         [Route("uploadrawdata")]
         public async Task<IActionResult> UploadRawData([FromForm] RawDataDTO rawDataDTO)
@@ -46,6 +90,6 @@ namespace GDA.Controller
             var result = await _batteryService.UploadRawData(rawDataDTO);
             _logger.LogInformation("Se subieron nuevas mediciones.");
             return StatusCode(result.Code, result);
-        }
+        }*/
     }
 }

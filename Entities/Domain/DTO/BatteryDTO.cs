@@ -9,7 +9,7 @@ namespace Entities.Domain.DTO
     public class BatteryDTO
     {
         public string ChipId { get; set; }
-        public string Ot { get; set; }
+        public string WorkOrder { get; set; }
         public DateTime SaleDate { get; set; } 
         public int ClientId { get; set; }
     }

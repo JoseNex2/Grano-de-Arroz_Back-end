@@ -78,16 +78,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [Authorize(AuthenticationSchemes = "RecoveryScheme")]
-        [HttpGet]
-        [Route("accountrecoverystate")]
-        public IActionResult AccountRecoveryState()
-        {
-            _logger.LogInformation("Se verifico el estado del token de recuperación.");
-            return StatusCode(StatusCodes.Status200OK, new { isSuccess = true });
-        }
-
-        [Authorize(AuthenticationSchemes = "RecoveryScheme")]
+        [AllowAnonymous]
         [HttpPut]
         [Route("passwordrecovery")]
         public async Task<IActionResult> PasswordRecovery([FromBody] PasswordRecoveryDTO passwordData)

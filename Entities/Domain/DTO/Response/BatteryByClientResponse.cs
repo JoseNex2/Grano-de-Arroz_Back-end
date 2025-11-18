@@ -3,18 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DataAccess;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain.DTO.Response
 {
-    public class BatteryViewDTO
+    public class BatteryByClientResponse
     {
         public int Id { get; set; }
         public string ChipId { get; set; }
         public string? WorkOrder { get; set; }
-        public string Type { get; set; }
         public string Status { get; set; }
         public DateTime? SaleDate { get; set; }
-        public ClientViewDTO? Client { get; set; }
     }
 }

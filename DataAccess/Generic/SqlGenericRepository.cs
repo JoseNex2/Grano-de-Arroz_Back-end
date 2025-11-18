@@ -6,11 +6,9 @@ namespace DataAccess.Generic
     public interface ISqlGenericRepository<TEntity, TContext> where TEntity : class
     {
         Task<bool> IsConnectedAsync();
-        Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
-
-        //Task<TEntity> GetByIdAsync(int id);
+        Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths);
 
         Task<int?> CreateAsync(TEntity entity);
 
@@ -42,7 +40,7 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
+        public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
         {
             try
             {
@@ -54,6 +52,10 @@ namespace DataAccess.Generic
                         query = query.Include(include);
                     }
                 }
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
+                }
                 return await query.ToListAsync();
             }
             catch (Exception ex)
@@ -62,22 +64,34 @@ namespace DataAccess.Generic
                 return null;
             }
         }
-
-        public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
+        public async Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(
+        Expression<Func<TEntity, bool>> whereCondition = null,
+        params string[] includePaths)
         {
-            IQueryable<TEntity> query =_sqlUnitOfWork.Context.Set<TEntity>();
-            if (includes != null)
+            try
             {
-                foreach (var include in includes)
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+
+                if (includePaths != null)
                 {
-                    query = query.Include(include);
+                    foreach (var path in includePaths)
+                    {
+                        query = query.Include(path);
+                    }
                 }
+
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
+                }
+
+                return await query.ToListAsync();
             }
-            if (whereCondition != null)
+            catch (Exception ex)
             {
-                query = query.Where(whereCondition);
+                Console.WriteLine(ex);
+                return Enumerable.Empty<TEntity>();
             }
-            return await query.ToListAsync();
         }
 
         public async Task<int?> CreateAsync(TEntity entity)
@@ -89,8 +103,9 @@ namespace DataAccess.Generic
                 _sqlUnitOfWork.Context.Entry(entity).Reload();
                 return Convert.ToInt32(entity.GetType().GetProperty("Id").GetValue(entity));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return null;
             }
         }
