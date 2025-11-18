@@ -65,13 +65,14 @@ namespace Utilities
                 if (File.Exists(imagePath))
                 {
                     MimeEntity image = bodyBuilder.LinkedResources.Add(imagePath);
-                    image.ContentId = MimeUtils.GenerateMessageId();
+                    string contentId = Guid.NewGuid().ToString();
+                    image.ContentId = contentId;
                     
                     // Reemplazar cualquier ruta que contenga el nombre del archivo
                     htmlBody = System.Text.RegularExpressions.Regex.Replace(
                         htmlBody,
                         $@"src=""[^""]*{System.Text.RegularExpressions.Regex.Escape(imageFileName)}""",
-                        $"src=\"cid:{image.ContentId}\"");
+                        $"src=\"cid:{contentId}\"");
                 }
             }
 
