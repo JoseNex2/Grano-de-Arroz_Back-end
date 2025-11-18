@@ -68,7 +68,6 @@ namespace Utilities
                     string contentId = Guid.NewGuid().ToString();
                     image.ContentId = contentId;
                     
-                    // Reemplazar cualquier ruta que contenga el nombre del archivo
                     htmlBody = System.Text.RegularExpressions.Regex.Replace(
                         htmlBody,
                         $@"src=""[^""]*{System.Text.RegularExpressions.Regex.Escape(imageFileName)}""",
@@ -109,7 +108,7 @@ namespace Utilities
                 using (SmtpClient client = new SmtpClient())
                 {
                     await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync(Environment.GetEnvironmentVariable("MAIL_RECOVERY"), Environment.GetEnvironmentVariable("MAIL_PASSWORD"));
+                    await client.AuthenticateAsync(Environment.GetEnvironmentVariable("MAIL_RECOVERY"), Environment.GetEnvironmentVariable("MAIL_TOKEN"));
                     await client.SendAsync(emailMessage);
                     await client.DisconnectAsync(true);
                 }
