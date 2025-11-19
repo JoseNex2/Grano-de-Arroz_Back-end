@@ -81,7 +81,29 @@ namespace DataAccess
                 };
                 if (id != null && estado == true)
                 {
-                    return ResultService<UserViewDTO>.Ok(201, userView, "Usuario creado.");
+                    try
+                    {
+                        string tokenWelcome = _authentication.GenerateSecureRandomToken();
+                        string frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? Environment.GetEnvironmentVariable("URL_DOMAIN") ?? "";
+                        
+                        WelcomeEmailDTO welcomeData = new WelcomeEmailDTO
+                        {
+                            Email = userModel.Email,
+                            UserName = $"{userModel.Name} {userModel.Lastname}",
+                            Role = roleFound.Name,
+                            Url = frontendUrl,
+                            Token = tokenWelcome
+                        };
+                        
+                        await _mailHelper.SendWelcomeEmailAsync(welcomeData);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log el error pero no falla la creación del usuario
+                        // Podrías agregar un logger aquí si lo necesitas
+                    }
+                    
+                    return ResultService<UserViewDTO>.Ok(201, userView, "Usuario creado y correo de bienvenida enviado correctamente.");
 
                 }
                 else
