@@ -12,5 +12,6 @@
         public DateTime RegisteredDate { get; set; }
         public int RoleId { get; set; }
         public Role Role { get; set; }
+        public ICollection<SecureRandomToken> SecureRandomTokens { get; set; } = new List<SecureRandomToken>();
     }
 }

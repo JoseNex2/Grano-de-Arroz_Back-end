@@ -25,6 +25,16 @@ namespace Entities.DataContext
             roleEntity.HasKey(e => e.Id);
             roleEntity.Property(e => e.Id).ValueGeneratedOnAdd();
 
+            EntityTypeBuilder<SecureRandomToken> secureRandomTokenEntity = modelBuilder.Entity<SecureRandomToken>();
+            secureRandomTokenEntity.ToTable("SecureRandomTokens");
+            secureRandomTokenEntity.HasKey(e => e.Id);
+            secureRandomTokenEntity.Property(e => e.Id).ValueGeneratedOnAdd();
+            secureRandomTokenEntity.Property(e => e.ExpiredDate).IsRequired();
+            secureRandomTokenEntity.Property(e => e.CreatedDate).IsRequired();
+            secureRandomTokenEntity.HasOne(u => u.User)
+                         .WithMany(r => r.SecureRandomTokens)
+                         .HasForeignKey(u => u.UserId);
+
             EntityTypeBuilder<User> userEntity = modelBuilder.Entity<User>();
             userEntity.ToTable("Users");
             userEntity.HasKey(e => e.Id);
@@ -74,8 +84,7 @@ namespace Entities.DataContext
             batteryEntity.Property(e => e.RegisteredDate).IsRequired();
             batteryEntity.HasOne(u => u.Client)
                          .WithMany(r => r.Batteries)
-                         .HasForeignKey(u => u.ClientId)
-                         .IsRequired(false);
+                         .HasForeignKey(u => u.ClientId);
 
             EntityTypeBuilder<Measurement> measurementEntity = modelBuilder.Entity<Measurement>();
             measurementEntity.ToTable("Measurements");

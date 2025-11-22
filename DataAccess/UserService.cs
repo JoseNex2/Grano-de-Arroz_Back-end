@@ -3,9 +3,6 @@ using Utilities;
 using Entities.Domain;
 using Entities.Domain.DTO;
 using Entities.DataContext;
-using MimeKit;
-using MailKit.Security;
-using MailKit.Net.Smtp;
 using Entities.Domain.DTO.Response;
 
 namespace DataAccess
