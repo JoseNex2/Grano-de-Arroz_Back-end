@@ -10,5 +10,6 @@ namespace Entities.Domain.DTO.Response
     {
         public int Id { get; set; }
         public string Token { get; set; }
+        public string Url {get; set;}
     }
 }

@@ -1,4 +1,4 @@
-﻿using DataAccess.Generic;
+using DataAccess.Generic;
 using Utilities;
 using Entities.Domain;
 using Entities.Domain.DTO;
@@ -81,7 +81,7 @@ namespace DataAccess
                     try
                     {
                         string tokenWelcome = _authentication.GenerateSecureRandomToken();
-                        string frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? Environment.GetEnvironmentVariable("URL_DOMAIN") ?? "";
+                        string frontendUrl = Environment.GetEnvironmentVariable("WELCOME_URL") ?? Environment.GetEnvironmentVariable("URL_DOMAIN") ?? "";
                         
                         WelcomeEmailDTO welcomeData = new WelcomeEmailDTO
                         {
@@ -96,8 +96,7 @@ namespace DataAccess
                     }
                     catch (Exception ex)
                     {
-                        // Log el error pero no falla la creación del usuario
-                        // Podrías agregar un logger aquí si lo necesitas
+                        
                     }
                     
                     return ResultService<UserViewDTO>.Ok(201, userView, "Usuario creado y correo de bienvenida enviado correctamente.");
@@ -245,6 +244,7 @@ namespace DataAccess
                 {
                     Id = userFound.Id,
                     Token = tokenRecovery,
+                    Url = $"{dataRecovery.Url}/{tokenRecovery}";
                 };
 
                 return ResultService<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
