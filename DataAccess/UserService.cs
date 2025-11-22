@@ -244,7 +244,7 @@ namespace DataAccess
                 {
                     Id = userFound.Id,
                     Token = tokenRecovery,
-                    Url = $"{dataRecovery.Url}/{tokenRecovery}";
+                    Url = $"{dataRecovery.Url}/{tokenRecovery}"
                 };
 
                 return ResultService<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
