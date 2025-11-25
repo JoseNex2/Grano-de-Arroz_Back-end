@@ -2,6 +2,7 @@
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
+using Entities.Domain.DTO.Response;
 using Utilities;
 
 namespace DataAccess
@@ -12,6 +13,7 @@ namespace DataAccess
         Task<ResultService<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilter filter);
         Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest);
         Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update);
+        Task<ResultService<IEnumerable<ReportViewHistorical>>> GetReportHistory();
     }
     public class ReportService : IReportService 
     {
@@ -134,6 +136,38 @@ namespace DataAccess
             {
                 return ResultService<IEnumerable<ReportSearchDTO>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportSearchDTO>>(), ex.Message);
             }
+        }
+        public async Task<ResultService<IEnumerable<ReportViewHistorical>>> GetReportHistory() 
+        {
+            try
+            {
+                var reports = await _reportSqlGenericRepository.GetAsync(
+                    null,
+                    r => r.Battery,
+                    r => r.Battery.Client,
+                    r => r.Status
+                );
+
+                var reportsList = reports.ToList();
+
+                var reportsView = reportsList.Select(r => new ReportViewHistorical
+                {
+                    Id = r.Id,
+                    ChipId = r.Battery.ChipId, 
+                    ClientName = r.Battery.Client.Name,  
+                    ReportState = r.Status?.Name ?? string.Empty, 
+                    TypeBattery = r.Battery?.Type ?? string.Empty,
+                    ReportDate = r.ReportDate != DateTime.MinValue ?
+                    DateOnly.FromDateTime(r.ReportDate) : DateOnly.MinValue
+                });
+
+                return ResultService<IEnumerable<ReportViewHistorical>>.Ok(200, reportsView);
+            }
+            catch (Exception ex)
+            {
+                return ResultService<IEnumerable<ReportViewHistorical>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportViewHistorical>>(), ex.Message);
+            }   
+
         }
 
         public async Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update)
