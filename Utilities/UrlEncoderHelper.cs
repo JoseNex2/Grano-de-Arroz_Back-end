@@ -2,13 +2,13 @@
 
 namespace Utilities
 {
-    public interface IUrlEncoderService
+    public interface IUrlEncoderHelper
     {
         string Encode(string value);
     }
-    public class UrlEncoderService : IUrlEncoderService
+    public class UrlEncoderHelper : IUrlEncoderHelper
     {
-        public UrlEncoderService() { }
+        public UrlEncoderHelper() { }
         public string Encode(string value)
         {
             return HttpUtility.UrlEncode(value);

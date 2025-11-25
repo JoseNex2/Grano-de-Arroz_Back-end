@@ -1,7 +1,6 @@
 using GDA.Extensions;
 using GDA.Middleware;
 using Serilog;
-using Serilog.Events;
 using Utilities;
 
 namespace GDA
@@ -16,10 +15,10 @@ namespace GDA
 
             IServiceCollection services = builder.Services;
 
-            EnvironmentVariableLoaderService.Initialize();
+            EnvironmentVariableLoaderHelper.Initialize();
 
             UtilitiesInversionOfControl.AddDependency(services, builder, configuration);
-            DataAccessInversionOfControl.AddDependency(services, configuration);
+            DataAccessInversionOfControl.AddDependency(services, builder, configuration);
 
             services.AddCors(options =>
             {
