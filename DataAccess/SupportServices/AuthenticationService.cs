@@ -67,23 +67,23 @@ namespace DataAccess.SupportServices
                 Used = false
             };
             await _tokenSqlGenericRepository.CreateAsync(entity);
-            return base64Token;
+            return $"Secure {base64Token}";
         }
 
         public async Task<SecureRandomToken> ValidateAsync(string rawToken)
         {
-            IEnumerable<SecureRandomToken> tokens = await _tokenSqlGenericRepository.GetAsync(t => !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
+            IEnumerable<SecureRandomToken> tokenEntities = await _tokenSqlGenericRepository.GetAsync(t => !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
 
-            foreach (SecureRandomToken token in tokens)
+            foreach (SecureRandomToken tokenEntity in tokenEntities)
             {
-                var user = token.User!;
-                var result = _hasher.VerifyHashedPassword(user, token.TokenHash, rawToken);
+                var user = tokenEntity.User!;
+                var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, rawToken);
 
                 if (result != PasswordVerificationResult.Failed)
                 {
-                    token.Used = true;
-                    await _tokenSqlGenericRepository.UpdateByEntityAsync(token);
-                    return token;
+                    tokenEntity.Used = true;
+                    await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
+                    return tokenEntity;
                 }
             }
             return null;

@@ -78,7 +78,7 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "ExternalScheme")]
         [HttpPut]
         [Route("passwordrecovery")]
         public async Task<IActionResult> PasswordRecovery([FromBody] PasswordRecoveryDTO passwordData)
