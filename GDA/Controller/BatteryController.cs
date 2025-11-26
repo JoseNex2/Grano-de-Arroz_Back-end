@@ -79,6 +79,16 @@ namespace GDA.Controller
             return StatusCode(result.Code, result);
         }
 
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
+        [HttpGet]
+        [Route("getbatterymetricspercentageasync")]
+        public async Task<IActionResult> GetBatteryMetricsPercentageAsync()
+        {
+            var result = await _batteryService.GetBatteryMetricsPercentageAsync();
+            _logger.LogInformation("Porcentaje de baterias vendidas y reportadas");
+            return StatusCode(result.Code, result);
+        }
+
 
 
 
