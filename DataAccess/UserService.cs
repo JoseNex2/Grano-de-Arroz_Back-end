@@ -26,13 +26,13 @@ namespace DataAccess
     {
         private readonly ISqlGenericRepository<User, ServiceDbContext> _userSqlGenericRepository;
         private readonly ISqlGenericRepository<Role, ServiceDbContext> _roleSqlGenericRepository;
-        private readonly AuthenticationService _authentication;
+        private readonly IAuthenticationService _authentication;
         private readonly IMailService _mailService;
         
         public UserService(
             ISqlGenericRepository<User, ServiceDbContext> userSqlGenericRepository, 
             ISqlGenericRepository<Role, ServiceDbContext> roleSqlGenericRepository, 
-            AuthenticationService authentication,
+            IAuthenticationService authentication,
             IMailService mailService)
         {
             _userSqlGenericRepository = userSqlGenericRepository;
