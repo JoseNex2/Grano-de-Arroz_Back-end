@@ -2,6 +2,8 @@
 using DataAccess.Generic;
 using DataAccess.SupportServices;
 using Entities.DataContext;
+using Entities.Domain;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MySqlConnector;
@@ -23,6 +25,7 @@ namespace GDA.Middleware
             services.AddScoped<IBatteryService, BatteryService>();
             services.AddScoped<ICsvHelper, CsvHelper>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<UrlEncoderHelper, UrlEncoderHelper>();
             services.AddDbContext<ServiceDbContext>(options =>
