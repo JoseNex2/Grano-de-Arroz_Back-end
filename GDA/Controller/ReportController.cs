@@ -59,5 +59,15 @@ namespace GDA.Controller
             _logger.LogInformation("Se busco un reporte por id.");
             return StatusCode(result.Code, result);
         }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
+        [HttpGet]
+        [Route("getreporthistory")]
+        public async Task<IActionResult> GetReportHistory()
+        {
+            var result = await _reportService.GetReportHistory();
+            _logger.LogInformation("Historico de reportes.");
+            return StatusCode(result.Code, result);
+        }
     }
 }

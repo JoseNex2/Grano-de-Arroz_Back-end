@@ -1,4 +1,4 @@
-﻿using DataAccess.Generic;
+using DataAccess.Generic;
 using Utilities;
 using Entities.Domain;
 using Entities.Domain.DTO;
@@ -97,8 +97,7 @@ namespace DataAccess
                     }
                     catch (Exception ex)
                     {
-                        // Log el error pero no falla la creación del usuario
-                        // Podrías agregar un logger aquí si lo necesitas
+                        
                     }
                     
                     return ResultHelper<UserViewDTO>.Ok(201, userView, "Usuario creado y correo de bienvenida enviado correctamente.");
@@ -245,6 +244,7 @@ namespace DataAccess
                 {
                     Id = userFound.Id,
                     Token = tokenRecovery,
+                    Url = $"{dataRecovery.Url}/{tokenRecovery}"
                 };
 
                 return ResultHelper<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
