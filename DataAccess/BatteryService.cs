@@ -354,7 +354,7 @@ namespace DataAccess
             try
             {
                 var batteries = await _batterySqlGenericRepository.GetAsync(
-                    b => b.Client != null,
+                    null,
                     b => b.Client,
                     b => b.Report
                 );
