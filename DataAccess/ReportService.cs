@@ -9,11 +9,11 @@ namespace DataAccess
 {
     public interface IReportService
     {
-        Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int id);
-        Task<ResultService<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilter filter);
-        Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest);
-        Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update);
-        Task<ResultService<IEnumerable<ReportViewHistorical>>> GetReportHistory();
+        Task<ResultHelper<ReportDetailDTO>> ReportGetByIdAsync(int id);
+        Task<ResultHelper<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilterDTO filter);
+        Task<ResultHelper<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest);
+        Task<ResultHelper<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update);
+        Task<ResultHelper<IEnumerable<ReportViewHistorical>>> GetReportHistory();
     }
     public class ReportService : IReportService 
     {
@@ -136,7 +136,7 @@ namespace DataAccess
                 return ResultHelper<IEnumerable<ReportSearchDTO>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportSearchDTO>>(), ex.Message);
             }
         }
-        public async Task<ResultService<IEnumerable<ReportViewHistorical>>> GetReportHistory() 
+        public async Task<ResultHelper<IEnumerable<ReportViewHistorical>>> GetReportHistory() 
         {
             try
             {
@@ -160,11 +160,11 @@ namespace DataAccess
                     DateOnly.FromDateTime(r.ReportDate) : DateOnly.MinValue
                 });
 
-                return ResultService<IEnumerable<ReportViewHistorical>>.Ok(200, reportsView);
+                return ResultHelper<IEnumerable<ReportViewHistorical>>.Ok(200, reportsView);
             }
             catch (Exception ex)
             {
-                return ResultService<IEnumerable<ReportViewHistorical>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportViewHistorical>>(), ex.Message);
+                return ResultHelper<IEnumerable<ReportViewHistorical>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportViewHistorical>>(), ex.Message);
             }   
 
         }

@@ -12,13 +12,13 @@ namespace DataAccess
 {
     public interface IBatteryService
     {
-        Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
-        Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id);
-        Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
-        Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
-        Task<ResultService<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
+        Task<ResultHelper<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
+        Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearch();
+        Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
+        Task<ResultHelper<BatterySearchResponseDTO>> BatterySearchWithId(int id);
+        Task<ResultHelper<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
+        Task<ResultHelper<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
+        Task<ResultHelper<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
     }
 
 
@@ -349,7 +349,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<ResultService<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync()
+        public async Task<ResultHelper<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync()
         {
             try
             {
@@ -361,7 +361,7 @@ namespace DataAccess
 
                 if (batteries == null || !batteries.Any())
                 {
-                    return ResultService<BatteryMetricsPercentageResponse>.Fail(
+                    return ResultHelper<BatteryMetricsPercentageResponse>.Fail(
                         404,
                         new BatteryMetricsPercentageResponse(),
                         "No hay baterías registradas."
@@ -389,11 +389,11 @@ namespace DataAccess
                         Math.Round((double)totalSoldWithReport / totalSold * 100, 2) : 0
                 };
 
-                return ResultService<BatteryMetricsPercentageResponse>.Ok(200, result);
+                return ResultHelper<BatteryMetricsPercentageResponse>.Ok(200, result);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteryMetricsPercentageResponse>.Fail(
+                return ResultHelper<BatteryMetricsPercentageResponse>.Fail(
                     500,
                     new BatteryMetricsPercentageResponse(),
                     "Error interno. " + ex.Message
