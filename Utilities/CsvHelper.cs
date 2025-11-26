@@ -1,12 +1,12 @@
 ﻿namespace Utilities
 {
-    public interface ICsvService
+    public interface ICsvHelper
     {
         Task<Dictionary<TimeOnly, float>> CsvToDictionary(StreamReader reader);
     }
-    public class CsvService : ICsvService
+    public class CsvHelper : ICsvHelper
     {
-        public CsvService()
+        public CsvHelper()
         {
         
         }

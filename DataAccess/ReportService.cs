@@ -20,7 +20,6 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
-        private string statusNotInit = "No iniciada";
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
             ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository)
@@ -30,24 +29,24 @@ namespace DataAccess
             _statusSqlGenericRepository = statusSqlGenericRepository;
         }
 
-        public async Task<ResultService<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest)
+        public async Task<ResultHelper<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest)
         {
             try
             {
                 var batteryExist = (await _batterySqlGenericRepository.GetAsync(b => b.ChipId == reportRequest.ChipId, r => r.Client)).FirstOrDefault();
 
                 if (batteryExist == null)
-                    return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
+                    return ResultHelper<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "La batería no existe.");
 
                 Report reportExist = (await _reportSqlGenericRepository.GetAsync(b => b.BatteryId == batteryExist.Id)).FirstOrDefault();
 
                 if (reportExist != null)
-                    return ResultService<ReportViewDTO>.Fail(409, Activator.CreateInstance<ReportViewDTO>(), "Ya se hizo un reporte de la batería.");
+                    return ResultHelper<ReportViewDTO>.Fail(409, Activator.CreateInstance<ReportViewDTO>(), "Ya se hizo un reporte de la batería.");
 
                 var pendingStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == "Pendiente")).FirstOrDefault();
 
                 if (pendingStatus == null)
-                    return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), "El estado 'Pendiente' no existe en la base de datos.");
+                    return ResultHelper<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), "El estado 'Pendiente' no existe en la base de datos.");
 
 
                 var reportModel = new Report
@@ -60,7 +59,7 @@ namespace DataAccess
                 var id = await _reportSqlGenericRepository.CreateAsync(reportModel);
 
                 if (id == null)
-                    return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), "Error al crear el reporte.");
+                    return ResultHelper<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), "Error al crear el reporte.");
 
                 var reportView = new ReportViewDTO
                 {
@@ -80,14 +79,14 @@ namespace DataAccess
                     }
                 };
 
-                return ResultService<ReportViewDTO>.Ok(201, reportView, "Reporte creado.");
+                return ResultHelper<ReportViewDTO>.Ok(201, reportView, "Reporte creado.");
             }
             catch (Exception ex)
             {
-                return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
+                return ResultHelper<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
             }
         }
-        public async Task<ResultService<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilter filter)
+        public async Task<ResultHelper<IEnumerable<ReportSearchDTO>>> ReportsSearchAsync(ReportSearchFilterDTO filter)
         {
             try
             {
@@ -130,11 +129,11 @@ namespace DataAccess
                     DateOnly.FromDateTime(r.ReportDate) : DateOnly.MinValue
                 });
 
-                return ResultService<IEnumerable<ReportSearchDTO>>.Ok(200, reportsView);
+                return ResultHelper<IEnumerable<ReportSearchDTO>>.Ok(200, reportsView);
             }
             catch (Exception ex)
             {
-                return ResultService<IEnumerable<ReportSearchDTO>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportSearchDTO>>(), ex.Message);
+                return ResultHelper<IEnumerable<ReportSearchDTO>>.Fail(500, Activator.CreateInstance<IEnumerable<ReportSearchDTO>>(), ex.Message);
             }
         }
         public async Task<ResultService<IEnumerable<ReportViewHistorical>>> GetReportHistory() 
@@ -170,7 +169,7 @@ namespace DataAccess
 
         }
 
-        public async Task<ResultService<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update)
+        public async Task<ResultHelper<ReportViewDTO>> UpdateMeasurementReportAsync(ReportUpdateDTO update)
         {
             try
             {
@@ -180,17 +179,17 @@ namespace DataAccess
                 )).FirstOrDefault();
 
                 if (report == null)
-                    return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "Reporte no encontrado.");
+                    return ResultHelper<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "Reporte no encontrado.");
 
                 if(report.MeasurementsStatus.Count > 0)
-                    return ResultService<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "El status de una magnitud ya fue cargada.");
+                    return ResultHelper<ReportViewDTO>.Fail(404, Activator.CreateInstance<ReportViewDTO>(), "El status de una magnitud ya fue cargada.");
 
                 foreach (var mUpdate in update.MeasurementsState)
                 {
                     var newMeasurementStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == mUpdate.Status)).FirstOrDefault();
 
                     if (newMeasurementStatus == null)
-                        return ResultService<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{mUpdate.Status}' no existe.");
+                        return ResultHelper<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{mUpdate.Status}' no existe.");
 
                     report.MeasurementsStatus.Add(new MeasurementStatus
                     {
@@ -204,7 +203,7 @@ namespace DataAccess
                 var newStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == update.ReportState)).FirstOrDefault();
 
                 if (newStatus == null)
-                    return ResultService<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{update.ReportState}' no existe.");
+                    return ResultHelper<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{update.ReportState}' no existe.");
 
                 report.StatusId = newStatus.Id;
 
@@ -218,15 +217,15 @@ namespace DataAccess
                     ReportDate = DateOnly.FromDateTime(report.ReportDate)
                 };
 
-                return ResultService<ReportViewDTO>.Ok(200, dto, "Reporte actualizado con mediciones.");
+                return ResultHelper<ReportViewDTO>.Ok(200, dto, "Reporte actualizado con mediciones.");
             }
             catch (Exception ex)
             {
-                return ResultService<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
+                return ResultHelper<ReportViewDTO>.Fail(500, Activator.CreateInstance<ReportViewDTO>(), ex.Message);
             }
         }
 
-        public async Task<ResultService<ReportDetailDTO>> ReportGetByIdAsync(int reportId)
+        public async Task<ResultHelper<ReportDetailDTO>> ReportGetByIdAsync(int reportId)
         {
             try
             {
@@ -241,7 +240,7 @@ namespace DataAccess
                 )).FirstOrDefault();
 
                 if (report == null)
-                    return ResultService<ReportDetailDTO>.Fail(404, new ReportDetailDTO(), "Reporte no encontrado.");
+                    return ResultHelper<ReportDetailDTO>.Fail(404, new ReportDetailDTO(), "Reporte no encontrado.");
 
                 var measurementStatuses = report.MeasurementsStatus ?? new List<MeasurementStatus>();
                 var batteryMeasurements = report.Battery?.Measurements ?? new List<Measurement>();
@@ -283,11 +282,11 @@ namespace DataAccess
                     Measurements = measurementsDto
                 };
 
-                return ResultService<ReportDetailDTO>.Ok(200, reportDetail, "Detalle del reporte obtenido.");
+                return ResultHelper<ReportDetailDTO>.Ok(200, reportDetail, "Detalle del reporte obtenido.");
             }
             catch (Exception ex)
             {
-                return ResultService<ReportDetailDTO>.Fail(500, new ReportDetailDTO(), $"Error interno: {ex.Message}");
+                return ResultHelper<ReportDetailDTO>.Fail(500, new ReportDetailDTO(), $"Error interno: {ex.Message}");
             }
         }
 

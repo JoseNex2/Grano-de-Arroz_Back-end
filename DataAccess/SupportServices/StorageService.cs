@@ -4,7 +4,7 @@ using Minio;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
 
-namespace Utilities
+namespace DataAccess.SupportServices
 {
     public interface IStorageService
     {

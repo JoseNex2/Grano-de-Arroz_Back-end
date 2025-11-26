@@ -40,7 +40,7 @@ namespace DataAccess
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _nonSqlGenericRepository = nonSqlGenericRepository;
         }
-        public async Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
+        public async Task<ResultHelper<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
         {
             try
             {
@@ -48,12 +48,12 @@ namespace DataAccess
                 Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
                 if (batteryFound == null)
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
+                    return ResultHelper<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
                 }
 
                 if (batteryFound.WorkOrder != null && batteryFound.SaleDate != null && batteryFound.ClientId != null)
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
+                    return ResultHelper<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
                 }
 
                 batteryFound.WorkOrder = batteryDTO.WorkOrder;
@@ -63,20 +63,20 @@ namespace DataAccess
 
                 if (estado == true)
                 {
-                    return ResultService<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
+                    return ResultHelper<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
                 }
                 else
                 {
-                    return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
+                    return ResultHelper<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
                 }
             }
             catch (Exception ex)
             {
-                return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
+                return ResultHelper<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
 
             }
         }
-        public async Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch()
+        public async Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearch()
         {
             try
             {
@@ -106,15 +106,15 @@ namespace DataAccess
                     Batteries = batteriesDTO
                 };
 
-                return ResultService<BatteriesSearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatteriesSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+                return ResultHelper<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
+        public async Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
         {
             try
             {
@@ -190,11 +190,11 @@ namespace DataAccess
                     Batteries = batteriesDTO
                 };
 
-                return ResultService<BatteriesSearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatteriesSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteriesSearchResponseDTO>.Fail(
+                return ResultHelper<BatteriesSearchResponseDTO>.Fail(
                     500,
                     Activator.CreateInstance<BatteriesSearchResponseDTO>(),
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message
@@ -203,7 +203,7 @@ namespace DataAccess
         }
 
 
-        public async Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id)
+        public async Task<ResultHelper<BatterySearchResponseDTO>> BatterySearchWithId(int id)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace DataAccess
 
                 if (batteryFound == null)
                 {
-                    return ResultService<BatterySearchResponseDTO>.Fail(
+                    return ResultHelper<BatterySearchResponseDTO>.Fail(
                         409, 
                         Activator.CreateInstance<BatterySearchResponseDTO>(), 
                         "No se encuentra la bateria registrada.");
@@ -247,18 +247,18 @@ namespace DataAccess
                     measurements = measurementsDto
                 };
 
-                return ResultService<BatterySearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatterySearchResponseDTO>.Ok(200, response);
             }
             catch(Exception ex)
             {
-                return ResultService<BatterySearchResponseDTO>.Fail(
+                return ResultHelper<BatterySearchResponseDTO>.Fail(
                     500, 
                     Activator.CreateInstance<BatterySearchResponseDTO>(), 
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId)
+        public async Task<ResultHelper<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId)
         {
             try
             {
@@ -278,18 +278,18 @@ namespace DataAccess
 
                 }).ToList();
 
-                return ResultService<IEnumerable<BatteryByClientResponse>>.Ok(200, batteriesDTO);
+                return ResultHelper<IEnumerable<BatteryByClientResponse>>.Ok(200, batteriesDTO);
             }
             catch (Exception ex)
             {
-                return ResultService<IEnumerable<BatteryByClientResponse>>.Fail(
+                return ResultHelper<IEnumerable<BatteryByClientResponse>>.Fail(
                     500, 
                     Activator.CreateInstance<IEnumerable<BatteryByClientResponse>>(), 
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
+        public async Task<ResultHelper<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
         {
             try
             {
@@ -304,7 +304,7 @@ namespace DataAccess
 
                 if (batteries == null || !batteries.Any())
                 {
-                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                    return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
                         "No hay baterías evaluadas."
@@ -318,7 +318,7 @@ namespace DataAccess
 
                 if (!batteriesEvaluated.Any())
                 {
-                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                    return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
                         "No hay baterías con reportes válidos (Aprobado/Desaprobado)."
@@ -337,11 +337,11 @@ namespace DataAccess
                         Math.Round((double)rejected / totalEvaluated * 100, 2) : 0
                 };
 
-                return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
+                return ResultHelper<BatteryAnalysisPercentageResponse>.Ok(200, result);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                     500,
                     new BatteryAnalysisPercentageResponse(),
                     "Error interno. " + ex.Message
