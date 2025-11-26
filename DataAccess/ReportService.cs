@@ -18,7 +18,6 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
-        private string statusNotInit = "No iniciada";
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
             ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository)
