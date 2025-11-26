@@ -354,10 +354,19 @@ namespace DataAccess
             try
             {
                 var batteries = await _batterySqlGenericRepository.GetAsync(
-                    null,
+                    b => b.Client != null,
                     b => b.Client,
                     b => b.Report
                 );
+
+                if (batteries == null || !batteries.Any())
+                {
+                    return ResultService<BatteryMetricsPercentageResponse>.Fail(
+                        404,
+                        new BatteryMetricsPercentageResponse(),
+                        "No hay baterías registradas."
+                    );
+                }
 
                 var soldBatteries = batteries
                     .Where(b => b.ClientId != null)
