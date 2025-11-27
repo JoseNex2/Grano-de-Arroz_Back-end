@@ -12,16 +12,6 @@ namespace DataAccess
 {
     public interface IBatteryService
     {
-<<<<<<< HEAD
-        Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
-        Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id);
-        Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
-        Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
-        Task<ResultService<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
-        Task<ResultService<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync();
-=======
         Task<ResultHelper<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
         Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearch();
         Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
@@ -29,7 +19,7 @@ namespace DataAccess
         Task<ResultHelper<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
         Task<ResultHelper<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
         Task<ResultHelper<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
->>>>>>> ed96c44f061254eefb6328d525081199a0d62b2f
+        Task<ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync();
     }
 
 
@@ -411,7 +401,7 @@ namespace DataAccess
                 );
             }
         }
-        public async Task<ResultService<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync()
+        public async Task<ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync()
         {
             try
             {
@@ -423,7 +413,7 @@ namespace DataAccess
 
                 if (batteries == null || !batteries.Any())
                 {
-                    return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                    return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
                         404,
                         new List<BatteryMetricsByMonthResponse>(),
                         "No hay baterías registradas."
@@ -436,7 +426,7 @@ namespace DataAccess
 
                 if (!batteriesWithSale.Any())
                 {
-                    return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                    return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
                         404,
                         new List<BatteryMetricsByMonthResponse>(),
                         "No hay baterías con fecha de venta."
@@ -464,11 +454,11 @@ namespace DataAccess
                     })
                     .ToList();
 
-                return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Ok(200, grouped);
+                return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Ok(200, grouped);
             }
             catch (Exception ex)
             {
-                return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
                     500,
                     new List<BatteryMetricsByMonthResponse>(),
                     "Error interno: " + ex.Message
@@ -479,18 +469,18 @@ namespace DataAccess
 
     }
 
-    /*public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
+    /*public async Task<ResultHelper<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
     {
         try
         {
             var extension = Path.GetExtension(rawDataDTO.File.FileName).ToLowerInvariant();
             if (rawDataDTO.File == null || rawDataDTO.File.Length == 0)
             {
-                return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Archivo no proporcionado.");
+                return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Archivo no proporcionado.");
             }
             else if (extension != ".csv")
             {
-                return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Solo archivos CSV permitidos.");
+                return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Solo archivos CSV permitidos.");
             }
             else
             {
@@ -524,7 +514,7 @@ namespace DataAccess
                             Points = points
                         };
                         await _nonSqlGenericRepository.CreateAsync(pointsRecord);
-                        return ResultService<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
+                        return ResultHelper<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
                     }
                 }
                 else
@@ -549,18 +539,18 @@ namespace DataAccess
                             };
                             await _nonSqlGenericRepository.CreateAsync(pointsRecord);
                         }
-                        return ResultService<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
+                        return ResultHelper<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
                     }
                     else
                     {
-                        return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones ya se encuentran en el sistema.");
+                        return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones ya se encuentran en el sistema.");
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            return ResultService<RawDataResponseDTO>.Fail(500, Activator.CreateInstance<RawDataResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+            return ResultHelper<RawDataResponseDTO>.Fail(500, Activator.CreateInstance<RawDataResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
         }
     }*/
 }
