@@ -1,25 +1,23 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Entities.Domain.DTO;
+using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
 using MimeKit;
 
-namespace Utilities
+namespace DataAccess.SupportServices
 {
-    public interface IMailHelper
+    public interface IMailService
     {
         Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token);
         Task SendWelcomeEmailAsync(WelcomeEmailDTO welcomeData);
     }
 
-    public class MailHelper : IMailHelper
+    public class MailService : IMailService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MailHelper(IWebHostEnvironment webHostEnvironment)
+        public MailService(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }

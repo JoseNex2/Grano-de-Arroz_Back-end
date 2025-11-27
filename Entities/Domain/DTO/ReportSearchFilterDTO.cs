@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Utilities
 {
-    public class ReportSearchFilter
+    public class ReportSearchFilterDTO
     {
         public string? ChipId { get; set; }
         public string? ClientName { get; set; }

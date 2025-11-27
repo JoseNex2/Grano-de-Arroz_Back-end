@@ -33,7 +33,7 @@ namespace GDA.Controller
         [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
         [HttpPost]
         [Route("reportssearch")]
-        public async Task<IActionResult> ReportsSearchAsync([FromBody] ReportSearchFilter filter)
+        public async Task<IActionResult> ReportsSearchAsync([FromBody] ReportSearchFilterDTO filter)
         {
             var result = await _reportService.ReportsSearchAsync(filter);
             _logger.LogInformation("Se busco un reporte.");
