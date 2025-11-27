@@ -19,6 +19,7 @@ namespace DataAccess
         Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
         Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
         Task<ResultService<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
+        Task<ResultService<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync();
     }
 
 
@@ -400,6 +401,71 @@ namespace DataAccess
                 );
             }
         }
+        public async Task<ResultService<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync()
+        {
+            try
+            {
+                var batteries = await _batterySqlGenericRepository.GetAsync(
+                    null,
+                    b => b.Client,
+                    b => b.Report
+                );
+
+                if (batteries == null || !batteries.Any())
+                {
+                    return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                        404,
+                        new List<BatteryMetricsByMonthResponse>(),
+                        "No hay baterías registradas."
+                    );
+                }
+
+                var batteriesWithSale = batteries
+                    .Where(b => b.SaleDate != null)
+                    .ToList();
+
+                if (!batteriesWithSale.Any())
+                {
+                    return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                        404,
+                        new List<BatteryMetricsByMonthResponse>(),
+                        "No hay baterías con fecha de venta."
+                    );
+                }
+
+                var grouped = batteriesWithSale
+                    .GroupBy(b => new { b.SaleDate.Value.Year, b.SaleDate.Value.Month })
+                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                    .Select(g =>
+                    {
+                        var monthBatteries = g.ToList();
+                        int total = monthBatteries.Count;
+                        int totalSold = monthBatteries.Count(b => b.ClientId != null);
+                        int totalSoldWithReport = monthBatteries.Count(b => b.ClientId != null && b.Report != null);
+
+                        return new BatteryMetricsByMonthResponse
+                        {
+                            Month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                            SoldPercentage = total > 0 ?
+                                Math.Round((double)totalSold / total * 100, 2) : 0,
+                            SoldWithReportPercentage = totalSold > 0 ?
+                                Math.Round((double)totalSoldWithReport / totalSold * 100, 2) : 0
+                        };
+                    })
+                    .ToList();
+
+                return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Ok(200, grouped);
+            }
+            catch (Exception ex)
+            {
+                return ResultService<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                    500,
+                    new List<BatteryMetricsByMonthResponse>(),
+                    "Error interno: " + ex.Message
+                );
+            }
+        }
+
 
     }
 
