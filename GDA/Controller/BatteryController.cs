@@ -91,7 +91,7 @@ namespace GDA.Controller
 
         [Authorize(AuthenticationSchemes = "AccessScheme")]
         [HttpGet]
-        [Route("getbatterymetricsPercentagebymonthasync")]
+        [Route("getbatterymetricspercentagebymonthasync")]
         public async Task<IActionResult> GetBatteryMetricsPercentageByMonthAsync()
         {
             var result = await _batteryService.GetBatteryMetricsPercentageByMonthAsync();
