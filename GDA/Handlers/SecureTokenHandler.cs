@@ -25,10 +25,7 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
         string header = Request.Headers["Authorization"].ToString();
 
-        if (!header.StartsWith("Secure ", StringComparison.OrdinalIgnoreCase))
-            return AuthenticateResult.Fail("Invalid scheme");
-
-        string token = header.Substring("Secure ".Length).Trim();
+        string token = header.Trim();
 
         SecureRandomToken result = await _authenticationService.ValidateAsync(token);
 
@@ -38,12 +35,11 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
         User user = result.User!;
 
         List<Claim> claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Name)
-        };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Name)
+    };
 
-        // Rol
         if (!string.IsNullOrEmpty(user.Role.Name))
             claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));
 
@@ -53,4 +49,5 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
         return AuthenticateResult.Success(ticket);
     }
+
 }

@@ -230,7 +230,7 @@ namespace DataAccess
         {
             try
             {
-                User? userFound = (await _userSqlGenericRepository.GetAsync(a => a.Email == dataRecovery.Email)).SingleOrDefault();
+                User? userFound = await _userSqlGenericRepository.GetByIdAsync(a => a.Email == dataRecovery.Email);
                 if (userFound == null)
                 {
                     return ResultHelper<DataRecoveryResponseDTO>.Fail(404, Activator.CreateInstance<DataRecoveryResponseDTO>(), "El usuario no se encuentra registrado.");
@@ -261,7 +261,7 @@ namespace DataAccess
         {
             try
             {
-                User? user = (await _userSqlGenericRepository.GetAsync(a => a.Id == passwordRecovery.Id)).FirstOrDefault();
+                User? user = await _userSqlGenericRepository.GetByIdAsync(a => a.Id == passwordRecovery.Id);
                 string newPassword = _authentication.EncryptationSHA256(passwordRecovery.NewPassword);
                 if (newPassword == user.Password)
                 {

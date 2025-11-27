@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Utilities;
 
 namespace DataAccess.SupportServices
 {
@@ -21,10 +22,12 @@ namespace DataAccess.SupportServices
     {
         private readonly ISqlGenericRepository<SecureRandomToken, ServiceDbContext> _tokenSqlGenericRepository;
         private readonly IPasswordHasher<User> _hasher;
-        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher)
+        private readonly IUrlEncoderHelper _urlEncoderHelper;
+        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher, IUrlEncoderHelper urlEncoderHelper)
         {
             _tokenSqlGenericRepository = tokenSqlGenericRepository;
             _hasher = hasher;
+            _urlEncoderHelper = urlEncoderHelper;
         }
 
         public string EncryptationSHA256(string text)
@@ -54,37 +57,43 @@ namespace DataAccess.SupportServices
             return new JwtSecurityTokenHandler().WriteToken(jwtConfig);
         }
 
-        public async Task<string> GenerateSecureRandomToken(User user, TimeSpan lifetime, int length = 32)
+        public async Task<string> GenerateSecureRandomToken(User user, TimeSpan lifetime, int length = 64)
         {
-            byte[] bytes = RandomNumberGenerator.GetBytes(length);
-            string base64Token = Convert.ToBase64String(bytes);
-            SecureRandomToken entity = new SecureRandomToken
+            try
             {
-                TokenHash = _hasher.HashPassword(user, base64Token),
-                ExpiredDate = DateTime.UtcNow.Add(lifetime),
-                UserId = user.Id,
-                CreatedDate = DateTime.UtcNow,
-                Used = false
-            };
-            await _tokenSqlGenericRepository.CreateAsync(entity);
-            return $"Secure {base64Token}";
+                byte[] bytes = RandomNumberGenerator.GetBytes(length);
+                string base64Token = Convert.ToBase64String(bytes);
+                string base64EncodeToken = _urlEncoderHelper.Encode(base64Token);
+                SecureRandomToken entity = new SecureRandomToken
+                {
+                    TokenHash = _hasher.HashPassword(user, base64EncodeToken),
+                    ExpiredDate = DateTime.UtcNow.Add(lifetime),
+                    UserId = user.Id,
+                    CreatedDate = DateTime.UtcNow,
+                    Used = false
+                };
+                int id = (await _tokenSqlGenericRepository.CreateAsync(entity)).Value;
+                return $"{id}-{base64EncodeToken}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return string.Empty;
+            }
         }
 
         public async Task<SecureRandomToken> ValidateAsync(string rawToken)
         {
-            IEnumerable<SecureRandomToken> tokenEntities = await _tokenSqlGenericRepository.GetAsync(t => !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
-
-            foreach (SecureRandomToken tokenEntity in tokenEntities)
+            string[] tokenParts = rawToken.Split('-');
+            SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(tokenParts[0]) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
+            if (tokenEntity == null) { return null; }
+            User user = tokenEntity.User!;
+            var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenParts[1]);
+            if (result != PasswordVerificationResult.Failed)
             {
-                var user = tokenEntity.User!;
-                var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, rawToken);
-
-                if (result != PasswordVerificationResult.Failed)
-                {
-                    tokenEntity.Used = true;
-                    await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
-                    return tokenEntity;
-                }
+                tokenEntity.Used = true;
+                await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
+                return tokenEntity;
             }
             return null;
         }

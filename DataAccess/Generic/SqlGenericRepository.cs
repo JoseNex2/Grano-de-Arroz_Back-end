@@ -9,6 +9,7 @@ namespace DataAccess.Generic
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
         Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths);
+        Task<TEntity> GetByIdAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
 
         Task<int?> CreateAsync(TEntity entity);
 
@@ -44,7 +45,9 @@ namespace DataAccess.Generic
         {
             try
             {
-                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                    .Set<TEntity>()
+                    .AsNoTracking();
                 if (includes != null)
                 {
                     foreach (var include in includes)
@@ -64,13 +67,34 @@ namespace DataAccess.Generic
                 return null;
             }
         }
-        public async Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(
-        Expression<Func<TEntity, bool>> whereCondition = null,
-        params string[] includePaths)
+
+        public async Task<TEntity?> GetByIdAsync(Expression<Func<TEntity, bool>> whereCondition, params Expression<Func<TEntity, object>>[] includes)
+        {
+            if (whereCondition == null)
+                throw new ArgumentNullException(nameof(whereCondition));
+
+            IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                .Set<TEntity>()
+                .AsNoTracking();
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(whereCondition);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths)
         {
             try
             {
-                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                    .Set<TEntity>()
+                    .AsNoTracking();
 
                 if (includePaths != null)
                 {

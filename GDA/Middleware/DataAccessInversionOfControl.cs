@@ -2,7 +2,6 @@
 using DataAccess.Generic;
 using DataAccess.SupportServices;
 using Entities.DataContext;
-using Entities.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -49,7 +48,7 @@ namespace GDA.Middleware
             });
             services.AddScoped<IDataMongoDbContext>(sp =>
             {
-                var urlEncoder = sp.GetRequiredService<UrlEncoderHelper>();
+                var urlEncoder = sp.GetRequiredService<IUrlEncoderHelper>();
 
                 string connectionString = $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_PROTOCOL")}://" +
                     $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_SERVICE_USER"))}:" +
@@ -82,12 +81,8 @@ namespace GDA.Middleware
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
                 };
             });
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "ExternalScheme";
-                options.DefaultChallengeScheme = "ExternalScheme";
-            })
-            .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, SecureTokenHandler>("ExternalScheme", null);
+            services.AddAuthentication()
+            .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, SecureTokenHandler>("ExternalScheme",options => { });
             return (services);
         }
     }
