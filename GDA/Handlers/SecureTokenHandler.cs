@@ -20,33 +20,52 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.ContainsKey("Authorization"))
-            return AuthenticateResult.Fail("Missing Authorization Header");
+        Logger.LogInformation("Entró al SecureTokenHandler para autenticación.");
 
-        string token = Request.Headers["Authorization"].ToString().Trim();
+        if (!Request.Headers.ContainsKey("Authorization"))
+        {
+            Logger.LogWarning("Falta el header Authorization.");
+            return AuthenticateResult.Fail("Missing Authorization Header");
+        }
+
+        string header = Request.Headers["Authorization"].ToString();
+        Logger.LogInformation("Authorization header recibido: '{Header}'", header);
+
+        string token = header.Trim();
+        Logger.LogInformation("Token luego de Trim: '{Token}'", token);
 
         SecureRandomToken result = await _authenticationService.ValidateAsync(token);
 
         if (result == null)
+        {
+            Logger.LogWarning("ValidateAsync devolvió NULL -> token inválido o expirado.");
             return AuthenticateResult.Fail("Invalid or expired token");
+        }
+
+        Logger.LogInformation("Token válido. Usuario asociado: {UserId}", result.User?.Id);
 
         User user = result.User!;
 
-        var claims = new List<Claim>
+        List<Claim> claims = new List<Claim>
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Name, user.Name),
         new Claim(ClaimTypes.Email, user.Email)
     };
 
-        if (!string.IsNullOrEmpty(user.Role.Name))
+        if (!string.IsNullOrEmpty(user.Role?.Name))
+        {
+            Logger.LogInformation("Rol del usuario: {Role}", user.Role.Name);
             claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));
+        }
 
         var identity = new ClaimsIdentity(claims, Scheme.Name);
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-        return AuthenticateResult.Success(ticket);
+        Logger.LogInformation("Autenticación exitosa con el esquema: {Scheme}", Scheme.Name);
+
+        return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
     }
+
 
 }
