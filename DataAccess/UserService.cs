@@ -1,10 +1,12 @@
 using DataAccess.Generic;
-using Utilities;
+using DataAccess.SupportServices;
+using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
-using Entities.DataContext;
 using Entities.Domain.DTO.Response;
-using DataAccess.SupportServices;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Utilities;
 
 namespace DataAccess
 {
@@ -28,17 +30,20 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Role, ServiceDbContext> _roleSqlGenericRepository;
         private readonly IAuthenticationService _authentication;
         private readonly IMailService _mailService;
-        
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public UserService(
             ISqlGenericRepository<User, ServiceDbContext> userSqlGenericRepository, 
             ISqlGenericRepository<Role, ServiceDbContext> roleSqlGenericRepository, 
             IAuthenticationService authentication,
-            IMailService mailService)
+            IMailService mailService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _userSqlGenericRepository = userSqlGenericRepository;
             _roleSqlGenericRepository = roleSqlGenericRepository;
             _authentication = authentication;
             _mailService = mailService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ResultHelper<UserViewDTO>> UserRegister(UserDTO userDTO)
@@ -242,7 +247,6 @@ namespace DataAccess
                 
                 DataRecoveryResponseDTO responseDTO = new DataRecoveryResponseDTO
                 {
-                    Id = userFound.Id,
                     Token = tokenRecovery,
                     Url = $"{dataRecovery.Url}/{tokenRecovery}"
                 };
@@ -261,7 +265,9 @@ namespace DataAccess
         {
             try
             {
-                User? user = await _userSqlGenericRepository.GetByIdAsync(a => a.Id == passwordRecovery.Id);
+                ClaimsPrincipal userClaims = _httpContextAccessor.HttpContext.User;
+                string userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                User? user = await _userSqlGenericRepository.GetByIdAsync(a => a.Id == Convert.ToInt32(userId));
                 string newPassword = _authentication.EncryptationSHA256(passwordRecovery.NewPassword);
                 if (newPassword == user.Password)
                 {

@@ -28,6 +28,7 @@ namespace GDA.Middleware
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<IUrlEncoderHelper, UrlEncoderHelper>();
+            services.AddHttpContextAccessor();
             services.AddDbContext<ServiceDbContext>(options =>
             {
                 string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PASSWORD")}";

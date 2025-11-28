@@ -8,7 +8,6 @@ namespace Entities.Domain.DTO
 {
     public class PasswordRecoveryDTO
     {
-        public int Id { get; set; }
         public string NewPassword { get; set; }
     }
 }
