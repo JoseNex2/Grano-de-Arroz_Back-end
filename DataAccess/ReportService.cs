@@ -213,8 +213,9 @@ namespace DataAccess
                 {
                     Id = report.Id,
                     ChipId = report.Battery.ChipId,
-                    ReportState = report.Status.Name,
-                    ReportDate = DateOnly.FromDateTime(report.ReportDate)
+                    ReportState = report.Status?.Name ?? string.Empty,
+                    ReportDate = report.ReportDate != DateTime.MinValue ?
+                    DateOnly.FromDateTime(report.ReportDate) : DateOnly.MinValue
                 };
 
                 return ResultHelper<ReportViewDTO>.Ok(200, dto, "Reporte actualizado con mediciones.");
