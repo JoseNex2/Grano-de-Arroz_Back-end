@@ -31,19 +31,22 @@ namespace DataAccess
         private readonly IAuthenticationService _authentication;
         private readonly IMailService _mailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUrlEncoderHelper _urlEncoderHelper;
 
         public UserService(
             ISqlGenericRepository<User, ServiceDbContext> userSqlGenericRepository, 
             ISqlGenericRepository<Role, ServiceDbContext> roleSqlGenericRepository, 
             IAuthenticationService authentication,
             IMailService mailService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IUrlEncoderHelper urlEncoderHelper)
         {
             _userSqlGenericRepository = userSqlGenericRepository;
             _roleSqlGenericRepository = roleSqlGenericRepository;
             _authentication = authentication;
             _mailService = mailService;
             _httpContextAccessor = httpContextAccessor;
+            _urlEncoderHelper = urlEncoderHelper;
         }
 
         public async Task<ResultHelper<UserViewDTO>> UserRegister(UserDTO userDTO)
@@ -248,7 +251,7 @@ namespace DataAccess
                 DataRecoveryResponseDTO responseDTO = new DataRecoveryResponseDTO
                 {
                     Token = tokenRecovery,
-                    Url = $"{dataRecovery.Url}/{tokenRecovery}"
+                    Url = $"{dataRecovery.Url}/{_urlEncoderHelper.Encode(tokenRecovery)}"
                 };
 
                 return ResultHelper<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");

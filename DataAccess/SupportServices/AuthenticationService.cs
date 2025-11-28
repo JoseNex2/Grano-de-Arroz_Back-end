@@ -22,12 +22,10 @@ namespace DataAccess.SupportServices
     {
         private readonly ISqlGenericRepository<SecureRandomToken, ServiceDbContext> _tokenSqlGenericRepository;
         private readonly IPasswordHasher<User> _hasher;
-        private readonly IUrlEncoderHelper _urlEncoderHelper;
-        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher, IUrlEncoderHelper urlEncoderHelper)
+        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher)
         {
             _tokenSqlGenericRepository = tokenSqlGenericRepository;
             _hasher = hasher;
-            _urlEncoderHelper = urlEncoderHelper;
         }
 
         public string EncryptationSHA256(string text)
@@ -63,17 +61,16 @@ namespace DataAccess.SupportServices
             {
                 byte[] bytes = RandomNumberGenerator.GetBytes(length);
                 string base64Token = Convert.ToBase64String(bytes);
-                string base64EncodeToken = _urlEncoderHelper.Encode(base64Token);
                 SecureRandomToken entity = new SecureRandomToken
                 {
-                    TokenHash = _hasher.HashPassword(user, base64EncodeToken),
+                    TokenHash = _hasher.HashPassword(user, base64Token),
                     ExpiredDate = DateTime.UtcNow.Add(lifetime),
                     UserId = user.Id,
                     CreatedDate = DateTime.UtcNow,
                     Used = false
                 };
                 int id = (await _tokenSqlGenericRepository.CreateAsync(entity)).Value;
-                return $"{id}-{base64EncodeToken}";
+                return $"{id}-{base64Token}";
             }
             catch (Exception ex)
             {
