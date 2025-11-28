@@ -81,9 +81,7 @@ namespace GDA.Middleware
                     ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
                 };
-            });
-            services.AddAuthentication()
-            .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, SecureTokenHandler>("ExternalScheme",options => { });
+            }).AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, SecureTokenHandler>("ExternalScheme",options => { });
             return (services);
         }
     }

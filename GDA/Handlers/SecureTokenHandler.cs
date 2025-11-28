@@ -23,9 +23,7 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
         if (!Request.Headers.ContainsKey("Authorization"))
             return AuthenticateResult.Fail("Missing Authorization Header");
 
-        string header = Request.Headers["Authorization"].ToString();
-
-        string token = header.Trim();
+        string token = Request.Headers["Authorization"].ToString().Trim();
 
         SecureRandomToken result = await _authenticationService.ValidateAsync(token);
 
@@ -34,7 +32,7 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
 
         User user = result.User!;
 
-        List<Claim> claims = new List<Claim>
+        var claims = new List<Claim>
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Name, user.Name),
@@ -44,9 +42,9 @@ public class SecureTokenHandler : AuthenticationHandler<AuthenticationSchemeOpti
         if (!string.IsNullOrEmpty(user.Role.Name))
             claims.Add(new Claim(ClaimTypes.Role, user.Role.Name));
 
-        ClaimsIdentity identity = new ClaimsIdentity(claims, Scheme.Name);
-        ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-        AuthenticationTicket ticket = new AuthenticationTicket(principal, Scheme.Name);
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
         return AuthenticateResult.Success(ticket);
     }
