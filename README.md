@@ -50,8 +50,5 @@ Este repositorio incluye ` .editorconfig ` y `CONTRIBUTING.md` con reglas obliga
 2. Asegurarse de que las pruebas pasan y el formato cumple con ` .editorconfig `
 3. Abrir un Pull Request hacia la rama principal indicada en el flujo del proyecto
 
-## Licencia
-Añade aquí la licencia del proyecto (por ejemplo, MIT) o crea un `LICENSE.md` en el repositorio si aún no existe.
-
 ## Contacto
 Para dudas o soporte, abre un issue en el repositorio o contacta al mantenedor principal.
