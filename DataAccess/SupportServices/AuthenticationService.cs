@@ -1,5 +1,4 @@
 ﻿using DataAccess.Generic;
-using DnsClient.Internal;
 using Entities.DataContext;
 using Entities.Domain;
 using Microsoft.AspNetCore.Identity;
