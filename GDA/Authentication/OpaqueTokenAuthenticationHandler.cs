@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -32,7 +33,7 @@ namespace GDA.Authentication
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
-            Logger.LogInformation("🔥 ExternalScheme handler ejecutado. Token recibido: {token}", token);
+            Logger.LogInformation("ExternalScheme handler ejecutado. Token recibido: {token}", token);
 
             var session = await _authenticationService.ValidateAsync(token);
 
@@ -40,7 +41,7 @@ namespace GDA.Authentication
             {
                 return AuthenticateResult.Fail("Unauthorized");
             }
-
+            Logger.LogInformation("Token encontrado en base de datos: {session}", session);
             if (Options.ShouldValidateLifetime)
             {
                 if (session.ExpiredDate < DateTime.UtcNow)
@@ -48,7 +49,7 @@ namespace GDA.Authentication
                     return AuthenticateResult.Fail("Unauthorized");
                 }
             }
-
+            Logger.LogInformation("La fecha esta dentro del rango");
             var user = session.User;
 
             var claims = new[]

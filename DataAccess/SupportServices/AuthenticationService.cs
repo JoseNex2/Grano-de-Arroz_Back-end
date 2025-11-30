@@ -1,14 +1,14 @@
 ﻿using DataAccess.Generic;
+using DnsClient.Internal;
 using Entities.DataContext;
 using Entities.Domain;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace DataAccess.SupportServices
 {
@@ -23,10 +23,12 @@ namespace DataAccess.SupportServices
     {
         private readonly ISqlGenericRepository<SecureRandomToken, ServiceDbContext> _tokenSqlGenericRepository;
         private readonly IPasswordHasher<User> _hasher;
-        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher)
+        private readonly ILogger<AuthenticationService> _logger;
+        public AuthenticationService(ISqlGenericRepository<SecureRandomToken, ServiceDbContext> tokenSqlGenericRepository, IPasswordHasher<User> hasher, ILogger<AuthenticationService> logger)
         {
             _tokenSqlGenericRepository = tokenSqlGenericRepository;
             _hasher = hasher;
+            _logger = logger;
         }
 
         public string EncryptationSHA256(string text)
@@ -86,15 +88,19 @@ namespace DataAccess.SupportServices
             string idPart = rawToken.Substring(0, dashIndex);
             string tokenPart = rawToken.Substring(dashIndex + 1);
             SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(idPart) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
+            _logger.LogInformation("Token encontrado en base de datos: {tokenEntity}", tokenEntity);
             if (tokenEntity == null) { return null; }
             User user = tokenEntity.User!;
+            _logger.LogInformation("Usuario asociado: {user}", user);
             var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenPart);
             if (result != PasswordVerificationResult.Failed)
             {
                 tokenEntity.Used = true;
                 await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
+                _logger.LogInformation("Validacion correcta");
                 return tokenEntity;
             }
+            _logger.LogInformation("Validacion fallida");
             return null;
         }
     }

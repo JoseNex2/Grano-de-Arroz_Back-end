@@ -14,7 +14,7 @@ namespace GDA.Middleware
 {
     public static class DataAccessInversionOfControl
     {
-        public static IServiceCollection AddDependency(this IServiceCollection services, WebApplicationBuilder builder, IConfiguration configuration)
+        public static IServiceCollection AddDependency(this IServiceCollection services)
         {
             services.AddScoped<IStorageService, StorageService>();
             services.AddScoped(typeof(ISqlUnitOfWork<>), typeof(SqlUnitOfWork<>));
@@ -84,6 +84,9 @@ namespace GDA.Middleware
             {
                 options.ShouldValidateLifetime = true;
             });
+
+
+
             return (services);
         }
     }
