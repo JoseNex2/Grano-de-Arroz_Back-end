@@ -87,21 +87,16 @@ namespace DataAccess.SupportServices
             int dashIndex = rawToken.IndexOf('-');
             string idPart = rawToken.Substring(0, dashIndex);
             string tokenPart = rawToken.Substring(dashIndex + 1);
-            _logger.LogInformation("El id es: {idPart}, el token es: {tokenPart}", idPart, tokenPart);
             SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(idPart) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
-            _logger.LogInformation("Token encontrado en base de datos en metodo validador: {tokenEntity}", tokenEntity);
             if (tokenEntity == null) { return null; }
             User user = tokenEntity.User!;
-            _logger.LogInformation("Usuario asociado: {user}", user);
             var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenPart);
             if (result != PasswordVerificationResult.Failed)
             {
                 tokenEntity.Used = true;
                 await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
-                _logger.LogInformation("Validacion correcta");
                 return tokenEntity;
             }
-            _logger.LogInformation("Validacion fallida");
             return null;
         }
     }

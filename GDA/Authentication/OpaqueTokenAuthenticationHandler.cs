@@ -9,14 +9,17 @@ namespace GDA.Authentication
     public class OpaqueTokenAuthenticationHandler : AuthenticationHandler<OpaqueTokenAuthenticationSchemeOptions>
     {
         private readonly DataAccess.SupportServices.IAuthenticationService _authenticationService;
+        private readonly ILogger _logger;
         public OpaqueTokenAuthenticationHandler(
             IOptionsMonitor<OpaqueTokenAuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            DataAccess.SupportServices.IAuthenticationService authenticationService)
+            DataAccess.SupportServices.IAuthenticationService authenticationService
+            )
             : base(options, logger, encoder)
         {
             _authenticationService = authenticationService;
+            _logger = logger.CreateLogger<OpaqueTokenAuthenticationHandler>();
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -33,7 +36,7 @@ namespace GDA.Authentication
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
-            Logger.LogInformation("ExternalScheme handler ejecutado. Token recibido: {token}", token);
+            _logger.LogInformation("Token recibido");
 
             var session = await _authenticationService.ValidateAsync(token);
 
@@ -41,7 +44,6 @@ namespace GDA.Authentication
             {
                 return AuthenticateResult.Fail("Unauthorized");
             }
-            Logger.LogInformation("Token encontrado en base de datos: {session}", session);
             if (Options.ShouldValidateLifetime)
             {
                 if (session.ExpiredDate < DateTime.UtcNow)
@@ -49,7 +51,6 @@ namespace GDA.Authentication
                     return AuthenticateResult.Fail("Unauthorized");
                 }
             }
-            Logger.LogInformation("La fecha esta dentro del rango");
             var user = session.User;
 
             var claims = new[]
