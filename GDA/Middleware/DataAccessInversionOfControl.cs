@@ -2,6 +2,7 @@
 using DataAccess.Generic;
 using DataAccess.SupportServices;
 using Entities.DataContext;
+using GDA.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -64,11 +65,8 @@ namespace GDA.Middleware
 
                 return new DataMongoDbContext(connectionString, databaseName);
             });
-            services.AddAuthentication(config =>
-            {
-                config.DefaultAuthenticateScheme = "AccessScheme";
-                config.DefaultChallengeScheme = "AccessScheme";
-            }).AddJwtBearer("AccessScheme", config =>
+            services.AddAuthentication()
+            .AddJwtBearer("AccessScheme", config =>
             {
                 config.RequireHttpsMetadata = false;
                 config.SaveToken = true;
@@ -81,7 +79,11 @@ namespace GDA.Middleware
                     ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
                 };
-            }).AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, SecureTokenHandler>("ExternalScheme",options => { });
+            })
+            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>("OpaqueTokenSchema", options =>
+            {
+                options.ShouldValidateLifetime = true;
+            });
             return (services);
         }
     }

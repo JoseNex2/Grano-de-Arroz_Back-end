@@ -1,4 +1,4 @@
-using GDA.Extensions;
+using GDA.Extension;
 using GDA.Middleware;
 using Serilog;
 using Utilities;

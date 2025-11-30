@@ -1,7 +1,7 @@
 ﻿using Serilog.Context;
 using System.Security.Claims;
 
-namespace GDA.Extensions
+namespace GDA.Extension
 {
     public static class AppBuilderExtensions
     {

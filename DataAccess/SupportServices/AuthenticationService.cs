@@ -1,13 +1,14 @@
 ﻿using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Utilities;
 
 namespace DataAccess.SupportServices
 {
@@ -16,7 +17,7 @@ namespace DataAccess.SupportServices
         string EncryptationSHA256(string text);
         string GenerateAccessJwt(User user);
         Task<string> GenerateSecureRandomToken(User user, TimeSpan lifetime, int length = 32);
-        Task<SecureRandomToken> ValidateAsync(string rawToken);
+        Task<SecureRandomToken?> ValidateAsync(string rawToken);
     }
     public class AuthenticationService : IAuthenticationService
     {
@@ -79,13 +80,15 @@ namespace DataAccess.SupportServices
             }
         }
 
-        public async Task<SecureRandomToken> ValidateAsync(string rawToken)
+        public async Task<SecureRandomToken?> ValidateAsync(string rawToken)
         {
-            string[] tokenParts = rawToken.Split('-');
-            SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(tokenParts[0]) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
+            int dashIndex = rawToken.IndexOf('-');
+            string idPart = rawToken.Substring(0, dashIndex);
+            string tokenPart = rawToken.Substring(dashIndex + 1);
+            SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(idPart) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
             if (tokenEntity == null) { return null; }
             User user = tokenEntity.User!;
-            var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenParts[1]);
+            var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenPart);
             if (result != PasswordVerificationResult.Failed)
             {
                 tokenEntity.Used = true;
