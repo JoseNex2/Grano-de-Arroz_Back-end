@@ -80,7 +80,7 @@ namespace GDA.Middleware
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
                 };
             })
-            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>("OpaqueTokenSchema", options =>
+            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>("ExternalScheme", options =>
             {
                 options.ShouldValidateLifetime = true;
             });
