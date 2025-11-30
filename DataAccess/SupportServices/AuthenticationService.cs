@@ -87,6 +87,7 @@ namespace DataAccess.SupportServices
             int dashIndex = rawToken.IndexOf('-');
             string idPart = rawToken.Substring(0, dashIndex);
             string tokenPart = rawToken.Substring(dashIndex + 1);
+            _logger.LogInformation("El id es: {idPart}, el token es: {tokenPart}", idPart, tokenPart);
             SecureRandomToken tokenEntity = await _tokenSqlGenericRepository.GetByIdAsync(t => t.Id == Convert.ToInt32(idPart) && !t.Used && t.ExpiredDate > DateTime.UtcNow, t => t.User);
             _logger.LogInformation("Token encontrado en base de datos en metodo validador: {tokenEntity}", tokenEntity);
             if (tokenEntity == null) { return null; }
