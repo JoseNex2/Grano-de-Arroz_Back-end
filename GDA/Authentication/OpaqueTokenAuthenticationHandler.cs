@@ -32,6 +32,8 @@ namespace GDA.Authentication
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
+            Logger.LogInformation("🔥 ExternalScheme handler ejecutado. Token recibido: {token}", token);
+
             var session = await _authenticationService.ValidateAsync(token);
 
             if (session == null)
@@ -41,7 +43,7 @@ namespace GDA.Authentication
 
             if (Options.ShouldValidateLifetime)
             {
-                if (session.ExpiredDate > DateTime.UtcNow)
+                if (session.ExpiredDate < DateTime.UtcNow)
                 {
                     return AuthenticateResult.Fail("Unauthorized");
                 }
