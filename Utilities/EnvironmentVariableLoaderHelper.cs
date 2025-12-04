@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-    public static class EnvironmentVariableLoaderService
+    public static class EnvironmentVariableLoaderHelper
     {
         public static void Initialize()
         {

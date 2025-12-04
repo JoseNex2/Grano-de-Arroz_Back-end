@@ -3,28 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Bienvenido a GDA</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td {font-family: Arial, sans-serif !important;}
+    </style>
+    <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #3E4148;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #3E4148; min-height: 100vh;">
+<body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; background-color: #3E4148; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #3E4148; margin: 0; padding: 0;">
         <tr>
             <td align="center" style="padding: 40px 20px;">
-                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #3E4148;">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #3E4148; max-width: 600px; width: 100%; margin: 0 auto;">
                     
                     <!-- Ilustración -->
                     <tr>
                         <td align="center" style="padding-bottom: 30px;">
-                            <img src="../../../public/images/emailCard/mailCard.svg" 
+                            <img src="https://res.cloudinary.com/dfa3qknmg/image/upload/f_auto,q_auto/v1763750409/mailCard_lfgmkh.svg" 
                                  alt="Ilustración de bienvenida" 
                                  width="320" 
-                                 style="display: block; max-width: 100%; height: auto;">
+                                 height="320"
+                                 style="display: block; max-width: 320px; width: 320px; height: auto; border: 0; outline: none; text-decoration: none;">
                         </td>
                     </tr>
                     
                     <!-- Título -->
                     <tr>
                         <td align="center" style="padding-bottom: 20px;">
-                            <h1 style="color: #ffffff; font-size: 32px; font-weight: bold; margin: 0;">
+                            <h1 style="color: #ffffff; font-size: 32px; font-weight: bold; margin: 0; padding: 0; line-height: 1.2; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
                                 ¡Bienvenido a GDA!
                             </h1>
                         </td>
@@ -32,17 +39,17 @@
                     
                     <!-- Mensaje de bienvenida -->
                     <tr>
-                        <td align="center" style="padding: 0 40px 15px 40px;">
-                            <p style="color: #D1D5DB; font-size: 16px; line-height: 1.5; margin: 0; text-align: center;">
-                                Te damos la bienvenida <strong style="color: #ffffff;">{{USER_NAME}}</strong>, tu espacio para administrar y seguir todas tus gestiones de manera rápida y sencilla.
+                        <td align="center" style="padding: 0 40px 20px 40px;">
+                            <p style="color: #D1D5DB; font-size: 16px; line-height: 1.6; margin: 0; text-align: center; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
+                                Te damos la bienvenida <strong style="color: #ffffff; font-weight: bold;">{{USER_NAME}}</strong>, tu espacio para administrar y seguir todas tus gestiones de manera rápida y sencilla.
                             </p>
                         </td>
                     </tr>
                     
                     <!-- Información del rol -->
                     <tr>
-                        <td align="center" style="padding-bottom: 15px;">
-                            <p style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 0; text-align: center;">
+                        <td align="center" style="padding-bottom: 20px;">
+                            <p style="color: #ffffff; font-size: 20px; font-weight: bold; margin: 0; text-align: center; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.4;">
                                 Tu cuenta fue creada con el Rol {{USER_ROLE}}
                             </p>
                         </td>
@@ -51,7 +58,7 @@
                     <!-- Instrucción -->
                     <tr>
                         <td align="center" style="padding: 0 40px 40px 40px;">
-                            <p style="color: #D1D5DB; font-size: 16px; line-height: 1.5; margin: 0; text-align: center;">
+                            <p style="color: #D1D5DB; font-size: 16px; line-height: 1.6; margin: 0; text-align: center; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
                                 Comenzá creando tu contraseña para acceder a la plataforma.
                             </p>
                         </td>
@@ -68,7 +75,10 @@
                                       padding: 16px 40px; 
                                       border-radius: 6px; 
                                       font-size: 18px; 
-                                      font-weight: 600;">
+                                      font-weight: 600;
+                                      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+                                      line-height: 1.5;
+                                      text-align: center;">
                                 Crear contraseña
                             </a>
                         </td>
@@ -76,20 +86,22 @@
                     
                     <!-- Logos footer -->
                     <tr>
-                        <td style="padding: 20px 40px;">
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <td style="padding: 30px 40px 20px 40px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                    <td align="left" width="50%" style="vertical-align: bottom;">
-                                        <img src="../../../public/images/emailCard/logoIthurbide.svg" 
+                                    <td align="left" width="50%" style="vertical-align: bottom; padding-right: 10px;">
+                                        <img src="https://res.cloudinary.com/dfa3qknmg/image/upload/f_auto,q_auto/v1763750409/logoIthurbide_eeqisd.svg" 
                                              alt="Logo Ithurbide" 
-                                             height="32" 
-                                             style="display: block;">
+                                             width="120"
+                                             height="32"
+                                             style="display: block; max-width: 120px; width: 120px; height: 32px; border: 0; outline: none; text-decoration: none;">
                                     </td>
-                                    <td align="right" width="50%" style="vertical-align: bottom;">
-                                        <img src="../../../public/images/emailCard/GDA-logo.svg" 
+                                    <td align="right" width="50%" style="vertical-align: bottom; padding-left: 10px;">
+                                        <img src="https://res.cloudinary.com/dfa3qknmg/image/upload/f_auto,q_auto/v1763751615/GDA-logo_z1ujza.svg" 
                                              alt="Logo GDA" 
-                                             height="40" 
-                                             style="display: block;">
+                                             width="100"
+                                             height="40"
+                                             style="display: block; max-width: 100px; width: 100px; height: 40px; border: 0; outline: none; text-decoration: none; margin-left: auto;">
                                     </td>
                                 </tr>
                             </table>

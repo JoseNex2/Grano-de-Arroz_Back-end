@@ -33,7 +33,7 @@ namespace GDA.Controller
         [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
         [HttpPost]
         [Route("reportssearch")]
-        public async Task<IActionResult> ReportsSearchAsync([FromBody] ReportSearchFilter filter)
+        public async Task<IActionResult> ReportsSearchAsync([FromBody] ReportSearchFilterDTO filter)
         {
             var result = await _reportService.ReportsSearchAsync(filter);
             _logger.LogInformation("Se busco un reporte.");
@@ -57,6 +57,16 @@ namespace GDA.Controller
         {
             var result = await _reportService.ReportGetByIdAsync(reportId);
             _logger.LogInformation("Se busco un reporte por id.");
+            return StatusCode(result.Code, result);
+        }
+
+        [Authorize(AuthenticationSchemes = "AccessScheme", Roles = "Administrador, Sucursal, Laboratorio")]
+        [HttpGet]
+        [Route("getreporthistory")]
+        public async Task<IActionResult> GetReportHistory()
+        {
+            var result = await _reportService.GetReportHistory();
+            _logger.LogInformation("Historico de reportes.");
             return StatusCode(result.Code, result);
         }
     }

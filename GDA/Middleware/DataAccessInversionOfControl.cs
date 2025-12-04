@@ -1,24 +1,35 @@
-﻿using DataAccess.Generic;
-using DataAccess;
+﻿using DataAccess;
+using DataAccess.Generic;
+using DataAccess.SupportServices;
 using Entities.DataContext;
+using GDA.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MySqlConnector;
+using System.Text;
 using Utilities;
 
 namespace GDA.Middleware
 {
     public static class DataAccessInversionOfControl
     {
-        public static IServiceCollection AddDependency(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDependency(this IServiceCollection services)
         {
+            services.AddScoped<IStorageService, StorageService>();
             services.AddScoped(typeof(ISqlUnitOfWork<>), typeof(SqlUnitOfWork<>));
             services.AddScoped(typeof(ISqlGenericRepository<,>), typeof(SqlGenericRepository<,>));
             services.AddScoped(typeof(INonSqlGenericRepository<>), typeof(NonSqlGenericRepository<>));
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IBatteryService, BatteryService>();
-            services.AddScoped<ICsvService, CsvService>();
+            services.AddScoped<ICsvHelper, CsvHelper>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IUrlEncoderHelper, UrlEncoderHelper>();
+            services.AddHttpContextAccessor();
             services.AddDbContext<ServiceDbContext>(options =>
             {
                 string connectionString = $"server={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_HOST")};port={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PORT")};database={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_DATABASE")};user={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_USER")};password={Environment.GetEnvironmentVariable("MYSQLDB_CONNECTION_SERVICE_PASSWORD")}";
@@ -37,11 +48,9 @@ namespace GDA.Middleware
                     }
                 );
             });
-            services.AddScoped<IUrlEncoderService, UrlEncoderService>();
-
             services.AddScoped<IDataMongoDbContext>(sp =>
             {
-                var urlEncoder = sp.GetRequiredService<IUrlEncoderService>();
+                var urlEncoder = sp.GetRequiredService<IUrlEncoderHelper>();
 
                 string connectionString = $"{Environment.GetEnvironmentVariable("MONGODB_CONNECTION_PROTOCOL")}://" +
                     $"{urlEncoder.Encode(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_SERVICE_USER"))}:" +
@@ -56,6 +65,28 @@ namespace GDA.Middleware
 
                 return new DataMongoDbContext(connectionString, databaseName);
             });
+            services.AddAuthentication()
+            .AddJwtBearer("AccessScheme", config =>
+            {
+                config.RequireHttpsMetadata = false;
+                config.SaveToken = true;
+                config.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
+                };
+            })
+            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>("ExternalScheme", options =>
+            {
+                options.ShouldValidateLifetime = true;
+            });
+
+
+
             return (services);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Reactive.Joins;
+﻿using System.Linq;
+using System.Reactive.Joins;
 using DataAccess.Generic;
 using Entities.DataContext;
 using Entities.Domain;
@@ -11,12 +12,14 @@ namespace DataAccess
 {
     public interface IBatteryService
     {
-        Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch();
-        Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
-        Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id);
-        Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
-        Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
+        Task<ResultHelper<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO);
+        Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearch();
+        Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter);
+        Task<ResultHelper<BatterySearchResponseDTO>> BatterySearchWithId(int id);
+        Task<ResultHelper<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId);
+        Task<ResultHelper<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync();
+        Task<ResultHelper<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync();
+        Task<ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync();
     }
 
 
@@ -38,7 +41,7 @@ namespace DataAccess
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _nonSqlGenericRepository = nonSqlGenericRepository;
         }
-        public async Task<ResultService<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
+        public async Task<ResultHelper<BatteryViewDTO>> BatteryRegister(BatteryDTO batteryDTO)
         {
             try
             {
@@ -46,12 +49,12 @@ namespace DataAccess
                 Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == batteryDTO.ChipId)).FirstOrDefault();
                 if (batteryFound == null)
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
+                    return ResultHelper<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "No se encuentra la bateria registrada.");
                 }
 
                 if (batteryFound.WorkOrder != null && batteryFound.SaleDate != null && batteryFound.ClientId != null)
                 {
-                    return ResultService<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
+                    return ResultHelper<BatteryViewDTO>.Fail(409, Activator.CreateInstance<BatteryViewDTO>(), "La bateria ya se encuentra asociada a un cliente.");
                 }
 
                 batteryFound.WorkOrder = batteryDTO.WorkOrder;
@@ -61,20 +64,20 @@ namespace DataAccess
 
                 if (estado == true)
                 {
-                    return ResultService<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
+                    return ResultHelper<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
                 }
                 else
                 {
-                    return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
+                    return ResultHelper<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), "Error al asociar la bateria.");
                 }
             }
             catch (Exception ex)
             {
-                return ResultService<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
+                return ResultHelper<BatteryViewDTO>.Fail(500, Activator.CreateInstance<BatteryViewDTO>(), ex.Message);
 
             }
         }
-        public async Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearch()
+        public async Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearch()
         {
             try
             {
@@ -104,15 +107,15 @@ namespace DataAccess
                     Batteries = batteriesDTO
                 };
 
-                return ResultService<BatteriesSearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatteriesSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+                return ResultHelper<BatteriesSearchResponseDTO>.Fail(500, Activator.CreateInstance<BatteriesSearchResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
+        public async Task<ResultHelper<BatteriesSearchResponseDTO>> BatteriesSearchWithFilter(BatterySearchFilterDTO filter)
         {
             try
             {
@@ -188,11 +191,11 @@ namespace DataAccess
                     Batteries = batteriesDTO
                 };
 
-                return ResultService<BatteriesSearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatteriesSearchResponseDTO>.Ok(200, response);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteriesSearchResponseDTO>.Fail(
+                return ResultHelper<BatteriesSearchResponseDTO>.Fail(
                     500,
                     Activator.CreateInstance<BatteriesSearchResponseDTO>(),
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message
@@ -201,7 +204,7 @@ namespace DataAccess
         }
 
 
-        public async Task<ResultService<BatterySearchResponseDTO>> BatterySearchWithId(int id)
+        public async Task<ResultHelper<BatterySearchResponseDTO>> BatterySearchWithId(int id)
         {
             try
             {
@@ -209,7 +212,7 @@ namespace DataAccess
 
                 if (batteryFound == null)
                 {
-                    return ResultService<BatterySearchResponseDTO>.Fail(
+                    return ResultHelper<BatterySearchResponseDTO>.Fail(
                         409, 
                         Activator.CreateInstance<BatterySearchResponseDTO>(), 
                         "No se encuentra la bateria registrada.");
@@ -245,18 +248,18 @@ namespace DataAccess
                     measurements = measurementsDto
                 };
 
-                return ResultService<BatterySearchResponseDTO>.Ok(200, response);
+                return ResultHelper<BatterySearchResponseDTO>.Ok(200, response);
             }
             catch(Exception ex)
             {
-                return ResultService<BatterySearchResponseDTO>.Fail(
+                return ResultHelper<BatterySearchResponseDTO>.Fail(
                     500, 
                     Activator.CreateInstance<BatterySearchResponseDTO>(), 
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId)
+        public async Task<ResultHelper<IEnumerable<BatteryByClientResponse>>> BatteriesSearchByClient(int ClientId)
         {
             try
             {
@@ -276,18 +279,18 @@ namespace DataAccess
 
                 }).ToList();
 
-                return ResultService<IEnumerable<BatteryByClientResponse>>.Ok(200, batteriesDTO);
+                return ResultHelper<IEnumerable<BatteryByClientResponse>>.Ok(200, batteriesDTO);
             }
             catch (Exception ex)
             {
-                return ResultService<IEnumerable<BatteryByClientResponse>>.Fail(
+                return ResultHelper<IEnumerable<BatteryByClientResponse>>.Fail(
                     500, 
                     Activator.CreateInstance<IEnumerable<BatteryByClientResponse>>(), 
                     "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
             }
         }
 
-        public async Task<ResultService<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
+        public async Task<ResultHelper<BatteryAnalysisPercentageResponse>> GetBatteryAnalysisPercentageAsync()
         {
             try
             {
@@ -302,7 +305,7 @@ namespace DataAccess
 
                 if (batteries == null || !batteries.Any())
                 {
-                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                    return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
                         "No hay baterías evaluadas."
@@ -316,7 +319,7 @@ namespace DataAccess
 
                 if (!batteriesEvaluated.Any())
                 {
-                    return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                    return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                         404,
                         new BatteryAnalysisPercentageResponse(),
                         "No hay baterías con reportes válidos (Aprobado/Desaprobado)."
@@ -335,11 +338,11 @@ namespace DataAccess
                         Math.Round((double)rejected / totalEvaluated * 100, 2) : 0
                 };
 
-                return ResultService<BatteryAnalysisPercentageResponse>.Ok(200, result);
+                return ResultHelper<BatteryAnalysisPercentageResponse>.Ok(200, result);
             }
             catch (Exception ex)
             {
-                return ResultService<BatteryAnalysisPercentageResponse>.Fail(
+                return ResultHelper<BatteryAnalysisPercentageResponse>.Fail(
                     500,
                     new BatteryAnalysisPercentageResponse(),
                     "Error interno. " + ex.Message
@@ -347,42 +350,185 @@ namespace DataAccess
             }
         }
 
-        /*public async Task<ResultService<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
+        public async Task<ResultHelper<BatteryMetricsPercentageResponse>> GetBatteryMetricsPercentageAsync()
         {
             try
             {
-                var extension = Path.GetExtension(rawDataDTO.File.FileName).ToLowerInvariant();
-                if (rawDataDTO.File == null || rawDataDTO.File.Length == 0)
+                var batteries = await _batterySqlGenericRepository.GetAsync(
+                    null,
+                    b => b.Client,
+                    b => b.Report
+                );
+
+                if (batteries == null || !batteries.Any())
                 {
-                    return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Archivo no proporcionado.");
+                    return ResultHelper<BatteryMetricsPercentageResponse>.Fail(
+                        404,
+                        new BatteryMetricsPercentageResponse(),
+                        "No hay baterías registradas."
+                    );
                 }
-                else if (extension != ".csv")
+
+                var soldBatteries = batteries
+                    .Where(b => b.ClientId != null)
+                    .ToList();
+
+                var soldWithReport = soldBatteries
+                    .Where(b => b.Report != null)
+                    .ToList();
+
+                int total = batteries.Count();
+                int totalSold = soldBatteries.Count();
+                int totalSoldWithReport = soldWithReport.Count();
+
+                var result = new BatteryMetricsPercentageResponse
                 {
-                    return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Solo archivos CSV permitidos.");
+                    SoldPercentage = total > 0 ?
+                        Math.Round((double)totalSold / total * 100, 2) : 0,
+
+                    SoldWithReportPercentage = totalSold > 0 ?
+                        Math.Round((double)totalSoldWithReport / totalSold * 100, 2) : 0
+                };
+
+                return ResultHelper<BatteryMetricsPercentageResponse>.Ok(200, result);
+            }
+            catch (Exception ex)
+            {
+                return ResultHelper<BatteryMetricsPercentageResponse>.Fail(
+                    500,
+                    new BatteryMetricsPercentageResponse(),
+                    "Error interno. " + ex.Message
+                );
+            }
+        }
+        public async Task<ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>> GetBatteryMetricsPercentageByMonthAsync()
+        {
+            try
+            {
+                var batteries = await _batterySqlGenericRepository.GetAsync(
+                    null,
+                    b => b.Client,
+                    b => b.Report
+                );
+
+                if (batteries == null || !batteries.Any())
+                {
+                    return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                        404,
+                        new List<BatteryMetricsByMonthResponse>(),
+                        "No hay baterías registradas."
+                    );
+                }
+
+                var batteriesWithSale = batteries
+                    .Where(b => b.SaleDate != null)
+                    .ToList();
+
+                if (!batteriesWithSale.Any())
+                {
+                    return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                        404,
+                        new List<BatteryMetricsByMonthResponse>(),
+                        "No hay baterías con fecha de venta."
+                    );
+                }
+
+                var grouped = batteriesWithSale
+                    .GroupBy(b => new { b.SaleDate.Value.Year, b.SaleDate.Value.Month })
+                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                    .Select(g =>
+                    {
+                        var monthBatteries = g.ToList();
+                        int total = monthBatteries.Count;
+                        int totalSold = monthBatteries.Count(b => b.ClientId != null);
+                        int totalSoldWithReport = monthBatteries.Count(b => b.ClientId != null && b.Report != null);
+
+                        return new BatteryMetricsByMonthResponse
+                        {
+                            Month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                            SoldPercentage = total > 0 ?
+                                Math.Round((double)totalSold / total * 100, 2) : 0,
+                            SoldWithReportPercentage = totalSold > 0 ?
+                                Math.Round((double)totalSoldWithReport / totalSold * 100, 2) : 0
+                        };
+                    })
+                    .ToList();
+
+                return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Ok(200, grouped);
+            }
+            catch (Exception ex)
+            {
+                return ResultHelper<IEnumerable<BatteryMetricsByMonthResponse>>.Fail(
+                    500,
+                    new List<BatteryMetricsByMonthResponse>(),
+                    "Error interno: " + ex.Message
+                );
+            }
+        }
+
+
+    }
+
+    /*public async Task<ResultHelper<RawDataResponseDTO>> UploadRawData(RawDataDTO rawDataDTO)
+    {
+        try
+        {
+            var extension = Path.GetExtension(rawDataDTO.File.FileName).ToLowerInvariant();
+            if (rawDataDTO.File == null || rawDataDTO.File.Length == 0)
+            {
+                return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Archivo no proporcionado.");
+            }
+            else if (extension != ".csv")
+            {
+                return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Solo archivos CSV permitidos.");
+            }
+            else
+            {
+                DateTime measurementDateTime = rawDataDTO.MeasurementDate.ToDateTime(TimeOnly.MinValue);
+                Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == rawDataDTO.ChipId)).FirstOrDefault();
+                if (batteryFound == null)
+                {
+                    Battery battery = new Battery
+                    {
+                        ChipId = rawDataDTO.ChipId,
+                        WorkOrder = null,
+                        Type = rawDataDTO.Type,
+                        SaleDate = null,
+                        DateRegistered = DateTime.Now,
+                        ClientId = null
+                    };
+                    int? id = await _batterySqlGenericRepository.CreateAsync(battery);
+                    Measurement measurement = new Measurement
+                    {
+                        Magnitude = rawDataDTO.Magnitude,
+                        MeasurementDate = measurementDateTime,
+                        BatteryId = id.Value
+                    };
+                    id = await _measurementSqlGenericRepository.CreateAsync(measurement);
+                    using (StreamReader reader = new StreamReader(rawDataDTO.File.OpenReadStream()))
+                    {
+                        Dictionary<TimeOnly, float> points = await _csvService.CsvToDictionary(reader);
+                        MetricsRecord pointsRecord = new MetricsRecord
+                        {
+                            Id = id.Value,
+                            Points = points
+                        };
+                        await _nonSqlGenericRepository.CreateAsync(pointsRecord);
+                        return ResultHelper<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
+                    }
                 }
                 else
                 {
-                    DateTime measurementDateTime = rawDataDTO.MeasurementDate.ToDateTime(TimeOnly.MinValue);
-                    Battery? batteryFound = (await _batterySqlGenericRepository.GetAsync(a => a.ChipId == rawDataDTO.ChipId)).FirstOrDefault();
-                    if (batteryFound == null)
+                    Measurement? measurementFound = (await _measurementSqlGenericRepository.GetAsync(a => a.MeasurementDate == measurementDateTime && a.Magnitude == rawDataDTO.Magnitude)).FirstOrDefault();
+                    if (measurementFound == null)
                     {
-                        Battery battery = new Battery
-                        {
-                            ChipId = rawDataDTO.ChipId,
-                            WorkOrder = null,
-                            Type = rawDataDTO.Type,
-                            SaleDate = null,
-                            DateRegistered = DateTime.Now,
-                            ClientId = null
-                        };
-                        int? id = await _batterySqlGenericRepository.CreateAsync(battery);
                         Measurement measurement = new Measurement
                         {
                             Magnitude = rawDataDTO.Magnitude,
                             MeasurementDate = measurementDateTime,
-                            BatteryId = id.Value
+                            BatteryId = batteryFound.Id
                         };
-                        id = await _measurementSqlGenericRepository.CreateAsync(measurement);
+                        int? id = await _measurementSqlGenericRepository.CreateAsync(measurement);
                         using (StreamReader reader = new StreamReader(rawDataDTO.File.OpenReadStream()))
                         {
                             Dictionary<TimeOnly, float> points = await _csvService.CsvToDictionary(reader);
@@ -392,44 +538,20 @@ namespace DataAccess
                                 Points = points
                             };
                             await _nonSqlGenericRepository.CreateAsync(pointsRecord);
-                            return ResultService<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
                         }
+                        return ResultHelper<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
                     }
                     else
                     {
-                        Measurement? measurementFound = (await _measurementSqlGenericRepository.GetAsync(a => a.MeasurementDate == measurementDateTime && a.Magnitude == rawDataDTO.Magnitude)).FirstOrDefault();
-                        if (measurementFound == null)
-                        {
-                            Measurement measurement = new Measurement
-                            {
-                                Magnitude = rawDataDTO.Magnitude,
-                                MeasurementDate = measurementDateTime,
-                                BatteryId = batteryFound.Id
-                            };
-                            int? id = await _measurementSqlGenericRepository.CreateAsync(measurement);
-                            using (StreamReader reader = new StreamReader(rawDataDTO.File.OpenReadStream()))
-                            {
-                                Dictionary<TimeOnly, float> points = await _csvService.CsvToDictionary(reader);
-                                MetricsRecord pointsRecord = new MetricsRecord
-                                {
-                                    Id = id.Value,
-                                    Points = points
-                                };
-                                await _nonSqlGenericRepository.CreateAsync(pointsRecord);
-                            }
-                            return ResultService<RawDataResponseDTO>.Ok(200, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones fueron cargadas correctamente.");
-                        }
-                        else
-                        {
-                            return ResultService<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones ya se encuentran en el sistema.");
-                        }
+                        return ResultHelper<RawDataResponseDTO>.Fail(409, Activator.CreateInstance<RawDataResponseDTO>(), "Las mediciones ya se encuentran en el sistema.");
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                return ResultService<RawDataResponseDTO>.Fail(500, Activator.CreateInstance<RawDataResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
-            }
-        }*/
-    }
+        }
+        catch (Exception ex)
+        {
+            return ResultHelper<RawDataResponseDTO>.Fail(500, Activator.CreateInstance<RawDataResponseDTO>(), "Error interno del servidor, vuelva a intentarlo. " + ex.Message);
+        }
+    }*/
 }
+

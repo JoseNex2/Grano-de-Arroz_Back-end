@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Entities.Domain.DTO.Response
 {
-    public class DataRecoveryResponseDTO
+    public class BatteryMetricsPercentageResponse
     {
-        public string Token { get; set; }
-        public string Url {get; set;}
+        public double SoldPercentage { get; set; }
+        public double SoldWithReportPercentage { get; set; }
     }
 }
