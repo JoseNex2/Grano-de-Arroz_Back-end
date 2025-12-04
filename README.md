@@ -48,8 +48,8 @@ Si hay proyectos de pruebas:
 3. Abrir un Pull Request hacia la rama principal indicada en el flujo del proyecto
 
 
-## Resumen de Endpoints principales– API
-# 🔋 Módulo Baterías
+# Resumen de Endpoints principales– API
+## 🔋 Módulo Baterías
 | Endpoint | Método | Autorización | Descripción | Respuestas |
 |---------|--------|--------------|-------------|------------|
 | `/api/battery/registrybattery` | POST | AccessScheme + Sucursal | Registra batería. | 200, 400, 401, 403 |
@@ -58,7 +58,7 @@ Si hay proyectos de pruebas:
 | `/api/battery/batterysearchbyclientid?ClientId={id}` | GET | AccessScheme | Baterías por cliente. | 200, 404, 401 |
 
 
-# 🔐 Módulo Acceso (Usuarios & Login)
+## 🔐 Módulo Acceso (Usuarios & Login)
 | Endpoint | Método | Autorización | Descripción | Respuestas |
 |---------|--------|--------------|-------------|------------|
 | `/api/access/registry` | POST | AccessScheme + Admin | Registrar usuario. | 200, 400, 401, 403 |
@@ -69,7 +69,7 @@ Si hay proyectos de pruebas:
 | `/api/access/rolessearch` | GET | AccessScheme + Admin | Listar roles. | 200 |
 
 
-# 👤 Módulo Cliente
+## 👤 Módulo Cliente
 | Endpoint | Método | Autorización | Descripción | Respuestas |
 |---------|--------|--------------|-------------|------------|
 | `/api/client/registryclient` | POST | AccessScheme + Sucursal | Registrar cliente. | 200, 400, 401, 403 |
@@ -77,7 +77,7 @@ Si hay proyectos de pruebas:
 | `/api/client/clientsearch?id={id}` | GET | AccessScheme + Sucursal | Cliente por Id. | 200, 404, 401, 403 |
 
 
-# 📄 Módulo Reportes
+## 📄 Módulo Reportes
 | Endpoint | Método | Autorización | Descripción | Respuestas |
 |---------|--------|--------------|-------------|------------|
 | `/api/report/createreport` | POST | AccessScheme + Sucursal | Crear reporte. | 200, 400, 401, 403, 404 |
