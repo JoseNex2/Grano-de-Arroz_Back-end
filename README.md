@@ -42,13 +42,44 @@ Crear/actualizar la base de datos con EF Core:
 Si hay proyectos de pruebas:
 
 
-## Estándares de código
-Este repositorio incluye ` .editorconfig ` y `CONTRIBUTING.md` con reglas obligatorias de estilo y flujo de contribución. Cumple estrictamente con esas reglas antes de enviar PRs.
-
 ## Contribuir
 1. Crear una rama descriptiva: `feature/mi-cambio` o `fix/descripcion`
 2. Asegurarse de que las pruebas pasan y el formato cumple con ` .editorconfig `
 3. Abrir un Pull Request hacia la rama principal indicada en el flujo del proyecto
+
+
+## Resumen de Endpoints principales– API
+🔋 Módulo Baterías
+Endpoint	                                            Método	          Autorización	                    Descripción	                          Respuestas
+/api/battery/registrybattery	                         POST	    AccessScheme + Rol Sucursal	    Registra una batería a un cliente.	      200 · 400 · 401 · 403
+/api/battery/batteriessearch	                         GET	          AccessScheme	            Obtiene todas las baterías.	                    200 · 401
+/api/battery/batterysearchwithid?id={id}	             GET	          AccessScheme	            Busca una batería por Id.	                   200 · 404 · 401
+/api/battery/batterysearchbyclientid?ClientId={id}	   GET	          AccessScheme	            Baterías asociadas a un cliente.	           200 · 404 · 401
+
+
+🔐 Módulo Acceso (Usuarios & Login)
+Endpoint                          Método          Autorización                    Descripción                            Respuestas
+/api/access/registry	             POST	     AccessScheme + Rol Admin	         Registrar usuario.	                  200 · 400 · 401 · 403
+/api/access/login		               POST            Público	             Autentica usuario y devuelve token.	            200 · 400
+/api/access/userssearch	           GET	     AccessScheme + Admin	          Obtener todos los usuarios.	               200 · 401 · 403
+/api/access/usersearch?id={id}	   GET	     AccessScheme + Admin	            Buscar usuario por Id.	              200 · 404 · 401 · 403
+/api/access/roleupdate	           PUT	     AccessScheme + Admin	          Actualizar rol de usuario.	               200 · 400 · 404
+/api/access/rolessearch	           GET	     AccessScheme + Admin	               Listar roles.	                             200
+
+
+👤 Módulo Cliente
+Endpoint	                        Método	        Autorización	                  Descripción	                            Respuestas
+/api/client/registryclient	       POST	     AccessScheme + Rol Sucursal	     Registrar cliente.	                   200 · 400 · 401 · 403
+/api/client/clientssearch	         GET	     AccessScheme + Rol Sucursal	  Obtener todos los clientes.	                200 · 401 · 403
+/api/client/clientsearch?id={id}	 GET	     AccessScheme + Rol Sucursal	    Buscar cliente por Id.	               200 . 404 · 401 · 403
+
+
+📄 Módulo Reportes
+Endpoint	                                Método	        Autorización	                          Descripción	                          Respuestas
+/api/report/createreport	                 POST	     AccessScheme + Rol Sucursal	       Crear reporte asociado a batería.	    200 · 400 · 401 · 403 · 404
+/api/report/reportssearch	                 POST	     AccessScheme + Admin/Sucursal/Lab	    Buscar reportes con filtros.	         200 · 404 · 401 · 403
+/api/report/updatemeasurementreport	       PUT	     AccessScheme + Rol Laboratorio	      Actualizar mediciones del reporte.	  200 · 400 · 404 · 401 · 403
+/api/report/reportgetbyid?reportId={id}	   GET	     AccessScheme + Admin/Sucursal/Lab	      Obtener reporte por Id.	              200 · 404 · 401 · 403
 
 ## Contacto
 Para dudas o soporte, abre un issue en el repositorio o contacta al mantenedor principal.
