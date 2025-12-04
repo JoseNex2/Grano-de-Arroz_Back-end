@@ -1,4 +1,5 @@
 using GDA.Middleware;
+using Serilog;
 using Utilities;
 
 namespace GDA
@@ -7,16 +8,18 @@ namespace GDA
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
+
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             ConfigurationManager configuration = builder.Configuration;
 
             IServiceCollection services = builder.Services;
 
-            EnvironmentVariableLoader.Initialize();
-
-            UtilitiesInversionOfControl.AddDependency(services, configuration);
-            DataAccessInversionOfControl.AddDependency(services, configuration);
+            EnvironmentVariableLoaderHelper.Initialize();
+            DataAccessInversionOfControl.AddDependency(services);
 
             services.AddCors(options =>
             {
@@ -35,6 +38,8 @@ namespace GDA
                 });
             });
 
+            builder.Host.UseSerilog();
+
             services.AddAuthorization();
 
             services.AddControllers();
@@ -46,7 +51,9 @@ namespace GDA
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            Log.Information("Aplicación iniciada");
             app.Run();
+            Log.CloseAndFlush();
         }
     }
 }

@@ -6,11 +6,10 @@ namespace DataAccess.Generic
     public interface ISqlGenericRepository<TEntity, TContext> where TEntity : class
     {
         Task<bool> IsConnectedAsync();
-        Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes);
 
         Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
-
-        //Task<TEntity> GetByIdAsync(int id);
+        Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths);
+        Task<TEntity> GetByIdAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes);
 
         Task<int?> CreateAsync(TEntity entity);
 
@@ -42,17 +41,23 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(params Expression<Func<TEntity, object>>[] includes)
+        public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
         {
             try
             {
-                IQueryable<TEntity> query = _sqlUnitOfWork.Context.Set<TEntity>();
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                    .Set<TEntity>()
+                    .AsNoTracking();
                 if (includes != null)
                 {
                     foreach (var include in includes)
                     {
                         query = query.Include(include);
                     }
+                }
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
                 }
                 return await query.ToListAsync();
             }
@@ -63,9 +68,15 @@ namespace DataAccess.Generic
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> whereCondition = null, params Expression<Func<TEntity, object>>[] includes)
+        public async Task<TEntity?> GetByIdAsync(Expression<Func<TEntity, bool>> whereCondition, params Expression<Func<TEntity, object>>[] includes)
         {
-            IQueryable<TEntity> query =_sqlUnitOfWork.Context.Set<TEntity>();
+            if (whereCondition == null)
+                throw new ArgumentNullException(nameof(whereCondition));
+
+            IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                .Set<TEntity>()
+                .AsNoTracking();
+
             if (includes != null)
             {
                 foreach (var include in includes)
@@ -73,11 +84,38 @@ namespace DataAccess.Generic
                     query = query.Include(include);
                 }
             }
-            if (whereCondition != null)
+
+            return await query.FirstOrDefaultAsync(whereCondition);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetWithStringIncludesAsync(Expression<Func<TEntity, bool>> whereCondition = null, params string[] includePaths)
+        {
+            try
             {
-                query = query.Where(whereCondition);
+                IQueryable<TEntity> query = _sqlUnitOfWork.Context
+                    .Set<TEntity>()
+                    .AsNoTracking();
+
+                if (includePaths != null)
+                {
+                    foreach (var path in includePaths)
+                    {
+                        query = query.Include(path);
+                    }
+                }
+
+                if (whereCondition != null)
+                {
+                    query = query.Where(whereCondition);
+                }
+
+                return await query.ToListAsync();
             }
-            return await query.ToListAsync();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Enumerable.Empty<TEntity>();
+            }
         }
 
         public async Task<int?> CreateAsync(TEntity entity)
@@ -89,8 +127,9 @@ namespace DataAccess.Generic
                 _sqlUnitOfWork.Context.Entry(entity).Reload();
                 return Convert.ToInt32(entity.GetType().GetProperty("Id").GetValue(entity));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return null;
             }
         }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain.DTO.Response
 {
     public class ClientsSearchResponseDTO
     {

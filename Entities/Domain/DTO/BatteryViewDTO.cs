@@ -10,11 +10,11 @@ namespace Entities.Domain.DTO
     public class BatteryViewDTO
     {
         public int Id { get; set; }
-        public string ID_Chip { get; set; }
-        public string OT { get; set; }
+        public string ChipId { get; set; }
+        public string? WorkOrder { get; set; }
         public string Type { get; set; }
         public string Status { get; set; }
-        public DateTime SaleDate { get; set; }
-        public ClientViewDTO Client { get; set; }
+        public DateTime? SaleDate { get; set; }
+        public ClientViewDTO? Client { get; set; }
     }
 }

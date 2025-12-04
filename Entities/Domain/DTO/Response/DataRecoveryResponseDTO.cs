@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities.Domain.DTO
+namespace Entities.Domain.DTO.Response
 {
-    public class DataRecoberyResponseDTO
+    public class DataRecoveryResponseDTO
     {
-        public int Id { get; set; }
         public string Token { get; set; }
+        public string Url {get; set;}
     }
 }

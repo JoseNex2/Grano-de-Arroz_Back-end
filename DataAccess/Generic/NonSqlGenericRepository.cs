@@ -1,4 +1,5 @@
 ﻿using Entities.DataContext;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections;
@@ -12,7 +13,8 @@ namespace DataAccess.Generic
         Task<bool> CreateAsync(TEntity entity);
         Task<bool> UpdateByEntityAsync(TEntity entity);
         Task<bool> AddToArrayAsync<TItem>(int entityId, string arrayName, TItem newItem);
-        Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch);
+        Task<IEnumerable<TEntity>> GetAllAsync();
+        //Task<IEnumerable<TEntity>> GetByFieldAsync<TField>(string fieldName, TField value);
         Task<IEnumerable<TEntity>> GetByParameterAsync(Expression<Func<TEntity, bool>> whereCondition = null, FilterDefinition<TEntity> filterDefinition = null);
         Task<IEnumerable<TEntity>> GetByParameterNestedAsync<TArrayElement>(Expression<Func<TEntity, bool>> whereCondition = null, Expression<Func<TEntity, IEnumerable<TArrayElement>>> arrayField = null, Expression<Func<TArrayElement, bool>> arrayCondition = null, bool onlyMatchingElements = false);
     }
@@ -21,11 +23,13 @@ namespace DataAccess.Generic
     {
         private readonly IMongoCollection<TEntity> _collection;
         private readonly IMongoClient _client;
+        private readonly ILogger<NonSqlGenericRepository<TEntity>> _logger;
 
-        public NonSqlGenericRepository(IDataMongoDbContext context)
+        public NonSqlGenericRepository(IDataMongoDbContext context, ILogger<NonSqlGenericRepository<TEntity>> logger)
         {
             _collection = context.Set<TEntity>();
             _client = context.Client;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<bool> IsConnectedAsync()
@@ -33,18 +37,20 @@ namespace DataAccess.Generic
             try
             {
                 await _client.GetDatabase("admin").RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
+                _logger.LogInformation("Conexión con MongoDB establecida exitosamente.");
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Fallo al conectar con MongoDB.");
                 return false;
             }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(int offset, int fetch)
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Empty;
-            List<TEntity> result = await _collection.Find(filter).Skip(offset).Limit(fetch).ToListAsync();
+            List<TEntity> result = await _collection.Find(Builders<TEntity>.Filter.Empty).ToListAsync();
+            _logger.LogDebug("Obtenidas {Count} entidades.", result.Count);
             return result;
         }
 
@@ -52,7 +58,9 @@ namespace DataAccess.Generic
         {
             FilterDefinition<TEntity> filter = filterDefinition ?? (whereCondition != null ? Builders<TEntity>.Filter.Where(whereCondition) : Builders<TEntity>.Filter.Empty);
             IAsyncCursor<TEntity> results = await _collection.FindAsync(filter);
-            return await results.ToListAsync();
+            var list = await results.ToListAsync();
+            _logger.LogDebug("Consulta ejecutada con filtro: {Filter}. Resultados: {Count}.", filter.ToString(), list.Count);
+            return list;
         }
 
         public async Task<IEnumerable<TEntity>> GetByParameterNestedAsync<TArrayElement>(Expression<Func<TEntity, bool>> whereCondition = null, Expression<Func<TEntity, IEnumerable<TArrayElement>>> arrayField = null, Expression<Func<TArrayElement, bool>> arrayCondition = null, bool onlyMatchingElements = false)
@@ -103,7 +111,9 @@ namespace DataAccess.Generic
             }
             options.Projection = projection;
             IAsyncCursor<TEntity> results = await _collection.FindAsync(filter, options);
-            return await results.ToListAsync();
+            var list = await results.ToListAsync();
+            _logger.LogDebug("Consulta anidada ejecutada. OnlyMatching: {OnlyMatching}, Filtro: {Filter}, Resultados: {Count}.", onlyMatchingElements, filter.ToString(), list.Count);
+            return list;
         }
 
         public async Task<bool> CreateAsync(TEntity entity)
@@ -111,10 +121,12 @@ namespace DataAccess.Generic
             try
             {
                 await _collection.InsertOneAsync(entity);
+                _logger.LogInformation("Entidad creada exitosamente: {EntityType}", typeof(TEntity).Name);
                 return true;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error al crear entidad: {EntityType}", typeof(TEntity).Name);
                 return false;
             }
         }
@@ -131,25 +143,39 @@ namespace DataAccess.Generic
                 var currentDocument = await _collection.Find(filter).FirstOrDefaultAsync();
 
                 if (currentDocument == null)
+                {
+                    _logger.LogWarning("No se encontró entidad para actualizar con Id: {Id}", id);
                     return false;
+                }
 
                 List<UpdateDefinition<TEntity>> updateDefinitions = new List<UpdateDefinition<TEntity>>();
 
                 CompareAndBuildUpdateDefinitions(entity, currentDocument, updateDefinitions);
 
                 if (updateDefinitions.Count == 0)
+                {
+                    _logger.LogInformation("No hay cambios para actualizar en entidad con Id: {Id}", id);
                     return true;
+                }
 
                 UpdateDefinition<TEntity> combinedUpdate = Builders<TEntity>.Update.Combine(updateDefinitions);
 
                 var result = await _collection.UpdateOneAsync(filter, combinedUpdate);
 
+                if (result.ModifiedCount > 0)
+                {
+                    _logger.LogInformation("Entidad actualizada exitosamente con Id: {Id}. Modificados: {ModifiedCount}", id, result.ModifiedCount);
+                }
+                else
+                {
+                    _logger.LogWarning("Actualización no modificó ninguna entidad con Id: {Id}", id);
+                }
+
                 return result.ModifiedCount > 0;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al actualizar: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                _logger.LogError(ex, "Error al actualizar entidad: {EntityType}", typeof(TEntity).Name);
                 return false;
             }
         }
@@ -228,11 +254,20 @@ namespace DataAccess.Generic
 
                 var result = await _collection.UpdateOneAsync(filter, update);
 
+                if (result.ModifiedCount > 0)
+                {
+                    _logger.LogInformation("Elemento añadido al array '{ArrayName}' en entidad con Id: {Id}.", arrayName, entityId);
+                }
+                else
+                {
+                    _logger.LogWarning("No se encontró entidad con Id: {Id} para agregar al array '{ArrayName}'.", entityId, arrayName);
+                }
+
                 return result.ModifiedCount > 0;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al agregar a la colección: {ex.Message}");
+                _logger.LogError(ex, "Error al agregar elemento al array '{ArrayName}' en entidad con Id: {Id}.", arrayName, entityId);
                 return false;
             }
         }

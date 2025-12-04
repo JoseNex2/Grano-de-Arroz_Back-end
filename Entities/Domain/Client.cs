@@ -10,8 +10,7 @@ namespace DataAccess
         public string LastName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public DateTime DateRegistered { get; set; }
+        public DateTime RegisteredDate { get; set; }
         public ICollection<Battery> Batteries { get; set; } = new List<Battery>();
-        public int TotalClients { get; set; }
     }
 }
