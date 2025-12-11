@@ -23,7 +23,6 @@ namespace GDA.Middleware
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IBatteryService, BatteryService>();
-            services.AddScoped<ICsvHelper, CsvHelper>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddScoped<IAuthenticationService, AuthenticationService>();

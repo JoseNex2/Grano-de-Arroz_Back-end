@@ -9,6 +9,5 @@ namespace Entities.Domain.DTO.Response
     public class DataRecoveryResponseDTO
     {
         public string Token { get; set; }
-        public string Url {get; set;}
     }
 }

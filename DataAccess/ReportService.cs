@@ -1,4 +1,5 @@
 ﻿using DataAccess.Generic;
+using DataAccess.SupportServices;
 using Entities.DataContext;
 using Entities.Domain;
 using Entities.Domain.DTO;
@@ -20,13 +21,16 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
+        private readonly IStorageService _minioService;
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
-            ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository)
+            ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository,
+            IStorageService minioService)
         {
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _statusSqlGenericRepository = statusSqlGenericRepository;
+            _minioService = minioService;
         }
 
         public async Task<ResultHelper<ReportViewDTO>> ReportCreate(BatteryReviewRequest reportRequest)
@@ -208,6 +212,10 @@ namespace DataAccess
                 report.StatusId = newStatus.Id;
 
                 await _reportSqlGenericRepository.UpdateByEntityAsync(report);
+
+                byte[] generatedReportBytes = PdfHelper.PdfReportGenerate(report);
+                using MemoryStream pdfStream = new MemoryStream(generatedReportBytes);
+                await _minioService.UploadFileAsync("reports", $"{report.FileName}.pdf", pdfStream, "application/pdf");
 
                 var dto = new ReportViewDTO
                 {

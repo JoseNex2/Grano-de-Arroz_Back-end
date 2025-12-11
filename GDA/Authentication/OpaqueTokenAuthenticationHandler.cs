@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -31,12 +30,10 @@ namespace GDA.Authentication
 
             var token = Request.Headers["Authorization"].FirstOrDefault();
 
-            if (string.IsNullOrEmpty(token))
+            if (string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(token) || !token.StartsWith("Bearer "))
             {
                 return AuthenticateResult.Fail("Unauthorized");
             }
-
-            _logger.LogInformation("Token recibido");
 
             var session = await _authenticationService.ValidateAsync(token);
 

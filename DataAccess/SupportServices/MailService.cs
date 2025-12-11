@@ -1,5 +1,4 @@
 using Entities.Domain.DTO;
-using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +8,7 @@ namespace DataAccess.SupportServices
 {
     public interface IMailService
     {
-        Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token);
+        Task SendRecoveryEmailAsync(string email, string url);
         Task SendWelcomeEmailAsync(WelcomeEmailDTO welcomeData);
     }
 
@@ -22,7 +21,7 @@ namespace DataAccess.SupportServices
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task SendRecoveryEmailAsync(DataRecoveryDTO dataRecovery, string token)
+        public async Task SendRecoveryEmailAsync(string email, string url)
         {
             try
             {
@@ -33,9 +32,7 @@ namespace DataAccess.SupportServices
 
                 string htmlTemplate = await File.ReadAllTextAsync(templatePath);
 
-                string recoveryUrl = $"{dataRecovery.Url}/{token}";
-
-                string htmlBody = htmlTemplate.Replace("{{RECOVER_PASSWORD_LINK}}", recoveryUrl);
+                string htmlBody = htmlTemplate.Replace("{{RECOVER_PASSWORD_LINK}}", url);
 
                 BodyBuilder bodyBuilder = new BodyBuilder
                 {
@@ -44,7 +41,7 @@ namespace DataAccess.SupportServices
 
                 MimeMessage emailMessage = new MimeMessage();
                 emailMessage.From.Add(new MailboxAddress("Sistema de recuperación de contraseña", Environment.GetEnvironmentVariable("MAIL_RECOVERY")));
-                emailMessage.To.Add(new MailboxAddress("", dataRecovery.Email));
+                emailMessage.To.Add(new MailboxAddress("", email));
                 emailMessage.Subject = "Recuperar contraseña";
                 emailMessage.Body = bodyBuilder.ToMessageBody();
 
@@ -73,12 +70,10 @@ namespace DataAccess.SupportServices
 
                 string htmlTemplate = await File.ReadAllTextAsync(templatePath);
 
-                string welcomeUrl = $"{welcomeData.Url}/{welcomeData.Token}";
-
                 string htmlBody = htmlTemplate
                     .Replace("{{USER_NAME}}", welcomeData.UserName)
                     .Replace("{{USER_ROLE}}", welcomeData.Role)
-                    .Replace("{{CREATE_PASSWORD_LINK}}", welcomeUrl);
+                    .Replace("{{CREATE_PASSWORD_LINK}}", welcomeData.Url);
 
                 BodyBuilder bodyBuilder = new BodyBuilder
                 {

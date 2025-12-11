@@ -8,7 +8,6 @@ namespace Entities.Domain.DTO
 {
     public class DataRecoveryDTO
     {
-        public string Url { get; set; }
         public string Email { get; set; }
     }
 }
