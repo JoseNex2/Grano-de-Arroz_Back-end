@@ -33,7 +33,8 @@ namespace Entities.DataContext
             secureRandomTokenEntity.Property(e => e.CreatedDate).IsRequired();
             secureRandomTokenEntity.HasOne(u => u.User)
                          .WithMany(r => r.SecureRandomTokens)
-                         .HasForeignKey(u => u.UserId);
+                         .HasForeignKey(u => u.UserId)
+                         .OnDelete(DeleteBehavior.Cascade);
 
             EntityTypeBuilder<User> userEntity = modelBuilder.Entity<User>();
             userEntity.ToTable("Users");
