@@ -92,10 +92,12 @@ namespace DataAccess.SupportServices
             var result = _hasher.VerifyHashedPassword(user, tokenEntity.TokenHash, tokenPart);
             if (result != PasswordVerificationResult.Failed)
             {
+                _logger.LogInformation("Se valido correctamente");
                 tokenEntity.Used = true;
                 await _tokenSqlGenericRepository.UpdateByEntityAsync(tokenEntity);
                 return tokenEntity;
             }
+            _logger.LogInformation("No se valido correctamente");
             return null;
         }
     }

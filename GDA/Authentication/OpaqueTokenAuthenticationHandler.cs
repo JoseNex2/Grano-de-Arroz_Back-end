@@ -34,7 +34,7 @@ namespace GDA.Authentication
             {
                 return AuthenticateResult.Fail("Unauthorized");
             }
-
+            _logger.LogInformation("Entro al handler");
             var session = await _authenticationService.ValidateAsync(token);
 
             if (session == null)
