@@ -1,5 +1,8 @@
+using GDA.Authentication;
 using GDA.Middleware;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 using Utilities;
 
 namespace GDA
@@ -9,17 +12,16 @@ namespace GDA
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
+                .WriteTo.Console()
+                .CreateLogger();
 
-            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args);
 
-            ConfigurationManager configuration = builder.Configuration;
+            builder.Host.UseSerilog();
 
-            IServiceCollection services = builder.Services;
+            var services = builder.Services;
 
             EnvironmentVariableLoaderHelper.Initialize();
-            DataAccessInversionOfControl.AddDependency(services);
 
             services.AddCors(options =>
             {
@@ -29,30 +31,67 @@ namespace GDA
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
-                options.AddPolicy("Produccion", builder =>
+
+                options.AddPolicy("Produccion", policy =>
                 {
-                    builder.WithOrigins(Environment.GetEnvironmentVariable("URL_DOMAIN"))
-                           .AllowAnyMethod()
-                           .AllowAnyHeader()
-                           .AllowCredentials();
+                    policy.WithOrigins(Environment.GetEnvironmentVariable("URL_DOMAIN"))
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                 });
             });
 
-            builder.Host.UseSerilog();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "AccessScheme";
+                options.DefaultChallengeScheme = "AccessScheme";
+            })
+            .AddJwtBearer("AccessScheme", options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")
+                        )
+                    )
+                };
+            })
+            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>(
+                "ExternalScheme",
+                options =>
+                {
+                    options.ShouldValidateLifetime = true;
+                });
 
             services.AddAuthorization();
 
             services.AddControllers();
 
-            WebApplication app = builder.Build();
+            DataAccessInversionOfControl.AddDependency(services);
+
+            var app = builder.Build();
 
             app.UseCors("Desarrollo");
+
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapControllers();
+
             Log.Information("Aplicación iniciada");
+
             app.Run();
+
             Log.CloseAndFlush();
         }
     }

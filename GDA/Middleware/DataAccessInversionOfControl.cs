@@ -70,28 +70,6 @@ namespace GDA.Middleware
 
                 return new DataMongoDbContext(connectionString, databaseName);
             });
-            services.AddAuthentication()
-            .AddJwtBearer("AccessScheme", config =>
-            {
-                config.RequireHttpsMetadata = false;
-                config.SaveToken = true;
-                config.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY_ACCESS")))
-                };
-            })
-            .AddScheme<OpaqueTokenAuthenticationSchemeOptions, OpaqueTokenAuthenticationHandler>("ExternalScheme", options =>
-            {
-                options.ShouldValidateLifetime = true;
-            });
-
-
-
             return (services);
         }
     }
