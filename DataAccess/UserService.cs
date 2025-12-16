@@ -17,7 +17,7 @@ namespace DataAccess
         Task<ResultHelper<IEnumerable<UserViewDTO>>> UsersSearch();
         Task<ResultHelper<UserViewDTO>> UserSearch(int id);
         Task<ResultHelper<UserViewDTO>> RoleUpdate(RoleUpdateDTO roleUpdate);
-        Task<ResultHelper<DataRecoveryResponseDTO>> AccountRecovery(DataRecoveryDTO dataRecovery);
+        Task<ResultHelper<EmptyDTO>> AccountRecovery(DataRecoveryDTO dataRecovery);
         Task<ResultHelper<object>> PasswordRecovery(PasswordRecoveryDTO passwordRecovery);
         Task<ResultHelper<object>> PasswordUpdate(PasswordUpdateDTO passwordUpdate);
         Task<ResultHelper<object>> UserDelete(int id);
@@ -74,7 +74,7 @@ namespace DataAccess
                 Role? roleFound = (await _roleSqlGenericRepository.GetAsync(a => a.Id == userDTO.RoleId)).SingleOrDefault();
 
                 string tokenWelcome = await _authentication.GenerateSecureRandomToken(userModel, new TimeSpan(0, 0, 30, 0));
-                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/crearContraseña";
+                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/crearContraseña?token={tokenWelcome}";
 
                 WelcomeEmailDTO welcomeData = new WelcomeEmailDTO
                 {
@@ -96,7 +96,6 @@ namespace DataAccess
                     PhoneNumber = userModel.PhoneNumber,
                     Role = roleFound.Name,
                     RegisteredDate = userModel.RegisteredDate,
-                    Token = tokenWelcome
                 };
                 return ResultHelper<UserViewDTO>.Ok(201, userView, "Usuario creado y correo de bienvenida enviado correctamente.");
             }
@@ -216,32 +215,27 @@ namespace DataAccess
             }
         }
 
-        public async Task<ResultHelper<DataRecoveryResponseDTO>> AccountRecovery(DataRecoveryDTO dataRecovery)
+        public async Task<ResultHelper<EmptyDTO>> AccountRecovery(DataRecoveryDTO dataRecovery)
         {
             try
             {
                 User? userFound = await _userSqlGenericRepository.GetByIdAsync(a => a.Email == dataRecovery.Email);
                 if (userFound == null)
                 {
-                    return ResultHelper<DataRecoveryResponseDTO>.Fail(404, Activator.CreateInstance<DataRecoveryResponseDTO>(), "El usuario no se encuentra registrado.");
+                    return ResultHelper<EmptyDTO>.Fail(404, Activator.CreateInstance<EmptyDTO>(), "El usuario no se encuentra registrado.");
                 }
                 
                 string tokenRecovery = await _authentication.GenerateSecureRandomToken(userFound, new TimeSpan(0, 0, 30, 0));
-                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/cambiarContraseña";
+                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/cambiarContraseña?token={tokenRecovery}";
 
                 await _mailService.SendRecoveryEmailAsync(dataRecovery.Email, frontendUrl);
-                
-                DataRecoveryResponseDTO responseDTO = new DataRecoveryResponseDTO
-                {
-                    Token = tokenRecovery
-                };
 
-                return ResultHelper<DataRecoveryResponseDTO>.Ok(200, responseDTO, "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
+                return ResultHelper<EmptyDTO>.Ok(200, new EmptyDTO(), "Cuenta recuperada. Se ha enviado un email con las instrucciones.");
 
             }
             catch (Exception ex)
             {
-                return ResultHelper<DataRecoveryResponseDTO>.Fail(500, Activator.CreateInstance<DataRecoveryResponseDTO>(),
+                return ResultHelper<EmptyDTO>.Fail(500, Activator.CreateInstance<EmptyDTO>(),
                     "Error interno del servidor, vuelva a intentarlo." + ex.Message);
             }
         }

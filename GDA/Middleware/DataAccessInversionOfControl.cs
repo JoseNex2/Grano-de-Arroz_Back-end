@@ -6,6 +6,7 @@ using GDA.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Minio;
 using MySqlConnector;
 using System.Text;
 using Utilities;
@@ -16,7 +17,12 @@ namespace GDA.Middleware
     {
         public static IServiceCollection AddDependency(this IServiceCollection services)
         {
-            services.AddScoped<IStorageService, StorageService>();
+            services.AddMinio(configureClient => configureClient
+                .WithEndpoint($"{Environment.GetEnvironmentVariable("MINIO_HOST")}:{Environment.GetEnvironmentVariable("MINIO_PORT")}")
+                .WithCredentials(Environment.GetEnvironmentVariable("MINIO_ROOT_USER"), Environment.GetEnvironmentVariable("MINIO_ROOT_PASSWORD"))
+                .WithSSL(false)
+                .Build());
+            services.AddSingleton<IStorageService, StorageService>();
             services.AddScoped(typeof(ISqlUnitOfWork<>), typeof(SqlUnitOfWork<>));
             services.AddScoped(typeof(ISqlGenericRepository<,>), typeof(SqlGenericRepository<,>));
             services.AddScoped(typeof(INonSqlGenericRepository<>), typeof(NonSqlGenericRepository<>));

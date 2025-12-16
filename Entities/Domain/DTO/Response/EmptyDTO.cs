@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Entities.Domain.DTO.Response
 {
-    public class DataRecoveryResponseDTO
+    public class EmptyDTO
     {
-        public string Token { get; set; }
     }
 }
