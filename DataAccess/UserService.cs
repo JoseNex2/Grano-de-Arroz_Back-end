@@ -74,7 +74,7 @@ namespace DataAccess
                 Role? roleFound = (await _roleSqlGenericRepository.GetAsync(a => a.Id == userDTO.RoleId)).SingleOrDefault();
 
                 string tokenWelcome = await _authentication.GenerateSecureRandomToken(userModel, new TimeSpan(0, 0, 30, 0));
-                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/crearContraseña?token={tokenWelcome}";
+                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/crearContrasena?token={tokenWelcome}";
 
                 WelcomeEmailDTO welcomeData = new WelcomeEmailDTO
                 {
@@ -226,7 +226,7 @@ namespace DataAccess
                 }
                 
                 string tokenRecovery = await _authentication.GenerateSecureRandomToken(userFound, new TimeSpan(0, 0, 30, 0));
-                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/cambiarContraseña?token={tokenRecovery}";
+                string frontendUrl = $"{Environment.GetEnvironmentVariable("URL_DOMAIN")}/cambiarContrasena?token={tokenRecovery}";
 
                 await _mailService.SendRecoveryEmailAsync(dataRecovery.Email, frontendUrl);
 
