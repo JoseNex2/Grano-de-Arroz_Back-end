@@ -182,7 +182,8 @@ namespace DataAccess
             {
                 var report = (await _reportSqlGenericRepository.GetAsync(
                     r => r.Id == update.ReportId,
-                    r => r.Battery
+                    r => r.Battery,
+                    r => r.MeasurementsStatus
                 )).FirstOrDefault();
 
                 if (report == null)
