@@ -213,9 +213,9 @@ namespace DataAccess
 
                 await _reportSqlGenericRepository.UpdateByEntityAsync(report);
 
-                byte[] generatedReportBytes = PdfHelper.PdfReportGenerate(report);
-                using MemoryStream pdfStream = new MemoryStream(generatedReportBytes);
-                await _minioService.UploadFileAsync("reports", $"{report.FileName}.pdf", pdfStream, "application/pdf");
+                //byte[] generatedReportBytes = PdfHelper.PdfReportGenerate(report);
+                //using MemoryStream pdfStream = new MemoryStream(generatedReportBytes);
+                //await _minioService.UploadFileAsync("reports", $"{report.FileName}.pdf", pdfStream, "application/pdf");
 
                 var dto = new ReportViewDTO
                 {
