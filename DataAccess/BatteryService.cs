@@ -70,7 +70,7 @@ namespace DataAccess
                         ChipId = batteryFound.ChipId,
                         WorkOrder = batteryFound.WorkOrder,
                         Type = batteryFound.Type,
-                        SaleDate = batteryFound.SaleDate,
+                        SaleDate = batteryFound.SaleDate
 
                     };
                     return ResultHelper<BatteryViewDTO>.Ok(201, batteryViewDTO, "Bateria asociada al cliente.");
