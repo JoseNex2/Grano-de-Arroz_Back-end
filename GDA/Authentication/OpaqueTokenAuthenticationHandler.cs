@@ -25,27 +25,36 @@ namespace GDA.Authentication
         {
             if (!Request.Headers.ContainsKey("Authorization"))
             {
-                return AuthenticateResult.Fail("Unauthorized");
+                return AuthenticateResult.Fail("Missing Authorization Header");
             }
 
-            var token = Request.Headers["Authorization"].FirstOrDefault();
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            if (string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(token) || !token.StartsWith("Bearer "))
+            if (string.IsNullOrEmpty(authHeader))
             {
-                return AuthenticateResult.Fail("Unauthorized");
+                return AuthenticateResult.Fail("Empty Token");
             }
-            _logger.LogInformation("Entro al handler");
+
+            string token = authHeader;
+            if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                token = authHeader.Substring("Bearer ".Length).Trim();
+            }
+
+            _logger.LogInformation("Validando token opaco: {Token}", token);
+
             var session = await _authenticationService.ValidateAsync(token);
 
             if (session == null)
             {
-                return AuthenticateResult.Fail("Unauthorized");
+                _logger.LogWarning("Sesión no encontrada para el token proporcionado.");
+                return AuthenticateResult.Fail("Invalid Token");
             }
             if (Options.ShouldValidateLifetime)
             {
                 if (session.ExpiredDate < DateTime.UtcNow)
                 {
-                    return AuthenticateResult.Fail("Unauthorized");
+                    return AuthenticateResult.Fail("A expirado el plazo de uso");
                 }
             }
             var user = session.User;

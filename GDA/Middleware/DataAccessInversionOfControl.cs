@@ -2,13 +2,10 @@
 using DataAccess.Generic;
 using DataAccess.SupportServices;
 using Entities.DataContext;
-using GDA.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Minio;
 using MySqlConnector;
-using System.Text;
 using Utilities;
 
 namespace GDA.Middleware

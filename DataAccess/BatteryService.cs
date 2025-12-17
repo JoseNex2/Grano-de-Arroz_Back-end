@@ -64,7 +64,16 @@ namespace DataAccess
 
                 if (estado == true)
                 {
-                    return ResultHelper<BatteryViewDTO>.Ok(201, Activator.CreateInstance<BatteryViewDTO>(), "Bateria asociada al cliente.");
+                    BatteryViewDTO batteryViewDTO = new BatteryViewDTO
+                    {
+                        Id = batteryFound.Id,
+                        ChipId = batteryFound.ChipId,
+                        WorkOrder = batteryFound.WorkOrder,
+                        Type = batteryFound.Type,
+                        SaleDate = batteryFound.SaleDate,
+
+                    };
+                    return ResultHelper<BatteryViewDTO>.Ok(201, batteryViewDTO, "Bateria asociada al cliente.");
                 }
                 else
                 {
