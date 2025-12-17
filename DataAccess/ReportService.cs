@@ -21,15 +21,18 @@ namespace DataAccess
         private readonly ISqlGenericRepository<Battery, ServiceDbContext> _batterySqlGenericRepository;
         private readonly ISqlGenericRepository<Report, ServiceDbContext> _reportSqlGenericRepository;
         private readonly ISqlGenericRepository<Status, ServiceDbContext> _statusSqlGenericRepository;
+        private readonly ISqlGenericRepository<MeasurementStatus, ServiceDbContext> _measurementStatusSqlGenericRepository;
         private readonly IStorageService _minioService;
         public ReportService(ISqlGenericRepository<Battery, ServiceDbContext> batterySqlGenericRepository,
             ISqlGenericRepository<Report, ServiceDbContext> reportSqlGenericRepository,
             ISqlGenericRepository<Status, ServiceDbContext> statusSqlGenericRepository,
+            ISqlGenericRepository<MeasurementStatus, ServiceDbContext> measurementStatusSqlGenericRepository,
             IStorageService minioService)
         {
             _reportSqlGenericRepository = reportSqlGenericRepository;
             _batterySqlGenericRepository = batterySqlGenericRepository;
             _statusSqlGenericRepository = statusSqlGenericRepository;
+            _measurementStatusSqlGenericRepository = measurementStatusSqlGenericRepository;
             _minioService = minioService;
         }
 
@@ -195,13 +198,14 @@ namespace DataAccess
                     if (newMeasurementStatus == null)
                         return ResultHelper<ReportViewDTO>.Fail(400, Activator.CreateInstance<ReportViewDTO>(), $"El estado '{mUpdate.Status}' no existe.");
 
-                    report.MeasurementsStatus.Add(new MeasurementStatus
+                    MeasurementStatus measurementStatus = new MeasurementStatus
                     {
                         MeasurementId = mUpdate.MeasurementId,
                         StatusId = newMeasurementStatus.Id,
                         Coment = mUpdate.Coment,
                         ReportId = update.ReportId
-                    });
+                    };
+                    await _measurementStatusSqlGenericRepository.CreateAsync(measurementStatus);
                 }
 
                 var newStatus = (await _statusSqlGenericRepository.GetAsync(s => s.Name == update.ReportState)).FirstOrDefault();
